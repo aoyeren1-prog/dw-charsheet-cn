@@ -11,10 +11,9 @@
 
 ## 快速开始
 
-1. 下载最新 `地城世界车卡工具.html`，或在 **Releases** 页面获取
-2. 在本仓库下载 `data.json`（原版规则数据）。
-3. 双击打开 HTML，点右上角 **「📥 规则」** 选择 `data.json`。
-4. 开始车卡。规则会自动存进浏览器，刷新后无需重新导入。
+1. 下载 `地城世界车卡工具.html` 和 `data.json`（DW 原版规则数据），或在 **Releases** 页面获取
+2. 双击打开 HTML，点右上角 **「📥 规则」** 选择 `data.json`。
+3. 开始车卡。规则会自动存进浏览器，刷新后无需重新导入。
 
 > 角色数据存 `localStorage`，换浏览器/清缓存会丢；重要角色请用工具内「导出」备份成 JSON。
 
@@ -98,10 +97,6 @@ https://hazmole.github.io/Dungeon-World-HTML-SRD-release
 
 **第三方 Playbook LaTeX 模板**（制作职业卡排版用）：
 https://github.com/rfkeepers/dw-playbooks-tex
-
-**许可**：
-- 规则数据（`data.json`）：CC-BY 3.0 + OGL 1.0a（详见 `LICENSE`）。
-- 代码（`builder/`）：MIT（详见 `LICENSE`）。
 
 ---
 
