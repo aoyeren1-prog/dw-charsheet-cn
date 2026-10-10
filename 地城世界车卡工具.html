@@ -288,6 +288,9 @@ function applyData(data){
       {key:"specialMoves", label:"特殊动作"}
     ]},
     {id:"spells", title:"法术列表", type:"spells"},
+    {id:"extension", title:"扩展", type:"extension", groups:[
+      {key:"customMoves", label:"自定义动作"}
+    ], articles:"compendium"},
     {id:"search", title:"资料速查", type:"search"}
   ];
   if(!REF_SECTIONS.some(s => s.id === refTab)) refTab = REF_SECTIONS[0] ? REF_SECTIONS[0].id : "search";
@@ -842,6 +845,7 @@ function renderRef(){
   const sec = REF_SECTIONS.find(s => s.id === refTab);
   if(!sec) body.innerHTML = renderRefSearch(searchKw);
   else if(sec.type === "groups") body.innerHTML = renderRefGroups(sec);
+  else if(sec.type === "extension") body.innerHTML = renderRefExtension(sec);
   else if(sec.type === "spells") body.innerHTML = renderRefSpells();
   else body.innerHTML = renderRefSearch(searchKw);
 }
@@ -859,7 +863,7 @@ function rmvCardHtml(item, idx){
   const btn = (item.importable && mode==="edit") ? `<div class="rmv-foot"><button class="rmv-b" data-imp="${idx}">＋ 导入</button></div>` : "";
   return `<details class="rmv"><summary>${esc(item.name)}${src}</summary><div class="rmv-t">${markdownToHtml(item.html)}</div>${btn}</details>`;
 }
-function renderRefGroups(sec){
+function groupsHtml(sec){
   let html = "";
   for(const g of (sec.groups||[])){
     const moves = DW_DATA[g.key] || [];
@@ -869,6 +873,28 @@ function renderRefGroups(sec){
     if(g.label) html += `<div class="ref-sec">${esc(g.label)}</div>`;
     html += cards;
   }
+  return html;
+}
+function renderRefGroups(sec){
+  return groupsHtml(sec) || '<div class="ref-empty">暂无内容。</div>';
+}
+function renderArticle(it){
+  const body = (it.blocks||[]).map(b => {
+    if(b.kind === "move"){
+      const idx = lastSearchItems.push({kind:"move", name:b.name, html:b.text, source:it.title, importable:true}) - 1;
+      return rmvCardHtml({name:b.name, html:b.text, source:it.title, importable:true}, idx);
+    }
+    if(b.kind === "bond"){
+      return `<div class="bond-line md">${markdownToHtml(b.text)}</div>`;
+    }
+    return `<div class="md">${markdownToHtml(b.text)}</div>`;
+  }).join("");
+  return `<details class="rmv" open><summary>${esc(it.title)}</summary><div class="rmv-t">${body}</div></details>`;
+}
+function renderRefExtension(sec){
+  let html = groupsHtml(sec);
+  const items = DW_DATA[sec.articles] || [];
+  html += items.map(it => renderArticle(it)).join("");
   return html || '<div class="ref-empty">暂无内容。</div>';
 }
 function spellSectionKeyForClass(ck){ return Object.keys(SPELL_SECTIONS).find(k => SPELL_SECTIONS[k].spellClass === ck) || Object.keys(SPELL_SECTIONS)[0]; }
@@ -1280,19 +1306,22 @@ function checkAffected(after){
   const items = [];
   const cls = (after.classes||[]).find(c=>c.id===char.classId);
   if(char.classId && !cls){
-    items.push("· 当前职业「"+char.classId+"」在新规则中已不存在");
+    items.push("· 当前职业「"+char.classId+"」");
+    return items;
   }
-  if(cls){
-    const raceNames = (cls.racialMoves||[]).map(g=>g.race);
-    for(const r of (char.races||[])){ if(!raceNames.includes(r)) items.push("· 种族「"+r+"」在新规则中已不存在"); }
-    const alignNames = (cls.alignment||[]).map(a=>a.name);
-    for(const a of (char.alignments||[])){ if(!alignNames.includes(a)) items.push("· 阵营「"+a+"」在新规则中已不存在"); }
-    const moveNames = [];
-    (cls.startingMoves||[]).forEach(m=>moveNames.push(m.name));
-    for(const t of ["2-5","6-10"]){ (cls.advancedMoves&&cls.advancedMoves[t]||[]).forEach(m=>moveNames.push(m.name)); }
-    for(const m of (char.advancedMoves||[])){ if(!moveNames.includes(m)) items.push("· 进阶动作「"+m+"」在新规则中已不存在"); }
-    for(const m of (char.startingChoices||[])){ if(!moveNames.includes(m)) items.push("· 起始动作「"+m+"」在新规则中已不存在"); }
-  }
+  // 合并「移除后规则」+「自定义数据」，得到移除后仍有效的完整集合，避免误报自定义内容
+  const racialGroups = mergeRacialGroups(cls.racialMoves||[], customData.extraRacialMoves[char.classId]||[]);
+  const raceNames = racialGroups.filter(g=>g.race).map(g=>g.race);
+  const alignNames = (cls.alignment||[]).map(a=>a.name).concat((customData.extraAlignments[char.classId]||[]).map(a=>a.name));
+  const moveNames = [];
+  (cls.startingMoves||[]).forEach(m=>moveNames.push(m.name));
+  for(const t of ["2-5","6-10"]){ (cls.advancedMoves&&cls.advancedMoves[t]||[]).forEach(m=>moveNames.push(m.name)); }
+  (customData.extraMoves[char.classId]||[]).forEach(m=>moveNames.push(m.name));
+
+  for(const r of (char.races||[])){ if(!raceNames.includes(r)) items.push("· 种族「"+r+"」"); }
+  for(const a of (char.alignments||[])){ if(!alignNames.includes(a)) items.push("· 阵营「"+a+"」"); }
+  for(const m of (char.advancedMoves||[])){ if(!moveNames.includes(m)) items.push("· 进阶动作「"+m+"」"); }
+  for(const m of (char.startingChoices||[])){ if(!moveNames.includes(m)) items.push("· 起始动作「"+m+"」"); }
   return items;
 }
 function removeRule(index){
@@ -1301,8 +1330,8 @@ function removeRule(index){
   const afterStack = ruleStack.filter((_,i)=>i!==index);
   const after = afterStack.reduce((acc,l)=>deepMerge(acc,l.data), {});
   const affected = checkAffected(after);
-  let msg = "确定撤销「"+layer.name+"」？";
-  if(affected.length) msg = "撤销「"+layer.name+"」将影响现有角色卡：\n\n"+affected.join("\n")+"\n\n确定撤销？";
+  let msg = "确定移除「"+layer.name+"」？";
+  if(affected.length) msg = "检测到你角色卡里的以下条目与「"+layer.name+"」有重合：\n\n"+affected.join("\n")+"\n\n移除后对这些条目的影响未知。确定移除？";
   if(!confirm(msg)) return;
   ruleStack = afterStack;
   saveRules();

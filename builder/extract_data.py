@@ -368,6 +368,9 @@ def main():
                     {"key": "basicMoves", "label": "基本动作"},
                     {"key": "specialMoves", "label": "特殊动作"},
                 ]},
+                {"id": "extension", "title": "扩展", "type": "extension", "groups": [
+                    {"key": "customMoves", "label": "自定义动作"},
+                ], "articles": "compendium"},
                 {"id": "spells", "title": "法术列表", "type": "spells"},
                 {"id": "search", "title": "资料速查", "type": "search"},
             ],

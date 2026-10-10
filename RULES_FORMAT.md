@@ -12,11 +12,13 @@
   "classes":      [ /* 职业数组，见第三节 */ ],
   "basicMoves":   [ /* 基本动作，见第四节 */ ],
   "specialMoves": [ /* 特殊动作，见第四节 */ ],
-  "spells":       { /* 法术，见第五节 */ }
+  "spells":       { /* 法术，见第五节 */ },
+  "customMoves":  [ /* 自定义动作，见第六节 */ ],
+  "compendium":   [ /* 概略职业 / 新种族，见第六节 */ ]
 }
 ```
 
-`classes` 是**必需**的（至少一个）。`basicMoves` / `specialMoves` / `spells` 可为空数组或省略。
+`classes` 是**必需**的（至少一个）。`basicMoves` / `specialMoves` / `spells` / `customMoves` / `compendium` 可为空数组或省略。
 
 ---
 
@@ -64,12 +66,16 @@
       { "key": "basicMoves",   "label": "基本动作" },
       { "key": "specialMoves", "label": "特殊动作" }
   ]},
+  { "id": "extension", "title": "扩展", "type": "extension", "groups": [
+      { "key": "customMoves", "label": "自定义动作" }
+  ], "articles": "compendium" },
   { "id": "spells", "title": "法术列表", "type": "spells" },
   { "id": "search", "title": "资料速查", "type": "search" }
 ]
 ```
 
 - `type:"groups"`：动作分类展示。`groups` 里 `key` 指向顶层某个动作数组，`label` 是分类标题（**`null` 则无标题、直接平铺**）。
+- `type:"extension"`：扩展页 = 动作类别（`groups`，用法同 `type:"groups"`）+ 概略职业 / 新种族（`articles` 指向顶层某个 `compendium` 数组）。
 - `type:"spells"`：法术列表（可导入到角色法术板块）。
 - `type:"search"`：全库搜索。
 
@@ -82,7 +88,7 @@
   "id": "barbarian",            // 必需，唯一标识，英文小写
   "name": "野蛮人",             // 必需，职业名
   "intro": "简介（可省略）",
-  "hp": "6+体质",               // 生命公式（见第七节）
+  "hp": "6+体质",               // 生命公式（见第八节）
   "damage": "d6",
   "load": "9+力量",             // 负载公式
   "statNote": "16 (+2), 15 (+1), ...",   // 属性分配提示（可选，纯展示）
@@ -128,7 +134,7 @@
 ```jsonc
 {
   "name": "重装上阵",
-  "text": "你可以无视你所穿戴防具的{笨重}标签。",   // 支持标记语法（见第六节）
+  "text": "你可以无视你所穿戴防具的{笨重}标签。",   // 支持标记语法（见第七节）
   "requires": "某前置动作",        // 可选：前置动作名，字符串或数组
   "replaces": "某被替换动作"       // 可选：互斥动作名，字符串或数组
 }
@@ -154,7 +160,53 @@
 
 ---
 
-## 六、文本标记语法
+## 六、扩展内容 `customMoves` / `compendium`
+
+房规常用的三种「额外动作」都进「扩展」页签。
+
+### `customMoves` —— 自定义动作
+
+普通动作数组，作为「扩展」页的一个类别展示：
+
+```jsonc
+"customMoves": [
+  { "name":"摆荡突袭", "text":"当你嘴里咬着弯刀…掷+敏捷。\n✴掷出10+…" }
+]
+```
+
+要在「扩展」页加更多类别，就往 `meta.refSections` 里那个 `type:"extension"` 的 `groups` 数组加 `{ "key":"顶层键", "label":"类别名" }`。
+
+### `compendium` —— 概略职业 / 新种族
+
+两者共用同一结构：一个「条目」= 标题 + 若干**块**，块按 `kind` 区分，可按任意顺序排列：
+
+```jsonc
+"compendium": [
+  {
+    "id": "automaton-tinkerer",          // 唯一标识
+    "title": "概略职业：机关人修补匠",
+    "blocks": [
+      { "kind":"text", "text":"如果你身为机关人…" },
+      { "kind":"move", "name":"模组化机壳", "text":"当你扎营…" },
+      { "kind":"text", "text":"一旦你获得…视为进阶动作：" },
+      { "kind":"move", "name":"集成武装", "text":"…" },
+      { "kind":"bond", "text":"________ 帮助我维持…" }
+    ]
+  }
+]
+```
+
+| `kind` | 含义 | 渲染 |
+|---|---|---|
+| `text` | 段落说明 | 普通文本（支持标记语法） |
+| `move` | 一个动作 | 动作卡片，带「＋导入」——点导入会进角色卡的**自定义进阶动作** |
+| `bond` | 羁绊模板 | 纯文本展示，**不提供导入**（羁绊由玩家自己写） |
+
+新种族和概略职业的区别只在 `title` 前缀和块内容，结构完全一致。
+
+---
+
+## 七、文本标记语法
 
 动作 / 羁绊 / 外观备注等**做渲染**的文本里可用：
 
@@ -171,7 +223,7 @@
 
 ---
 
-## 七、公式语法
+## 八、公式语法
 
 `hp` / `load` / `prepareCapFormula` 用 `+` 连接若干项：
 
@@ -188,7 +240,7 @@
 
 ---
 
-## 八、分层合并（规则栈）
+## 九、分层合并（规则栈）
 
 工具内规则是**有序的规则栈**：第一份导入的是底层，之后导入的是规则包，上层覆盖下层。合并语义：
 
@@ -214,7 +266,7 @@ python builder\merge_rules.py data.json my-classpack.json -o merged.json
 
 ---
 
-## 九、最小可用示例
+## 十、最小可用示例
 
 ```jsonc
 {
