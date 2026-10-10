@@ -1,4 +1,4 @@
-# 地城世界 · 车卡工具（Dungeon World Digital Playbook）
+# 地城世界 · 车卡工具（Dungeon World Digital Character Sheet CN）
 
 纯前端、可离线使用的《地城世界》角色卡工具（简体中文）。单个 HTML 文件，`file://` 双击打开即可，**无需联网、无需服务器、无需构建环境**。规则数据通过 JSON 导入，支持自建房规。
 
