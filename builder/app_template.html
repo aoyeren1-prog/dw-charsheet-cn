@@ -1,0 +1,1406 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>地城世界 · 车卡工具</title>
+<style>
+:root{
+  /* ===== 主题配色：改这里即可整体换肤 ===== */
+  /* 应用外壳（背景/工具栏） */
+  --bg:#20242c; --panel:#262b35; --panel2:#2d3340; --panel3:#38404e; --line:#3d4554;
+  --text:#e8eaf0; --muted:#98a2b3;
+  --accent:#c8a24b; --accent-hover:#d7b25e; --accent-ink:#1a1408;
+  --accent2:#5b8def; --accent2-dim:#2c3a4d; --accent2-ink:#cfe0f5; --accent2-line:#3d5470;
+  /* 角色卡纸面 */
+  --paper:#ffffff; --paper-2:#fafbfc; --ink:#1a1d24;
+  --ink-2:#333333; --ink-3:#555555; --ink-4:#777777; --ink-5:#999999;
+  --paperline:#cfd4dd;
+  --line-2:#9aa; --line-3:#bbb; --line-4:#ccc; --line-5:#ddd;
+  --warn:#b06a1a; --danger:#c0392b; --danger-bg:#fdecea;
+  --tag-bg:#eee3c8; --tag-ink:#8a6a20; --on-ink:#ffffff;
+}
+*{box-sizing:border-box}
+input,select,textarea,button{font-family:inherit}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:"Segoe UI","Microsoft YaHei",system-ui,sans-serif;font-size:14px;line-height:1.55}
+
+/* ===== 工具栏 ===== */
+.toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:100}
+.toolbar h1{font-size:15px;margin:0;font-weight:600;letter-spacing:.5px}
+.toolbar select{background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:6px;padding:6px 9px;font-size:13px;max-width:180px}
+.toolbar .spacer{flex:1}
+.toolbar button{background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:6px;padding:7px 12px;cursor:pointer;font-size:13px}
+.toolbar button:hover{background:var(--panel3)}
+.toolbar button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+.toolbar button.primary:hover{background:var(--accent-hover)}
+.toolbar button.mode-btn{background:var(--accent2);color:var(--on-ink);border-color:var(--accent2);font-weight:600}
+
+/* ===== 规则栈面板 ===== */
+.rules-panel{background:var(--panel);border-bottom:1px solid var(--line);padding:10px 16px;display:flex;flex-direction:column;gap:8px}
+.rules-panel.hidden{display:none}
+.rules-panel-head{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.5px}
+.rules-list{display:flex;flex-direction:column;gap:4px}
+.rule-layer{display:flex;align-items:center;gap:8px;background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:6px 10px;font-size:13px}
+.rule-layer-name{flex:1;color:var(--text);word-break:break-all}
+.rule-tag{font-size:10px;color:var(--accent2);border:1px solid var(--accent2);border-radius:4px;padding:0 5px;white-space:nowrap}
+.rule-layer .xbtn{flex:none}
+.rules-actions{display:flex;gap:8px}
+.rules-actions button{background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:6px;padding:6px 12px;cursor:pointer;font-size:12px}
+.rules-actions button:hover{background:var(--panel3)}
+.toolbar button.mode-btn.view{background:var(--accent2-dim);color:var(--accent2-ink);border-color:var(--accent2-line)}
+
+/* ===== 主体 ===== */
+.wrap{max-width:1440px;margin:0 auto;padding:18px 14px 60px}
+.main-cols{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:16px;align-items:start}
+@media(max-width:1120px){.main-cols{grid-template-columns:1fr}}
+.playbook{background:var(--paper);color:var(--ink);border-radius:6px;padding:20px 22px;min-height:600px;box-shadow:0 4px 24px rgba(0,0,0,.4)}
+
+/* ===== 参考资料边栏 (浅色) ===== */
+.ref{position:sticky;top:64px;max-height:calc(100vh - 80px);overflow:auto;background:var(--paper);border:1px solid var(--line-4);border-radius:8px;display:flex;flex-direction:column}
+.ref-tabs{display:flex;border-bottom:1px solid var(--paperline);position:sticky;top:0;background:var(--paper);z-index:5}
+.ref-tab{flex:1;background:transparent;color:var(--ink-4);border:none;padding:9px 4px;cursor:pointer;font-size:13px;border-bottom:2px solid transparent}
+.ref-tab.active{color:var(--ink);border-bottom-color:var(--accent);font-weight:600}
+.ref-body{padding:12px 14px}
+.ref-empty{color:var(--ink-4);font-size:12.5px;text-align:center;padding:30px 10px}
+.ref-sec{font-size:12.5px;font-weight:700;color:var(--ink);margin:14px 0 6px;letter-spacing:.5px;border-bottom:1px solid var(--paperline);padding-bottom:3px}
+.ref-sec:first-child{margin-top:0}
+.ref-intro{font-size:12px;color:var(--ink-2);margin-bottom:8px}
+.rmv{border:1px solid var(--line-4);border-radius:6px;margin-bottom:7px;background:var(--paper)}
+.rmv summary{display:flex;align-items:center;gap:6px;padding:7px 9px;cursor:pointer;font-size:13px;font-weight:600;color:var(--ink);list-style:none}
+.rmv summary::before{content:"▸";color:var(--ink-4);font-size:10px;flex:none}
+.rmv[open] summary::before{content:"▾"}
+.rmv summary::-webkit-details-marker{display:none}
+.rmv summary .src{font-size:10.5px;font-weight:400;color:var(--ink-4);margin-left:auto;white-space:nowrap}
+.rmv .rmv-b{margin-left:6px;padding:1px 6px;border-radius:4px;font-size:11px;border:1px solid var(--accent);color:var(--tag-ink);background:transparent;cursor:pointer}
+.rmv .rmv-b:hover{background:var(--accent);color:var(--accent-ink)}
+.rmv .rmv-t{padding:6px 9px 8px;font-size:12px;color:var(--ink-2);border-top:1px solid var(--paperline)}
+.rmv .rmv-foot{padding:0 9px 8px;text-align:right}
+.rmv .rmv-t p{margin:3px 0}
+.rmv .rmv-t ul{margin:3px 0;padding-left:18px}
+.rmv .rmv-t .tag{background:var(--tag-bg);color:var(--tag-ink);border-radius:3px;padding:0 4px;font-size:11px}
+.ref-search{width:100%;background:var(--paper);color:var(--ink);border:1px solid var(--line-5);border-radius:6px;padding:7px 9px;font-size:13px;margin-bottom:4px}
+.ref-spell-group{margin:10px 0 4px;font-size:13px;font-weight:700;color:var(--ink-3)}
+.ref-spell-list{border:1px solid var(--line-4);border-radius:6px;margin-bottom:10px;background:var(--paper)}
+.ref-spell-list summary{display:flex;align-items:center;gap:6px;padding:10px 12px;cursor:pointer;font-size:15px;font-weight:700;color:var(--ink);list-style:none}
+.ref-spell-list summary::before{content:"▸";color:var(--ink-4);font-size:11px;flex:none}
+.ref-spell-list[open] summary::before{content:"▾"}
+.ref-spell-list summary::-webkit-details-marker{display:none}
+.ref-spell-list .ref-spell-inner{padding:0 12px 10px}
+
+/* ===== 页头 ===== */
+.pb-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:12px}
+.pb-class{font-size:26px;font-weight:800;letter-spacing:1px;line-height:1.1}
+.pb-sub{font-size:12px;color:var(--ink-3);margin-top:2px}
+.pb-info{display:flex;gap:14px;flex-wrap:wrap;font-size:12px}
+.pb-info .it{display:flex;flex-direction:column;min-width:56px}
+.pb-info .it .k{font-size:10px;color:var(--ink-4)}
+.pb-info .it .v{font-size:16px;font-weight:700}
+.pb-info input{background:transparent;border:none;border-bottom:1px dashed var(--ink-5);font-size:16px;font-weight:700;color:var(--ink);width:64px;text-align:left}
+
+/* ===== 数值 ===== */
+.pb-stats{position:relative;display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;margin-bottom:12px}
+.stat-dist{position:absolute;top:0;left:0;font-size:11px;color:var(--ink-5);line-height:1.2;white-space:nowrap}
+.pb-statgrid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.pb-stat{text-align:center}
+.pb-stat .n{font-size:13px;color:var(--ink-3);border-bottom:1px solid var(--paperline);padding-bottom:1px}
+.pb-stat .v{font-size:24px;font-weight:800}
+.pb-stat .m{font-size:15px;font-weight:700;color:var(--ink-2)}
+.pb-stat .deb{display:inline-flex;align-items:center;justify-content:center;gap:3px;font-size:12px;color:var(--ink-4);margin-top:2px;cursor:pointer}
+.pb-stat .deb .chk{width:13px;height:13px;border-width:1.2px;border-radius:2px}
+.pb-stat .deb .chk:checked::after{font-size:9px}
+.pb-stat input{width:100%;border:none;border-bottom:1px dashed var(--ink-5);text-align:center;font-size:24px;font-weight:800;background:transparent;color:var(--ink)}
+.pb-stat input[type=number],.pb-num input[type=number],.h3r input[type=number],input[data-bind=coins]{-moz-appearance:textfield;appearance:textfield}
+.pb-stat input[type=number]::-webkit-outer-spin-button,.pb-stat input[type=number]::-webkit-inner-spin-button,
+.pb-num input[type=number]::-webkit-outer-spin-button,.pb-num input[type=number]::-webkit-inner-spin-button,
+.h3r input[type=number]::-webkit-outer-spin-button,.h3r input[type=number]::-webkit-inner-spin-button,
+input[data-bind=coins]::-webkit-outer-spin-button,input[data-bind=coins]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.pb-nums{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;min-width:190px}
+.pb-num{text-align:center;border:1px solid var(--line-3);border-radius:4px;padding:4px 6px}
+.pb-num .k{font-size:12px;color:var(--ink-3)}
+.pb-num .v{font-size:22px;font-weight:800}
+.pb-num input{width:56px;border:none;border-bottom:1px dashed var(--ink-5);text-align:center;font-size:22px;font-weight:800;background:transparent;color:var(--ink)}
+.pb-num .formula{font-size:10px;color:var(--ink-5);margin-top:1px}
+.formula-link{margin:0;padding:0;border:none;background:none;color:inherit;font:inherit;text-decoration:none;cursor:pointer}
+.formula-link:hover{color:var(--accent);text-decoration:underline}
+
+/* ===== 两栏 ===== */
+.pb-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:680px){.pb-cols{grid-template-columns:1fr}}
+.pb-sec{margin-bottom:12px}
+.pb-sec h3{margin:0 0 6px;font-size:13px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;border-bottom:1px solid var(--ink);padding-bottom:3px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.pb-sec h3 small{font-weight:400;color:var(--ink-4);font-size:10px;text-transform:none;margin-left:4px}
+.pb-sec h3 .h3r{font-weight:400;font-size:11px;color:var(--ink-5);text-transform:none;letter-spacing:0;white-space:nowrap}
+.pb-sec h3 .h3r input{border:1px solid var(--line-5);border-radius:3px;padding:1px 3px;font-size:12px;background:var(--paper);color:var(--ink);width:52px;text-align:center}
+.pb-sec h3 .h3r b{color:var(--ink);font-weight:700}
+
+/* ===== 动作卡 ===== */
+.mv{border:1px solid var(--line-2);border-radius:4px;padding:7px 9px;margin-bottom:7px;background:var(--paper);position:relative}
+.mv.disabled{opacity:.45}
+.mv .mv-h{display:flex;align-items:flex-start;gap:6px}
+.mv .mv-h .chk{flex:none;margin-top:3px}
+.mv .mv-n{font-weight:700;font-size:13px;flex:1}
+.mv .mv-n.look-h{font-size:12px}
+.mv .mv-n input{width:100%;border:none;border-bottom:1px dashed transparent;background:transparent;font-weight:700;font-size:13px;color:var(--ink)}
+.mv .mv-n input:focus{border-bottom-color:var(--accent);outline:none}
+.mv .mv-t{font-size:12px;color:var(--ink-2);margin-top:3px}
+.mv .mv-t textarea{width:100%;border:1px solid var(--line-5);border-radius:3px;background:var(--paper-2);font-size:12px;min-height:34px;padding:5px 7px;resize:none;overflow:hidden;font-family:inherit;color:var(--ink);line-height:1.5}
+.mv .req{font-size:10px;color:var(--warn);font-weight:400;margin-left:6px;white-space:nowrap}
+.mv .mv-t p{margin:3px 0}
+.mv .mv-t ul{margin:3px 0;padding-left:18px}
+.mv .mv-t input.mbox,input.mbox{appearance:none;-webkit-appearance:none;width:13px;height:13px;border:1.5px solid var(--ink-4);border-radius:3px;background:var(--paper);vertical-align:-2px;margin:0 2px;cursor:pointer}
+.mv .mv-t input.mbox:hover,input.mbox:hover{border-color:var(--accent)}
+.mv .mv-t input.mbox:checked,input.mbox:checked{background:var(--ink);border-color:var(--ink)}
+.md p{margin:3px 0}
+.md ul{margin:3px 0;padding-left:18px}
+.md li{margin:1px 0}
+.notes-md{font-size:12.5px;color:var(--ink-2);padding:2px 0;line-height:1.5}
+.mv .tag{background:var(--tag-bg);color:var(--tag-ink);border-radius:3px;padding:0 4px;font-size:11px}
+.mv .del{position:absolute;top:4px;right:4px;border:none;background:transparent;color:var(--line-3);cursor:pointer;font-size:13px;line-height:1;padding:2px 4px;border-radius:3px;z-index:2}
+.mv .del:hover{color:var(--danger);background:var(--danger-bg)}
+.mv-add{margin-top:4px}
+.mv-add button{background:var(--paper);color:var(--ink);border:1px dashed var(--ink-5);border-radius:4px;padding:3px 8px;cursor:pointer;font-size:11.5px}
+.mv-add button:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ===== 选项 (勾选框) ===== */
+.opt{display:flex;align-items:flex-start;gap:7px;padding:3px 0;font-size:12.5px}
+.opt.gap{margin-top:3px}
+.opt .chk{flex:none;margin-top:0;vertical-align:middle}
+.chk{appearance:none;-webkit-appearance:none;width:15px;height:15px;border:1.6px solid var(--ink-4);border-radius:3px;cursor:pointer;background:var(--paper);position:relative;flex:none}
+.chk:hover{border-color:var(--accent)}
+.chk:checked{background:var(--ink);border-color:var(--ink)}
+.chk:checked::after{content:"✓";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--on-ink);font-size:11px;font-weight:700}
+.chk:disabled{opacity:.4;cursor:not-allowed}
+.opt .optt{flex:1}
+.opt .optt input.cust{width:100%;border:none;border-bottom:1px dashed var(--ink-5);background:transparent;font-size:12.5px;color:var(--ink)}
+
+.ck-mark{display:inline-block;width:13px;height:13px;border:1.5px solid var(--ink-3);border-radius:3px;margin-right:6px;position:relative;background:var(--paper);flex:none;margin-top:3px}
+.ck-mark.on{background:var(--ink);border-color:var(--ink)}
+.ck-mark.on::after{content:"✓";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--on-ink);font-size:9px;font-weight:700}
+
+/* ===== 空白/文本 ===== */
+.fillbox{width:100%;min-height:34px;border:1px solid var(--line-5);border-radius:3px;padding:5px 7px;font-size:12px;background:var(--paper);color:var(--ink);resize:none;overflow:hidden;font-family:inherit;line-height:1.5}
+.gear-line{font-size:12.5px;padding:2px 0}
+.gear-line.pre{white-space:pre-wrap}
+.gear-group{margin-top:6px}
+.gear-prompt{font-size:11px;color:var(--ink-4)}
+.coins-input{width:80px;border:1px solid var(--line-5);border-radius:3px;padding:3px 6px;background:var(--paper);color:var(--ink);font-size:13px}
+.spell-group{margin-top:6px}
+.spell-group-h{font-size:12px;font-weight:700;color:var(--ink-3);margin-bottom:4px;border-bottom:1px solid var(--paperline);padding-bottom:2px}
+.mv.spell-off{opacity:.5}
+.bond-line{display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px dotted var(--line-4);font-size:12.5px}
+.bond-line input{flex:1;border:none;border-bottom:1px dashed var(--ink-5);background:transparent;font-size:12.5px;color:var(--ink)}
+.bond-line .x{border:none;background:transparent;color:var(--line-3);cursor:pointer;font-size:13px;padding:2px 4px;border-radius:3px;line-height:1}
+.bond-line .x:hover{color:var(--danger);background:var(--danger-bg)}
+.xbtn{border:none;background:transparent;color:var(--line-3);cursor:pointer;font-size:13px;line-height:1;padding:2px 4px;border-radius:3px}
+.xbtn:hover{color:var(--danger);background:var(--danger-bg)}
+.empty{color:var(--ink-5);text-align:center;padding:70px 20px;font-size:14px}
+.hint{font-size:11px;color:var(--ink-4);margin-top:4px}
+.addrow{margin-top:6px}
+.addrow button{background:var(--paper);color:var(--ink);border:1px dashed var(--ink-5);border-radius:4px;padding:4px 10px;cursor:pointer;font-size:12px}
+.addrow button:hover{border-color:var(--accent);color:var(--accent)}
+.adv-tier{font-size:11px;color:var(--warn);font-weight:700;margin:8px 0 4px}
+.faint{color:var(--ink-5)}
+
+/* ===== 打印 ===== */
+@media print{
+  body{background:var(--paper)}
+  .toolbar{display:none !important}
+  .ref{display:none !important}
+  details.help{display:none !important}
+  .main-cols{grid-template-columns:1fr}
+  .wrap{max-width:none;padding:0;margin:0}
+  .playbook{border:none;border-radius:0;padding:0;min-height:0;box-shadow:none}
+  @page{size:A4;margin:11mm}
+  .pb-sec,.mv{page-break-inside:avoid}
+}
+
+.hidden{display:none}
+details.help{font-size:12px;color:var(--muted);margin-top:10px}
+details.help summary{cursor:pointer;color:var(--accent2)}
+details.help .help-note{font-size:12px;color:var(--muted);line-height:1.7;margin:8px 0}
+details.help pre{background:var(--panel2);padding:10px;border-radius:6px;overflow:auto;font-size:11px;color:var(--text)}
+</style>
+</head>
+<body>
+<div class="toolbar">
+  <h1>⚔ 地城世界 · 车卡</h1>
+  <select id="classSelect"><option value="">—— 选择职业 ——</option></select>
+  <button id="btnImportRules" title="导入规则 JSON（叠加到规则栈顶）">📥 规则</button>
+  <input type="file" id="fileRules" accept=".json,application/json" class="hidden">
+  <button id="btnRulesPanel" title="管理规则栈">🗂 规则栈</button>
+  <span class="spacer"></span>
+  <button id="btnMode" class="mode-btn">👁 查看模式</button>
+  <button id="btnNew" title="清空并新建">新建</button>
+  <button id="btnImport">导入</button>
+  <button id="btnExport">导出</button>
+  <button class="primary" id="btnPrint">🖨 导出 PDF</button>
+  <input type="file" id="fileImport" accept=".json,application/json,.js,application/javascript,text/javascript" class="hidden">
+</div>
+
+<div id="rulesPanel" class="rules-panel hidden">
+  <div class="rules-panel-head">规则栈（上层覆盖下层）</div>
+  <div class="rules-list" id="rulesList"></div>
+  <div class="rules-actions">
+    <button id="btnClearRules">清空规则栈</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="main-cols">
+    <div class="playbook" id="playbook"></div>
+    <aside class="ref">
+      <div class="ref-tabs" id="refTabs"></div>
+      <div class="ref-body" id="refBody"></div>
+    </aside>
+  </div>
+  <details class="help">
+    <summary>规则 JSON 格式说明（导入规则 / 导入职业）</summary>
+    <p class="help-note">点「📥 规则」导入一份<b>规则 JSON</b>（`data.json` 或你自己的房规.json），导入后存进浏览器、刷新自动生效。「导入 / 导出」角色卡用 <b>JSON 文件</b>（兼容旧的 <code>window.DW_CARD = {…}</code> 格式）。改规则只需改<b>规则 JSON</b> 后重新导入一次；注意 <b>classes[].advancedMoves 的键</b>要与 <b>meta.advancedTiers 的 key</b> 一致。</p>
+    <pre id="jsonSchema"></pre>
+  </details>
+</div>
+
+<script>
+let DW_DATA = null, META = {}, STATS = [], STATS_MODE = "scores", ADV_TIERS = [], DEBILITIES = {}, LABELS = {}, SPELL_SECTIONS = {}, PREPARE_CAP_FORMULA = "", STAT_DISTRIBUTION = null, REF_SECTIONS = [];
+function applyData(data){
+  DW_DATA = data || {};
+  META = DW_DATA.meta || {};
+  STATS = META.stats || [];
+  STATS_MODE = META.statsMode || "scores";
+  ADV_TIERS = META.advancedTiers || [{key:"2-5", label:"进阶 · 2~5 级", minLevel:1}, {key:"6-10", label:"进阶 · 6~10 级", minLevel:6}];
+  DEBILITIES = META.debilities || {力量:"虚弱",敏捷:"颤抖",体质:"患病",智力:"晕眩",睿知:"困惑",魅力:"疤痕"};
+  LABELS = Object.assign({
+    look:"外观", race:"种族动作", raceName:"种族", alignment:"阵营动作", alignmentNote:"动机 / Drive", alignmentName:"阵营",
+    starting:"起始动作", advanced:"进阶动作", customAdvanced:"其他", gear:"装备", bonds:"羁绊", notes:"笔记",
+    load:"负载上限", hpMax:"最大生命", hpCur:"当前生命", armor:"护甲", damage:"伤害", name:"姓名", level:"等级", xp:"XP",
+    defaultFormula:"默认", blank:" ", casterLevel:"施法等级", prepareCap:"准备上限", statDist:"初始分配"
+  }, META.labels || {});
+  SPELL_SECTIONS = META.spellSections || {
+    spellbook: { title:"法术书", source:"法师法术", trigger:"法术书", spellClass:"wizard", groups:["戏法","等级 1","等级 3","等级 5","等级 7","等级 9"] },
+    cleric: { title:"牧师法术", source:"牧师法术", trigger:"通神", spellClass:"cleric", groups:["祷念","等级 1","等级 3","等级 5","等级 7","等级 9"] }
+  };
+  PREPARE_CAP_FORMULA = META.prepareCapFormula || "";
+  STAT_DISTRIBUTION = META.statDistribution || null;
+  REF_SECTIONS = META.refSections || [
+    {id:"moves", title:"通用动作", type:"groups", groups:[
+      {key:"basicMoves", label:"基本动作"},
+      {key:"specialMoves", label:"特殊动作"}
+    ]},
+    {id:"spells", title:"法术列表", type:"spells"},
+    {id:"search", title:"资料速查", type:"search"}
+  ];
+  if(!REF_SECTIONS.some(s => s.id === refTab)) refTab = REF_SECTIONS[0] ? REF_SECTIONS[0].id : "search";
+}
+
+/* ============ 规则合并（分层） ============ */
+function isObj(v){ return v && typeof v === "object" && !Array.isArray(v); }
+function entryField(e){
+  if(isObj(e)){ if(e.id !== undefined) return "id"; if(e.name !== undefined) return "name"; }
+  return null;
+}
+function deepMerge(base, patch){
+  if(!isObj(patch)) return patch;
+  const out = isObj(base) ? {...base} : {};
+  for(const k of Object.keys(patch)){
+    const pv = patch[k];
+    if(pv === null){ delete out[k]; continue; }
+    const bv = out[k];
+    if(Array.isArray(pv)){ out[k] = mergeArray(Array.isArray(bv) ? bv : [], pv); }
+    else if(isObj(pv) && isObj(bv)){ out[k] = deepMerge(bv, pv); }
+    else { out[k] = pv; }
+  }
+  return out;
+}
+function mergeArray(baseArr, patchArr){
+  const out = baseArr.map(x => isObj(x) ? {...x} : x);
+  for(const pe of patchArr){
+    if(isObj(pe) && pe.$delete === true){
+      const field = entryField(pe);
+      if(field){ const val = pe[field]; const idx = out.findIndex(x => isObj(x) && x[field] === val); if(idx !== -1) out.splice(idx, 1); }
+      continue;
+    }
+    const field = entryField(pe);
+    if(field){
+      const val = pe[field];
+      const idx = out.findIndex(x => isObj(x) && x[field] === val);
+      if(idx !== -1) out[idx] = deepMerge(out[idx], pe);
+      else out.push(isObj(pe) ? {...pe} : pe);
+    } else {
+      out.push(pe);
+    }
+  }
+  return out;
+}
+
+/* ============ 状态 ============ */
+let mode = "edit";
+let refTab = "moves";
+let searchKw = "";
+let lastSearchItems = [];
+let boxReg = {};
+let ruleStack = [];
+let customData = {classes:[], extraMoves:{}, extraRacialMoves:{}, extraAlignments:{}};
+let char = defaultChar();
+
+function uid(){ return "c"+Math.random().toString(36).slice(2,9); }
+function defaultChar(){
+  const stats = {};
+  if(STATS_MODE==="modifiers"){ STATS.forEach(s=>stats[s]=0); }
+  else { STATS.forEach(s=>stats[s]=10); }
+  const spells = {};
+  Object.keys(SPELL_SECTIONS).forEach(k => spells[k] = {effectiveLevel:1, levelCap:2, list:[]});
+  return {name:"",classId:"",races:[],alignments:[],level:1,xp:0,
+    stats,
+    look:[], lookNotes:"", hpMax:0, load:0, hpCur:0, armor:0, damage:"",
+    gear:"", bonds:[], advancedMoves:[], startingChoices:[], coins:0, notes:"", moveEdits:{}, debilities:[],
+    spells, manualSpells:[]};
+}
+function mod(score){
+  const table = META.modTable || {"1-3":-3, "4-5":-2, "6-8":-1, "9-12":0, "13-15":1, "16-17":2, "18":3};
+  for(const r of Object.keys(table)){
+    const parts = r.split("-");
+    const lo = parseInt(parts[0])||0;
+    const hi = parts.length>1 ? (parseInt(parts[1])||0) : Infinity;
+    if(score >= lo && score <= hi) return table[r];
+  }
+  return 0;
+}
+function fmtMod(m){return (m>0?"+":"")+m;}
+function statMod(score){ return STATS_MODE==="modifiers" ? (score||0) : mod(score); }
+function effMod(score, stat){ return statMod(score) - (((char.debilities||[]).includes(stat))?1:0); }
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function stripTags(html){ const d=document.createElement("div"); d.innerHTML=html||""; return d.textContent||""; }
+function markdownToHtml(md){
+  const lines=String(md||"").split("\n");
+  const out=[]; let list=[]; let para=[];
+  const inline=t=>esc(t).replace(/\{([^{}]+)\}/g,'<span class="tag">$1</span>').replace(/\*\*([^*]+)\*\*/g,"<strong>$1</strong>").replace(/\*([^*]+)\*/g,"<em>$1</em>");
+  const flushList=()=>{ if(list.length){ out.push("<ul>"+list.map(x=>"<li>"+x+"</li>").join("")+"</ul>"); list=[]; } };
+  const flushPara=()=>{ if(para.length){ out.push("<p>"+para.map(inline).join("<br>")+"</p>"); para=[]; } };
+  for(const line of lines){
+    const m=line.match(/^\s*[-*]\s+(.*)$/);
+    if(m){ flushPara(); list.push(inline(m[1])); continue; }
+    if(line.trim()===""){ flushList(); flushPara(); continue; }
+    flushList(); para.push(line.trim());
+  }
+  flushList(); flushPara();
+  return out.join("");
+}
+function moveBoxKey(kind, mv){ return mv._custom ? ("custom::"+(mv.id||"")) : editKey(kind, mv.name); }
+function applyBoxes(html, key){
+  let idx = 0;
+  return String(html||"").replace(/\[([ xX])\]/g, (m, c)=>{
+    const box = `<input type="checkbox" class="mbox" data-movebox="${esc(key)}" data-box="${idx}"${c !== " " ? " checked" : ""}>`;
+    idx++;
+    return box;
+  });
+}
+function getMoveMarkdown(kind, mv){
+  if(mv._custom) return mv.text || "";
+  const d = moveDisplay(kind, mv);
+  return d.text !== null ? d.text : mv.text;
+}
+function setMoveMarkdown(kind, mv, newText){
+  if(mv._custom){
+    const cid = char.classId;
+    const am = (customData.extraMoves[cid]||[]).find(x=>x.id===mv.id);
+    if(am){ am.text = newText; return; }
+    for(const g of (customData.extraRacialMoves[cid]||[])){
+      const mm = (g.moves||[]).find(x=>x.id===mv.id);
+      if(mm){ mm.text = newText; return; }
+    }
+    const al = (customData.extraAlignments[cid]||[]).find(x=>x.id===mv.id);
+    if(al){ al.text = newText; return; }
+    return;
+  }
+  const key = editKey(kind, mv.name);
+  if(!char.moveEdits[key]) char.moveEdits[key] = {};
+  char.moveEdits[key].text = newText;
+}
+function toggleTextBox(md, index){
+  let i = 0;
+  return String(md||"").replace(/\[([ xX])\]/g, (m, c)=>{
+    if(i === index){ i++; return c === " " ? "[x]" : "[ ]"; }
+    i++;
+    return m;
+  });
+}
+function renderFieldMarkdown(md, key, get, set){
+  boxReg[key] = {get, set};
+  return applyBoxes(markdownToHtml(md), key);
+}
+
+function mergedClasses(){ return (DW_DATA.classes||[]).concat(customData.classes||[]); }
+function getClass(id){ return mergedClasses().find(c=>c.id===id); }
+function mergeRacialGroups(builtin, extra){
+  const map={};
+  (builtin||[]).forEach(g=>{
+    if(!map[g.race]) map[g.race]={race:g.race, moves:[], _custom:false, _id:null};
+    map[g.race].moves=map[g.race].moves.concat((g.moves||[]).map(mm=>({...mm,_custom:false,_gid:null})));
+  });
+  (extra||[]).forEach(g=>{
+    const key = g.race || ("_custom_"+g.id);
+    if(!map[key]) map[key]={race:g.race, moves:[], _custom:true, _id:g.id||null};
+    else if(g.race) map[key]._custom=true;
+    map[key].moves=map[key].moves.concat((g.moves||[]).map(mm=>({...mm,_custom:true,_gid:g.id||null})));
+  });
+  return Object.values(map);
+}
+function classMoves(cls){
+  const racialGroups = mergeRacialGroups(cls.racialMoves||[], customData.extraRacialMoves[cls.id]||[]);
+  const races = racialGroups.filter(g=>g.race).map(g=>g.race);
+  const alignments = (cls.alignment||[]).map(a=>({...a,_custom:false})).concat((customData.extraAlignments[cls.id]||[]).map(a=>({...a,_custom:true})));
+  const starting = cls.startingMoves||[];
+  const advTiers = ADV_TIERS.map(t => ({...t, moves:(cls.advancedMoves[t.key]||[]).map(m=>({...m,_custom:false}))}));
+  const customMoves=(customData.extraMoves[cls.id]||[]).map(m=>({...m,_custom:true}));
+  return {racialGroups, races, alignments, starting, advTiers, customMoves};
+}
+function allAdvancedMoves(m){ return m.advTiers.reduce((a,t)=>a.concat(t.moves),[]).concat(m.customMoves); }
+function reqList(mv){ return mv.requires ? (Array.isArray(mv.requires) ? mv.requires : [mv.requires]) : []; }
+function repList(mv){ return mv.replaces ? (Array.isArray(mv.replaces) ? mv.replaces : [mv.replaces]) : []; }
+function hasSpellTrigger(key){
+  const cls = getClass(char.classId);
+  if(!cls) return false;
+  const m = classMoves(cls);
+  const trigger = SPELL_SECTIONS[key].trigger;
+  if(m.starting.some(mv => mv.name === trigger)) return true;
+  const checked = allAdvancedMoves(m).filter(mv => (char.advancedMoves||[]).includes(mv.name));
+  return checked.some(mv => mv.name === trigger);
+}
+function spellSectionActive(key){ return hasSpellTrigger(key) || (char.manualSpells||[]).includes(key); }
+function spellFind(key, id){ const sec=char.spells&&char.spells[key]; return sec ? (sec.list||[]).find(s=>s.id===id) : null; }
+function editKey(kind, name){ return char.classId+"::"+kind+"::"+name; }
+function moveDisplay(kind, mv){
+  const key=editKey(kind, mv.name);
+  const ed=char.moveEdits[key];
+  return {name:(ed&&ed.name!==undefined)?ed.name:mv.name, text:(ed&&ed.text!==undefined)?ed.text:null, key, templateText:mv.text};
+}
+function evalFormula(formula, ctx){
+  const terms = String(formula||"").split("+").map(t=>t.trim()).filter(t=>t!=="");
+  if(!terms.length) return null;
+  let sum = 0;
+  for(const t of terms){
+    if(/^-?\d+$/.test(t)){ sum += parseInt(t,10); continue; }
+    if(STATS.includes(t)){ sum += (char.stats[t]||0); continue; }
+    if(t === LABELS.casterLevel){ sum += ((ctx && ctx.effectiveLevel)||0); continue; }
+    return null;
+  }
+  return sum;
+}
+function defaultHP(cls){ const b=(parseInt((cls.hp||"0").split("+")[0])||0); return STATS_MODE==="modifiers" ? b : (evalFormula(cls.hp) ?? b); }
+function defaultLoad(cls){ const b=(parseInt((cls.load||"0").split("+")[0])||0); return STATS_MODE==="modifiers" ? b : (evalFormula(cls.load) ?? b); }
+function applyFormula(target){
+  const cls=getClass(char.classId);
+  if(!cls) return;
+  if(target==="hpMax"){ const v=evalFormula(cls.hp); if(v!=null) char.hpMax=v; }
+  else if(target==="load"){ const v=evalFormula(cls.load); if(v!=null) char.load=v; }
+  else if(target.indexOf("prepareCap:")===0){
+    const k=target.slice("prepareCap:".length);
+    const sec=char.spells && char.spells[k];
+    if(sec){ const v=evalFormula(PREPARE_CAP_FORMULA, {effectiveLevel:sec.effectiveLevel}); if(v!=null) sec.levelCap=v; }
+  }
+  renderPlaybook(); save();
+}
+
+/* ============ 持久化 ============ */
+function lsGet(k){ try{return localStorage.getItem(k);}catch(e){return null;} }
+function lsSet(k,v){ try{localStorage.setItem(k,v);}catch(e){} }
+function save(){ lsSet("dw-char", JSON.stringify(char)); lsSet("dw-custom", JSON.stringify(customData)); lsSet("dw-ui", JSON.stringify({mode, refTab})); }
+function saveRules(){ lsSet("dw-rules-stack", JSON.stringify(ruleStack)); }
+function loadRules(){
+  const s = lsGet("dw-rules-stack");
+  if(s !== null){
+    // 有规则栈键（哪怕是空数组），说明是新版存储，直接用它，不再回退旧键
+    try{ const arr = JSON.parse(s); if(Array.isArray(arr)) ruleStack = arr; }catch(e){}
+    return;
+  }
+  // 旧版本首次迁移：没有规则栈键时，读一次旧的单份 dw-rules
+  try{ const old = lsGet("dw-rules"); if(old){ const data = JSON.parse(old); if(data) ruleStack = [{name:"规则", data}]; } }catch(e){}
+}
+function normalizeCustomData(){
+  customData.classes = customData.classes || [];
+  customData.extraMoves = customData.extraMoves || {};
+  customData.extraRacialMoves = customData.extraRacialMoves || {};
+  customData.extraAlignments = customData.extraAlignments || {};
+}
+function ensureSpellData(){
+  char.spells = char.spells || {};
+  Object.keys(SPELL_SECTIONS).forEach(k=>{
+    char.spells[k] = char.spells[k] || {effectiveLevel:1, levelCap:2, list:[]};
+    char.spells[k].list = char.spells[k].list || [];
+    char.spells[k].list.forEach(s=>{ if(!s.id)s.id=uid(); if(s.available===undefined)s.available=false; });
+  });
+  char.manualSpells = char.manualSpells || [];
+}
+function normalizeChar(){
+  // 旧存档迁移：单值 race/alignment → 数组 races/alignments；look 元素 → 数组
+  if(char.race!==undefined && !Array.isArray(char.race)){ char.races = char.race ? [char.race] : []; delete char.race; }
+  if(char.alignment!==undefined && !Array.isArray(char.alignment)){ char.alignments = char.alignment ? [char.alignment] : []; delete char.alignment; }
+  char.races = char.races || [];
+  char.alignments = char.alignments || [];
+  char.startingChoices = char.startingChoices || [];
+  char.look = (char.look || []).map(x => Array.isArray(x) ? x : (x ? [x] : []));
+}
+function load(){
+  try{
+    const c=lsGet("dw-char"); if(c) char=Object.assign(defaultChar(), JSON.parse(c));
+    const cu=lsGet("dw-custom"); if(cu) customData=JSON.parse(cu);
+    const ui=lsGet("dw-ui"); if(ui){ const u=JSON.parse(ui); if(u.mode==="view"||u.mode==="edit") mode=u.mode; if(u.refTab && REF_SECTIONS.some(s=>s.id===u.refTab)) refTab=u.refTab; }
+  }catch(e){}
+  normalizeCustomData();
+  normalizeChar();
+  ensureSpellData();
+  Object.values(customData.extraMoves||{}).forEach(arr=>arr.forEach(m=>{ if(!m.id)m.id=uid(); }));
+  Object.values(customData.extraRacialMoves||{}).forEach(arr=>arr.forEach(g=>{ if(!g.id)g.id=uid(); (g.moves||[]).forEach(m=>{ if(!m.id)m.id=uid(); }); }));
+  Object.values(customData.extraAlignments||{}).forEach(arr=>arr.forEach(a=>{ if(!a.id)a.id=uid(); }));
+}
+
+/* ============ 渲染 ============ */
+function renderClassSelect(){
+  const el=document.getElementById("classSelect");
+  el.innerHTML = ['<option value="">—— 选择职业 ——</option>']
+    .concat(mergedClasses().map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`)).join("");
+  el.value=char.classId||"";
+}
+
+function renderPlaybook(){
+  const root=document.getElementById("playbook");
+  boxReg = {};
+  const cls=getClass(char.classId);
+  const btnMode=document.getElementById("btnMode");
+  btnMode.textContent = mode==="edit" ? "👁 查看模式" : "✏️ 编辑模式";
+  btnMode.classList.toggle("view", mode==="view");
+  if(!cls){ root.innerHTML='<div class="empty">↑ 在左上角选择一个职业开始车卡</div>'; return; }
+  const m=classMoves(cls);
+  root.innerHTML =
+    headHtml(cls) + statsHtml(cls) +
+    `<div class="pb-cols">
+      <div class="pb-left">${lookHtml(cls)}${raceHtml(cls,m)}${alignHtml(cls,m)}${gearHtml(cls)}${bondsHtml(cls)}${notesHtml()}${spellSectionsHtml()}${addSpellSectionHtml()}</div>
+      <div class="pb-right">${startingHtml(cls,m)}${advHtml(cls,m)}</div>
+    </div>`;
+  autosizeAll();
+}
+
+function headHtml(cls){
+  const info = mode==="edit" ?
+    `<div class="pb-info">
+      <div class="it"><span class="k">${esc(LABELS.name)}</span><input data-bind="name" value="${esc(char.name)}" placeholder="角色名"></div>
+      <div class="it"><span class="k">${esc(LABELS.level)}</span><input type="number" data-bind="level" value="${char.level}" min="1" max="10"></div>
+      <div class="it"><span class="k">${esc(LABELS.xp)}</span><input type="number" data-bind="xp" value="${char.xp||0}" min="0"></div>
+    </div>` :
+    `<div class="pb-info">
+      <div class="it"><span class="k">${esc(LABELS.name)}</span><span class="v">${esc(char.name||"—")}</span></div>
+      <div class="it"><span class="k">${esc(LABELS.level)}</span><span class="v">${esc(char.level)}</span></div>
+      <div class="it"><span class="k">${esc(LABELS.xp)}</span><input type="number" data-bind="xp" value="${char.xp||0}" min="0"></div>
+    </div>`;
+  return `<div class="pb-head">
+    <div><div class="pb-class">${esc(cls.name)}</div>
+      <div class="pb-sub">${esc(char.races.length ? char.races.join("、") : ("未选"+LABELS.raceName))} · ${esc(char.alignments.length ? char.alignments.join("、") : ("未选"+LABELS.alignmentName))}</div></div>
+    ${info}
+  </div>`;
+}
+
+function formulaHint(txt, setter, hideInModifiers){
+  if(STATS_MODE==="modifiers"){
+    return hideInModifiers ? "" : `<span class="formula-hint">${esc(LABELS.blank||" ")}</span>`;
+  }
+  const body = esc(txt);
+  if(setter && mode==="edit"){
+    return `<span class="formula-hint">（<button type="button" class="formula-link" data-setformula="${esc(setter)}" title="设为默认值">${body}</button>）</span>`;
+  }
+  return `<span class="formula-hint">（${body}）</span>`;
+}
+function distHint(){
+  const arr = STAT_DISTRIBUTION;
+  if(!arr || !arr.length) return "";
+  const txt = STATS_MODE==="modifiers" ? arr.map(s=>mod(s)).map(m => (m>0 ? "+"+m : String(m))).join(", ") : arr.join(", ");
+  return `<div class="stat-dist">${esc(LABELS.statDist||"初始分配")}：${txt}</div>`;
+}
+function statsHtml(cls){
+  const hp = char.hpMax||defaultHP(cls);
+  const isMod = STATS_MODE==="modifiers";
+  const statCells = STATS.map(s=>{
+    const v = char.stats[s] || (isMod?0:10);
+    const em = fmtMod(effMod(v, s));
+    const debHtml = `<label class="deb"><input type="checkbox" class="chk" data-deb="${esc(s)}" ${(char.debilities||[]).includes(s)?"checked":""}>${esc(DEBILITIES[s])}</label>`;
+    const val = mode==="edit"
+      ? `<input type="number" data-stat="${esc(s)}" value="${v}" ${isMod?'min="-4" max="4"':'min="1" max="18"'}">`
+      : `<div class="v"${isMod?` data-mod="${esc(s)}"`:""}>${isMod?em:v}</div>`;
+    const modRow = isMod ? "" : `<div class="m" data-mod="${esc(s)}">${em}</div>`;
+    return `<div class="pb-stat"><div class="n">${esc(s)}</div>${val}${modRow}${debHtml}</div>`;
+  }).join("");
+  const curHp = `<div class="pb-num"><div class="k">${esc(LABELS.hpCur)}</div><input type="number" data-bind="hpCur" value="${char.hpCur||hp}" min="0"></div>`;
+  const maxHp = mode==="edit" ? `<div class="pb-num"><div class="k">${esc(LABELS.hpMax)}</div><input type="number" data-bind="hpMax" value="${hp}" min="0"><div class="formula">${formulaHint(cls.hp, "hpMax")}</div></div>` : `<div class="pb-num"><div class="k">${esc(LABELS.hpMax)}</div><div class="v">${hp}</div><div class="formula">${formulaHint(cls.hp, "hpMax")}</div></div>`;
+  const armor = mode==="edit" ? `<div class="pb-num"><div class="k">${esc(LABELS.armor)}</div><input type="number" data-bind="armor" value="${char.armor||0}" min="0"></div>` : `<div class="pb-num"><div class="k">${esc(LABELS.armor)}</div><div class="v">${esc(char.armor||0)}</div></div>`;
+  const dmg = mode==="edit" ? `<div class="pb-num"><div class="k">${esc(LABELS.damage)}</div><input data-bind="damage" value="${esc(char.damage||cls.damage||"")}"></div>` : `<div class="pb-num"><div class="k">${esc(LABELS.damage)}</div><div class="v">${esc(char.damage||cls.damage||"")}</div></div>`;
+  return `<div class="pb-stats">${distHint()}<div class="pb-statgrid">${statCells}</div><div class="pb-nums">${curHp}${maxHp}${armor}${dmg}</div></div>`;
+}
+
+function lookHtml(cls){
+  const opts=(cls.look||[]);
+  if(!opts.length && mode==="edit") return "";
+  if(!char.look.length && opts.length) char.look=opts.map(()=>[]);
+  if(mode==="view"){
+    const inner=char.look.map((sel,i)=>{
+      if(!sel||!sel.length) return "";
+      const list=opts[i]||[];
+      return sel.map(s=>{
+        if(list.includes(s)) return `<div class="opt"><span class="ck-mark on"></span><span>${esc(s)}</span></div>`;
+        return `<div class="opt"><span class="ck-mark on"></span><span class="md">${renderFieldMarkdown(s, "lookcustom::"+i, ()=>char.look[i].filter(x=>!list.includes(x))[0]||"", t=>{ char.look[i]=char.look[i].filter(x=>list.includes(x)); if(t.trim()) char.look[i].push(t.trim()); })}</span></div>`;
+      }).join("");
+    }).join("");
+    const note=char.lookNotes?`<div class="gear-line md">${renderFieldMarkdown(char.lookNotes, "lookNotes", ()=>char.lookNotes||"", t=>{char.lookNotes=t;})}</div>`:"";
+    return `<div class="pb-sec"><h3>${esc(LABELS.look)}</h3>${inner||""}${note||(!inner?'<div class="hint">未选择</div>':"")}</div>`;
+  }
+  const inner = opts.map((list,i)=>{
+    const sel=char.look[i]||[];
+    const boxes = list.map(o=>`<div class="opt"><label class="optt"><input type="checkbox" class="chk" value="${esc(o)}" data-look="${i}" ${sel.includes(o)?"checked":""}> ${esc(o)}</label></div>`).join("");
+    const customVal = sel.filter(x=>!list.includes(x))[0] || "";
+    return `<div class="mv"><div class="mv-n look-h">第${i+1}项</div>${boxes}
+      <div class="opt gap"><label class="optt"><input class="cust" data-lookcustom="${i}" value="${esc(customVal)}" placeholder="自定义"></label></div></div>`;
+  }).join("");
+  const note=`<div class="opt gap"><label class="optt"><input class="cust" data-bind="lookNotes" value="${esc(char.lookNotes||"")}"></label></div>`;
+  return `<div class="pb-sec"><h3>${esc(LABELS.look)}</h3>${inner}${note}</div>`;
+}
+
+function raceHtml(cls, m){
+  const customGroups = m.racialGroups.filter(g=>g._custom);
+  const templateGroups = m.racialGroups.filter(g=>!g._custom);
+  if(mode==="view"){
+    const chosen = m.racialGroups.filter(g=>g.race && char.races.includes(g.race));
+    const inner = chosen.map(grp => `<div class="opt"><span class="ck-mark on"></span><span><b>${esc(grp.race)}</b></span></div>`+grp.moves.map(mv=>mvViewCard("racial",mv)).join("")).join("") || `<div class="hint">未选择${esc(LABELS.raceName)}</div>`;
+    return `<div class="pb-sec"><h3>${esc(LABELS.race)}</h3>${inner}</div>`;
+  }
+  const tmp = templateGroups.map(g=>{
+    const checked = char.races.includes(g.race);
+    const raceName = (char.moveEdits[editKey("race",g.race)]||{}).name || g.race;
+    const moves = g.moves.map(mv=>mvCard("racial", mv)).join("");
+    return `<div class="mv"><div class="mv-h"><input type="checkbox" class="chk" value="${esc(g.race)}" data-race="${esc(g.race)}" ${checked?"checked":""}><div class="mv-n"><input data-key="${esc(editKey("race",g.race))}" data-field="name" value="${esc(raceName)}"></div></div>${moves}</div>`;
+  }).join("");
+  const cust = customGroups.map(g=>{
+    const checked = char.races.includes(g.race);
+    const moves = g.moves.map(mv=>mvCardCustomRace(g._id, mv)).join("");
+    return `<div class="mv"><div class="mv-h"><input type="checkbox" class="chk" data-race-id="${esc(g._id)}" ${checked?"checked":""}><div class="mv-n"><input data-crace-name="${esc(g._id)}" value="${esc(g.race)}" placeholder="${esc(LABELS.raceName)}"></div><button class="del" data-crace-del="${esc(g._id)}" title="删除该${esc(LABELS.raceName)}">✕</button></div>${moves}<div class="mv-add"><button data-add-race-move="${esc(g._id)}">＋ 添加动作</button></div></div>`;
+  }).join("");
+  return `<div class="pb-sec"><h3>${esc(LABELS.race)}</h3>${tmp}${cust}<div class="addrow"><button data-add-race>＋ 新建${esc(LABELS.raceName)}</button></div></div>`;
+}
+
+function alignHtml(cls, m){
+  if(!m.alignments.length) return "";
+  if(mode==="view"){
+    const chosen = m.alignments.filter(x=>char.alignments.includes(x.name));
+    const inner = chosen.map(a=>mvViewCard("alignment",a)).join("");
+    return `<div class="pb-sec"><h3>${esc(LABELS.alignment)} <small>${esc(LABELS.alignmentNote)}</small></h3>${inner||`<div class="hint">未选择${esc(LABELS.alignmentName)}</div>`}</div>`;
+  }
+  const inner = m.alignments.map(a=>{
+    if(a._custom){
+      return `<div class="mv"><button class="del" data-calign-del="${esc(a.id)}" title="删除">✕</button><div class="mv-h"><input type="checkbox" class="chk" data-align-id="${esc(a.id)}" ${char.alignments.includes(a.name)?"checked":""}><div class="mv-n"><input data-calign-name="${esc(a.id)}" value="${esc(a.name)}" placeholder="${esc(LABELS.alignmentName)}"></div></div><div class="mv-t"><textarea data-calign-text="${esc(a.id)}">${esc(a.text)}</textarea></div></div>`;
+    }
+    const d=moveDisplay("alignment",{name:a.name,text:a.text});
+    const text=d.text!==null?d.text:a.text;
+    return `<div class="mv"><div class="mv-h"><input type="checkbox" class="chk" value="${esc(a.name)}" data-align="${esc(a.name)}" ${char.alignments.includes(a.name)?"checked":""}><div class="mv-n"><input data-key="${esc(d.key)}" data-field="name" value="${esc(d.name)}"></div></div>
+      <div class="mv-t"><textarea data-key="${esc(d.key)}" data-field="text">${esc(text)}</textarea></div></div>`;
+  }).join("");
+  return `<div class="pb-sec"><h3>${esc(LABELS.alignment)} <small>${esc(LABELS.alignmentNote)}</small></h3>${inner}<div class="addrow"><button data-add-align>＋ 添加${esc(LABELS.alignment)}</button></div></div>`;
+}
+
+function gearHtml(cls){
+  const groups=(cls.gear&&cls.gear.groups)||[];
+  const load = char.load||defaultLoad(cls);
+  const loadHdr = mode==="edit" ?
+    `<span class="h3r">${esc(LABELS.load)} <input type="number" data-bind="load" value="${load}" min="0"> <span class="faint">${formulaHint(cls.load, "load")}</span></span>` :
+    `<span class="h3r">${esc(LABELS.load)} <b>${load}</b> <span class="faint">${formulaHint(cls.load, "load")}</span></span>`;
+  if(mode==="view"){
+    return `<div class="pb-sec"><h3>${esc(LABELS.gear)} ${loadHdr}</h3>
+      <textarea class="fillbox" data-bind="gear">${esc(char.gear)}</textarea>
+      ${char.coins?`<div class="hint">金币 ${esc(char.coins)}</div>`:""}</div>`;
+  }
+  return `<div class="pb-sec"><h3>${esc(LABELS.gear)} ${loadHdr}</h3>
+    <textarea class="fillbox" data-bind="gear">${esc(char.gear)}</textarea>
+    ${groups.length?groups.map(g=>`<div class="gear-group"><div class="gear-prompt">${esc(g.prompt)}</div>`+g.options.map(o=>`<div class="opt"><label class="optt"><input type="checkbox" class="chk" data-gearopt="${esc(stripTags(o))}"> ${esc(stripTags(o))}</label></div>`).join("")+`</div>`).join(""):""}
+    <div class="gear-group"><div class="gear-prompt">金币</div></div><input data-bind="coins" type="number" value="${char.coins||0}" min="0" class="coins-input"></div>`;
+}
+
+function bondsHtml(cls){
+  const templates=cls.bonds||[];
+  if(!char.bonds.length && templates.length) char.bonds=templates.slice();
+  if(mode==="view"){
+    const lines = char.bonds.map((b,i)=>b?`<div class="bond-line md">${renderFieldMarkdown(b, "bond::"+i, ()=>char.bonds[i]||"", t=>{char.bonds[i]=t;})}</div>`:"").join("");
+    return `<div class="pb-sec"><h3>${esc(LABELS.bonds)}</h3>${lines||`<div class="hint">无${esc(LABELS.bonds)}</div>`}</div>`;
+  }
+  return `<div class="pb-sec"><h3>${esc(LABELS.bonds)}</h3>${char.bonds.map((b,i)=>`<div class="bond-line"><input data-bond="${i}" value="${esc(b)}" placeholder="${esc(LABELS.bonds)}"><button class="x" data-bond-del="${i}" title="删除">✕</button></div>`).join("")}<div class="addrow"><button data-add-bond>＋ 添加${esc(LABELS.bonds)}</button></div></div>`;
+}
+
+function startingHtml(cls, m){
+  const isChoice = mv => (mv.replaces || mv.requires);
+  if(mode==="edit"){
+    const inner = m.starting.map(mv=> isChoice(mv) ? startingChoiceCard(mv) : mvCard("starting", mv)).join("");
+    return `<div class="pb-sec"><h3>${esc(LABELS.starting)}</h3>${inner||'<div class="hint">无</div>'}</div>`;
+  }
+  const inner = m.starting.filter(mv=> !isChoice(mv) || (char.startingChoices||[]).includes(mv.name)).map(mv=>mvViewCard("starting",mv)).join("");
+  return `<div class="pb-sec"><h3>${esc(LABELS.starting)}</h3>${inner}</div>`;
+}
+function startingChoiceCard(mv){
+  const d=moveDisplay("starting", mv);
+  const text=d.text!==null?d.text:mv.text;
+  const chosen=(char.startingChoices||[]).includes(mv.name);
+  const req=reqList(mv).map(r=>`<span class="req">需:${esc(r)}</span>`).join("");
+  const rep=repList(mv).map(r=>`<span class="req">互斥:${esc(r)}</span>`).join("");
+  return `<div class="mv"><div class="mv-h"><input type="checkbox" class="chk" data-sadv="${esc(mv.name)}" ${chosen?"checked":""}><div class="mv-n"><input data-key="${esc(d.key)}" data-field="name" value="${esc(d.name)}">${req}${rep}</div></div>
+    <div class="mv-t"><textarea data-key="${esc(d.key)}" data-field="text">${esc(text)}</textarea></div></div>`;
+}
+
+function advHtml(cls, m){
+  const lvl=char.level||1;
+  const chosen=char.advancedMoves||[];
+  if(mode==="view"){
+    const checked=allAdvancedMoves(m).filter(x=>chosen.includes(x.name));
+    return `<div class="pb-sec"><h3>${esc(LABELS.advanced)}</h3>${checked.map(mv=>mvViewCard("adv",mv)).join("")||'<div class="hint">未选择</div>'}</div>`;
+  }
+  const tier=(title,moves)=>`<div class="adv-tier">${title}</div>`+moves.map(mv=>{
+    if(mv._custom) return mvCardCustomAdv(mv);
+    const d=moveDisplay("adv",mv);
+    const text=d.text!==null?d.text:mv.text;
+    const reqs=reqList(mv);
+    const reps=repList(mv);
+    const disabled=reqs.some(r=>!chosen.includes(r));
+    const req=reqs.map(r=>`<span class="req">需:${esc(r)}</span>`).join("");
+    const rep=reps.map(r=>`<span class="req">替:${esc(r)}</span>`).join("");
+    return `<div class="mv ${disabled?"disabled":""}"><div class="mv-h">
+      <input type="checkbox" class="chk" data-adv="${esc(mv.name)}" ${chosen.includes(mv.name)?"checked":""} ${disabled?"disabled":""}>
+      <div class="mv-n"><input data-key="${esc(d.key)}" data-field="name" value="${esc(d.name)}">${req}${rep}</div></div>
+      <div class="mv-t"><textarea data-key="${esc(d.key)}" data-field="text">${esc(text)}</textarea></div></div>`;
+  }).join("");
+  let html = "";
+  m.advTiers.forEach(t=>{
+    if(!t.moves.length) return;
+    if(lvl < t.minLevel) html += `<div class="hint">升至 ${t.minLevel} 级后解锁${t.label}。</div>`;
+    else html += tier(t.label, t.moves);
+  });
+  if(m.customMoves.length) html += tier(LABELS.customAdvanced, m.customMoves);
+  return `<div class="pb-sec"><h3>${esc(LABELS.advanced)}</h3>${html}<div class="addrow"><button data-add-adv>＋ 添加${esc(LABELS.advanced)}</button></div></div>`;
+}
+
+function notesHtml(){
+  return `<div class="pb-sec"><h3>${esc(LABELS.notes)}</h3><textarea class="fillbox" data-bind="notes">${esc(char.notes||"")}</textarea></div>`;
+}
+
+function spellSectionsHtml(){
+  const active = Object.keys(SPELL_SECTIONS).filter(spellSectionActive);
+  return active.map(spellSectionHtml).join("");
+}
+function spellSectionHtml(key){
+  const cfg = SPELL_SECTIONS[key];
+  const data = char.spells[key] || {effectiveLevel:1, levelCap:2, list:[]};
+  const lvl = data.effectiveLevel||0, cap = data.levelCap||0;
+  const del = (char.manualSpells||[]).includes(key) && !hasSpellTrigger(key) ? `<button class="xbtn" data-del-spell-section="${key}" title="移除该板块">✕</button>` : "";
+  const prepHint = PREPARE_CAP_FORMULA ? formulaHint(PREPARE_CAP_FORMULA, "prepareCap:"+key, true) : "";
+  const h3r = mode==="edit"
+    ? `<span class="h3r">${esc(LABELS.casterLevel)} <input type="number" data-spell-lvl="${key}" value="${lvl}" min="0"> ${esc(LABELS.prepareCap)} <input type="number" data-spell-cap="${key}" value="${cap}" min="0">${prepHint}${del}</span>`
+    : `<span class="h3r">${esc(LABELS.casterLevel)} <b>${lvl}</b> ${esc(LABELS.prepareCap)} <b>${cap}</b>${prepHint}${del}</span>`;
+  const groups = cfg.groups.map(g=>{
+    const spells = (data.list||[]).filter(s=>s.group===g);
+    if(mode==="view" && !spells.length) return "";
+    const cards = spells.map(s=>spellCard(key, s)).join("");
+    const add = mode==="edit" ? `<div class="mv-add"><button data-add-spell="${key}:${esc(g)}">＋ 添加法术</button></div>` : "";
+    return `<div class="spell-group"><div class="spell-group-h">${esc(g)}</div>${cards}${add}</div>`;
+  }).join("");
+  return `<div class="pb-sec"><h3>${esc(cfg.title)} ${h3r}</h3>${groups}</div>`;
+}
+function spellCard(key, s){
+  const avail = s.available !== false;
+  if(mode==="edit"){
+    return `<div class="mv ${avail?"":"spell-off"}"><button class="del" data-spell-del="${key}:${esc(s.id)}" title="删除">✕</button>
+      <div class="mv-h"><input type="checkbox" class="chk" data-spell-avail="${key}:${esc(s.id)}" ${avail?"checked":""} title="可用/不可用"><div class="mv-n"><input data-spell-name="${key}:${esc(s.id)}" value="${esc(s.name)}" placeholder="法术名"></div></div>
+      <div class="mv-t"><textarea data-spell-text="${key}:${esc(s.id)}">${esc(s.text||"")}</textarea></div></div>`;
+  }
+  return `<div class="mv ${avail?"":"spell-off"}"><div class="mv-h"><input type="checkbox" class="chk" data-spell-avail="${key}:${esc(s.id)}" ${avail?"checked":""} title="可用/不可用"><div class="mv-n">${esc(s.name||"未命名法术")}</div></div><div class="mv-t">${markdownToHtml(s.text||"")}</div></div>`;
+}
+function addSpellSectionHtml(){
+  if(mode!=="edit") return "";
+  const missing = Object.keys(SPELL_SECTIONS).filter(k=>!spellSectionActive(k));
+  if(!missing.length) return "";
+  return `<div class="addrow">${missing.map(k=>`<button data-add-spell-section="${k}">＋ ${esc(SPELL_SECTIONS[k].title)}板块</button>`).join(" ")}</div>`;
+}
+
+/* ============ 参考资料边栏 ============ */
+function renderRefTabs(){
+  const tabs = document.getElementById("refTabs");
+  if(!tabs) return;
+  tabs.innerHTML = REF_SECTIONS.map(s =>
+    `<button class="ref-tab ${s.id===refTab?"active":""}" data-ref-tab="${esc(s.id)}">${esc(s.title)}</button>`
+  ).join("");
+}
+function renderRef(){
+  renderRefTabs();
+  const body = document.getElementById("refBody");
+  lastSearchItems = [];
+  if(!DW_DATA || !DW_DATA.classes || !DW_DATA.classes.length){
+    body.innerHTML = '<div class="ref-empty">未加载规则。</div>';
+    return;
+  }
+  const sec = REF_SECTIONS.find(s => s.id === refTab);
+  if(!sec) body.innerHTML = renderRefSearch(searchKw);
+  else if(sec.type === "groups") body.innerHTML = renderRefGroups(sec);
+  else if(sec.type === "spells") body.innerHTML = renderRefSpells();
+  else body.innerHTML = renderRefSearch(searchKw);
+}
+function refDetailsState(){
+  const body = document.getElementById("refBody");
+  return body ? [...body.querySelectorAll("details")].map(d => d.open) : [];
+}
+function restoreRefDetails(state){
+  const body = document.getElementById("refBody");
+  if(!body) return;
+  [...body.querySelectorAll("details")].forEach((d, i) => { if(i < state.length) d.open = state[i]; });
+}
+function rmvCardHtml(item, idx){
+  const src = item.source ? `<span class="src">${esc(item.source)}</span>` : "";
+  const btn = (item.importable && mode==="edit") ? `<div class="rmv-foot"><button class="rmv-b" data-imp="${idx}">＋ 导入</button></div>` : "";
+  return `<details class="rmv"><summary>${esc(item.name)}${src}</summary><div class="rmv-t">${markdownToHtml(item.html)}</div>${btn}</details>`;
+}
+function renderRefGroups(sec){
+  let html = "";
+  for(const g of (sec.groups||[])){
+    const moves = DW_DATA[g.key] || [];
+    if(!moves.length) continue;
+    const src = g.label || sec.title;
+    const cards = moves.map(m => rmvCardHtml({name:m.name, html:m.text, source:src, importable:false}, -1)).join("");
+    if(g.label) html += `<div class="ref-sec">${esc(g.label)}</div>`;
+    html += cards;
+  }
+  return html || '<div class="ref-empty">暂无内容。</div>';
+}
+function spellSectionKeyForClass(ck){ return Object.keys(SPELL_SECTIONS).find(k => SPELL_SECTIONS[k].spellClass === ck) || Object.keys(SPELL_SECTIONS)[0]; }
+function spellSourceLabel(ck){
+  const sec = SPELL_SECTIONS[spellSectionKeyForClass(ck)];
+  return (sec && (sec.source || sec.title)) || ck;
+}
+function renderRefSpells(){
+  const ckeys = Object.keys(DW_DATA.spells||{});
+  if(!ckeys.length) return '<div class="ref-empty">暂无法术数据。</div>';
+  return ckeys.map(ck => {
+    const spells = DW_DATA.spells[ck] || [];
+    const groups = [...new Set(spells.map(s=>s.group))];
+    const src = spellSourceLabel(ck);
+    const cards = groups.map(g => {
+      const gs = spells.filter(s=>s.group===g);
+      return `<div class="ref-spell-group">${esc(g)}</div>` + gs.map(s => {
+        const item = {kind:"spell", name:s.name, html:s.text, source:src, spellClass:ck, group:g, importable:true};
+        const idx = lastSearchItems.push(item) - 1;
+        return rmvCardHtml(item, idx);
+      }).join("");
+    }).join("");
+    return `<details class="ref-spell-list" open><summary>${esc(src)}</summary><div class="ref-spell-inner">${cards}</div></details>`;
+  }).join("");
+}
+function renderRefSearch(kw){
+  return `<input class="ref-search" id="refSearch" placeholder="搜索动作、职业、${esc(LABELS.raceName)}、法术…" value="${esc(kw||"")}"><div id="refSearchResults">${searchResultsHtml(kw||"")}</div>`;
+}
+function collectRaces(){
+  const set = new Set();
+  (DW_DATA.classes||[]).forEach(c => (c.racialMoves||[]).forEach(g => { if(g.race) set.add(g.race); }));
+  return [...set];
+}
+function classMovesFlat(c){
+  const items = [];
+  (c.startingMoves||[]).forEach(m => items.push({kind:"move", name:m.name, html:m.text, source:c.name, classId:c.id, importable:true}));
+  for(const lv of ["2-5","6-10"]) (c.advancedMoves[lv]||[]).forEach(m => items.push({kind:"move", name:m.name, html:m.text, source:c.name, classId:c.id, importable:true}));
+  (c.racialMoves||[]).forEach(g => (g.moves||[]).forEach(m => items.push({kind:"racial", name:m.name, html:m.text, source:c.name, race:g.race, classId:c.id, importable:true})));
+  (c.alignment||[]).forEach(a => items.push({kind:"alignment", name:a.name, html:a.text, source:c.name, classId:c.id, importable:true}));
+  return items;
+}
+function collectSearchable(){
+  const items = [];
+  (DW_DATA.basicMoves||[]).forEach(m => items.push({kind:"basic", name:m.name, html:m.text, source:"基本动作", importable:false}));
+  (DW_DATA.specialMoves||[]).forEach(m => items.push({kind:"special", name:m.name, html:m.text, source:"特殊动作", importable:false}));
+  (DW_DATA.classes||[]).forEach(c => items.push(...classMovesFlat(c)));
+  Object.keys(DW_DATA.spells||{}).forEach(ck => {
+    const src = spellSourceLabel(ck);
+    (DW_DATA.spells[ck]||[]).forEach(s => items.push({kind:"spell", name:s.name, html:s.text, source:src, spellClass:ck, group:s.group, importable:true}));
+  });
+  return items;
+}
+function searchResultsHtml(kw){
+  kw = (kw||"").trim();
+  lastSearchItems = [];
+  if(!kw) return `<div class="ref-empty">输入关键词，可搜动作名/正文、职业名、${esc(LABELS.raceName)}名、法术。</div>`;
+  const parts = [];
+  // 1. 职业
+  const classMatches = (DW_DATA.classes||[]).filter(c => c.name.includes(kw));
+  classMatches.forEach(c => {
+    const intro = c.intro ? `<div class="ref-intro">${markdownToHtml(c.intro)}</div>` : "";
+    const cards = classMovesFlat(c).map(item => { const idx = lastSearchItems.push(item)-1; return rmvCardHtml(item, idx); }).join("");
+    parts.push(`<div class="ref-sec">职业：${esc(c.name)}</div>${intro}${cards}`);
+  });
+  // 2. 种族
+  const matchedRaces = collectRaces().filter(r => r.includes(kw));
+  if(matchedRaces.length){
+    const raceItems = [];
+    (DW_DATA.classes||[]).forEach(c => (c.racialMoves||[]).forEach(g => { if(matchedRaces.includes(g.race)) (g.moves||[]).forEach(m => raceItems.push({kind:"racial", name:m.name, html:m.text, source:c.name, race:g.race, classId:c.id, importable:true})); }));
+    const cards = raceItems.map(item => { const idx = lastSearchItems.push(item)-1; return rmvCardHtml(item, idx); }).join("");
+    parts.push(`<div class="ref-sec">${esc(LABELS.raceName)}：${esc(matchedRaces.join("、"))}</div>${cards}`);
+  }
+  // 3. 关键词 (去重)
+  const matchedClassIds = new Set(classMatches.map(c=>c.id));
+  const matchedRaceSet = new Set(matchedRaces);
+  const kwItems = collectSearchable().filter(it => {
+    if(!(it.name.includes(kw) || stripTags(it.html).includes(kw))) return false;
+    if(it.classId && matchedClassIds.has(it.classId)) return false;
+    if(it.race && matchedRaceSet.has(it.race)) return false;
+    return true;
+  });
+  if(kwItems.length){
+    const cards = kwItems.map(item => { const idx = lastSearchItems.push(item)-1; return rmvCardHtml(item, idx); }).join("");
+    parts.push(`<div class="ref-sec">关键词匹配</div>${cards}`);
+  }
+  if(!parts.length) return `<div class="ref-empty">没有找到匹配「${esc(kw)}」的内容。</div>`;
+  return parts.join("");
+}
+function importSearchItem(idx){
+  const item = lastSearchItems[idx];
+  if(!item) return;
+  if(item.kind === "spell"){
+    const secKey = spellSectionKeyForClass(item.spellClass);
+    if(!spellSectionActive(secKey)){ if(!char.manualSpells.includes(secKey)) char.manualSpells.push(secKey); }
+    ensureSpellData();
+    char.spells[secKey].list.push({id:uid(), group:item.group, name:item.name, text:item.html, available:false});
+  } else if(item.kind === "racial"){
+    if(!customData.extraRacialMoves[char.classId]) customData.extraRacialMoves[char.classId]=[];
+    let grp = customData.extraRacialMoves[char.classId].find(g=>g.race===item.race);
+    if(!grp){ grp={id:uid(), race:item.race, moves:[]}; customData.extraRacialMoves[char.classId].push(grp); }
+    grp.moves.push({id:uid(), name:item.name, text:item.html});
+  } else if(item.kind === "alignment"){
+    if(!customData.extraAlignments[char.classId]) customData.extraAlignments[char.classId]=[];
+    customData.extraAlignments[char.classId].push({id:uid(), name:item.name, text:item.html});
+  } else if(item.kind === "move"){
+    if(!customData.extraMoves[char.classId]) customData.extraMoves[char.classId]=[];
+    customData.extraMoves[char.classId].push({id:uid(), name:item.name, text:item.html, tier:"2-5", requires:null, replaces:null});
+  }
+  renderPlaybook(); save();
+}
+
+function mvCard(kind, mv){
+  const d=moveDisplay(kind, mv);
+  const text=d.text!==null?d.text:mv.text;
+  return `<div class="mv"><div class="mv-h"><div class="mv-n"><input data-key="${esc(d.key)}" data-field="name" value="${esc(d.name)}"></div></div>
+    <div class="mv-t"><textarea data-key="${esc(d.key)}" data-field="text">${esc(text)}</textarea></div></div>`;
+}
+function mvViewCard(kind, mv){
+  const key = moveBoxKey(kind, mv);
+  boxReg[key] = { get: () => getMoveMarkdown(kind, mv), set: (t) => setMoveMarkdown(kind, mv, t) };
+  if(mv._custom){
+    return `<div class="mv"><div class="mv-h"><span class="ck-mark on"></span><div class="mv-n">${esc(mv.name)}</div></div><div class="mv-t">${applyBoxes(markdownToHtml(mv.text), key)}</div></div>`;
+  }
+  const d=moveDisplay(kind, mv);
+  const txt = d.text!==null ? markdownToHtml(d.text) : markdownToHtml(mv.text);
+  return `<div class="mv"><div class="mv-h"><span class="ck-mark on"></span><div class="mv-n">${esc(d.name)}</div></div><div class="mv-t">${applyBoxes(txt, key)}</div></div>`;
+}
+function mvCardCustomAdv(mv){
+  return `<div class="mv"><button class="del" data-cadv-del="${esc(mv.id)}" title="删除">✕</button>
+    <div class="mv-h"><input type="checkbox" class="chk" data-adv="${esc(mv.name)}" ${(char.advancedMoves||[]).includes(mv.name)?"checked":""}>
+      <div class="mv-n"><input data-cadv-name="${esc(mv.id)}" value="${esc(mv.name)}" placeholder="动作名"></div></div>
+    <div class="mv-t"><textarea data-cadv-text="${esc(mv.id)}" placeholder="动作内容">${esc(mv.text)}</textarea></div></div>`;
+}
+function mvCardCustomRace(gid, mv){
+  return `<div class="mv"><button class="del" data-crmove-del="${esc(gid)}:${esc(mv.id)}" title="删除">✕</button>
+    <div class="mv-h"><div class="mv-n"><input data-crmove-name="${esc(gid)}:${esc(mv.id)}" value="${esc(mv.name)}" placeholder="动作名"></div></div>
+    <div class="mv-t"><textarea data-crmove-text="${esc(gid)}:${esc(mv.id)}" placeholder="动作内容">${esc(mv.text)}</textarea></div></div>`;
+}
+
+function autosize(ta){ ta.style.height="auto"; ta.style.height=(ta.scrollHeight+2)+"px"; }
+function autosizeAll(){ document.querySelectorAll("textarea").forEach(autosize); }
+
+/* ============ 事件 ============ */
+function onClassChange(){
+  const newId=document.getElementById("classSelect").value;
+  if(newId!==char.classId){
+    char.classId=newId;
+    char.races=[]; char.alignments=[]; char.look=[]; char.lookNotes=""; char.advancedMoves=[]; char.startingChoices=[];
+    char.gear=""; char.bonds=[]; char.damage=""; char.hpCur=0;
+    char.hpMax=0; char.load=0;
+  }
+  const cls=getClass(char.classId);
+  if(!cls){ renderPlaybook(); return; }
+  const m=classMoves(cls);
+  if(!char.damage) char.damage=cls.damage||"";
+  if(!char.look.length && cls.look) char.look=cls.look.map(()=>[]);
+  if(!char.hpMax) char.hpMax=defaultHP(cls);
+  if(!char.load) char.load=defaultLoad(cls);
+  renderPlaybook(); save();
+}
+
+document.addEventListener("input", e=>{
+  const t=e.target, d=t.dataset||{};
+  if(t.id==="refSearch"){ searchKw=t.value; const r=document.getElementById("refSearchResults"); if(r) r.innerHTML=searchResultsHtml(searchKw); return; }
+  if(d.key && d.field){ if(!char.moveEdits[d.key]) char.moveEdits[d.key]={}; char.moveEdits[d.key][d.field]=t.value; autosize(t); save(); return; }
+  if(d.cadvName){ const m=(customData.extraMoves[char.classId]||[]).find(x=>x.id===d.cadvName); if(m){ const old=m.name; m.name=t.value; const i=char.advancedMoves.indexOf(old); if(i!==-1) char.advancedMoves[i]=t.value; save(); } return; }
+  if(d.cadvText){ const m=(customData.extraMoves[char.classId]||[]).find(x=>x.id===d.cadvText); if(m){ m.text=t.value; autosize(t); save(); } return; }
+  if(d.calignName){ const a=(customData.extraAlignments[char.classId]||[]).find(x=>x.id===d.calignName); if(a){ const old=a.name; a.name=t.value; const i=char.alignments.indexOf(old); if(i!==-1) char.alignments[i]=t.value; save(); } return; }
+  if(d.calignText){ const a=(customData.extraAlignments[char.classId]||[]).find(x=>x.id===d.calignText); if(a){ a.text=t.value; autosize(t); save(); } return; }
+  if(d.craceName){ const g=(customData.extraRacialMoves[char.classId]||[]).find(x=>x.id===d.craceName); if(g){ const old=g.race; g.race=t.value; const i=char.races.indexOf(old); if(i!==-1) char.races[i]=t.value; save(); } return; }
+  if(d.crmoveName){ const [gid,mid]=d.crmoveName.split(":"); const g=(customData.extraRacialMoves[char.classId]||[]).find(x=>x.id===gid); const m=g&&g.moves.find(x=>x.id===mid); if(m){ m.name=t.value; save(); } return; }
+  if(d.crmoveText){ const [gid,mid]=d.crmoveText.split(":"); const g=(customData.extraRacialMoves[char.classId]||[]).find(x=>x.id===gid); const m=g&&g.moves.find(x=>x.id===mid); if(m){ m.text=t.value; autosize(t); save(); } return; }
+  if(d.spellLvl){ const s=char.spells[d.spellLvl]; if(s){ s.effectiveLevel=parseInt(t.value)||0; save(); } return; }
+  if(d.spellCap){ const s=char.spells[d.spellCap]; if(s){ s.levelCap=parseInt(t.value)||0; save(); } return; }
+  if(d.spellName){ const [k,id]=d.spellName.split(":"); const s=spellFind(k,id); if(s){ s.name=t.value; save(); } return; }
+  if(d.spellText){ const [k,id]=d.spellText.split(":"); const s=spellFind(k,id); if(s){ s.text=t.value; autosize(t); save(); } return; }
+  if(d.bind){
+    const v=t.value;
+    if(["level","xp","coins","hpCur","armor","hpMax","load"].includes(d.bind)) char[d.bind]=parseInt(v)||0;
+    else char[d.bind]=v;
+    autosize(t); save(); return;
+  }
+  if(d.stat!==undefined){
+    char.stats[d.stat]=parseInt(t.value)||0;
+    const modEl=document.querySelector(`[data-mod="${d.stat}"]`);
+    if(modEl) modEl.textContent=fmtMod(effMod(char.stats[d.stat], d.stat));
+    save(); return;
+  }
+  if(d.bond!==undefined){ char.bonds[+d.bond]=t.value; save(); return; }
+  if(d.lookcustom!==undefined){
+    const i=+d.lookcustom;
+    const cls=getClass(char.classId);
+    const list=(cls&&cls.look[i])||[];
+    let sel=(char.look[i]||[]).filter(x=>list.includes(x));
+    if(t.value.trim()) sel.push(t.value.trim());
+    char.look[i]=sel;
+    save(); return;
+  }
+});
+
+document.addEventListener("change", e=>{
+  const t=e.target, d=t.dataset||{};
+  if(t.id==="classSelect"){ onClassChange(); return; }
+  if(d.bind==="level"){ renderPlaybook(); return; }
+  if(d.race!==undefined){ if(t.checked){ if(!char.races.includes(d.race)) char.races.push(d.race); } else { char.races=char.races.filter(x=>x!==d.race); } renderPlaybook(); save(); return; }
+  if(d.raceId!==undefined){ const g=(customData.extraRacialMoves[char.classId]||[]).find(x=>x.id===d.raceId); if(g){ if(t.checked){ if(!char.races.includes(g.race)) char.races.push(g.race); } else { char.races=char.races.filter(x=>x!==g.race); } renderPlaybook(); save(); } return; }
+  if(d.align!==undefined){ if(t.checked){ if(!char.alignments.includes(d.align)) char.alignments.push(d.align); } else { char.alignments=char.alignments.filter(x=>x!==d.align); } renderPlaybook(); save(); return; }
+  if(d.alignId!==undefined){ const a=(customData.extraAlignments[char.classId]||[]).find(x=>x.id===d.alignId); if(a){ if(t.checked){ if(!char.alignments.includes(a.name)) char.alignments.push(a.name); } else { char.alignments=char.alignments.filter(x=>x!==a.name); } renderPlaybook(); save(); } return; }
+  if(d.look!==undefined){ const i=+d.look; if(!Array.isArray(char.look[i])) char.look[i]=[]; if(t.checked){ if(!char.look[i].includes(t.value)) char.look[i].push(t.value); } else { char.look[i]=char.look[i].filter(x=>x!==t.value); } renderPlaybook(); save(); return; }
+  if(d.gearopt!==undefined){ if(t.checked){ char.gear=(char.gear?char.gear+"\n":"")+d.gearopt; const g=document.querySelector('[data-bind="gear"]'); if(g){ g.value=char.gear; autosize(g); } } save(); return; }
+  if(d.deb!==undefined){
+    const st=d.deb;
+    if(t.checked){ if(!char.debilities.includes(st)) char.debilities.push(st); }
+    else { char.debilities=char.debilities.filter(x=>x!==st); }
+    const modEl=document.querySelector(`[data-mod="${st}"]`);
+    if(modEl) modEl.textContent=fmtMod(effMod(char.stats[st]||(STATS_MODE==="modifiers"?0:10), st));
+    save(); return;
+  }
+  if(d.adv!==undefined){ toggleAdv(d.adv, t.checked); return; }
+  if(d.sadv!==undefined){ toggleStarting(d.sadv, t.checked); return; }
+  if(d.spellAvail!==undefined){ const [k,id]=d.spellAvail.split(":"); const s=spellFind(k,id); if(s){ s.available=t.checked; renderPlaybook(); save(); } return; }
+  if(d.movebox!==undefined){
+    const key=d.movebox, idx=parseInt(d.box)||0;
+    const ref=boxReg[key];
+    if(ref){
+      ref.set(toggleTextBox(ref.get(), idx));
+      renderPlaybook(); save();
+    }
+    return;
+  }
+});
+
+document.addEventListener("click", e=>{
+  const t=e.target, d=t.dataset||{};
+  if(d.setformula!==undefined){ applyFormula(d.setformula); return; }
+  if(d.ruleDel!==undefined){ removeRule(+d.ruleDel); return; }
+  if(t.closest("[data-ref-tab]")){ refTab=t.closest("[data-ref-tab]").dataset.refTab; renderRef(); save(); return; }
+  if(d.imp!==undefined){ importSearchItem(+d.imp); return; }
+  if(t.closest("[data-add-adv]")){
+    if(!customData.extraMoves[char.classId]) customData.extraMoves[char.classId]=[];
+    customData.extraMoves[char.classId].push({id:uid(), name:"", text:"", tier:"2-5", requires:null, replaces:null});
+    renderPlaybook(); save(); return;
+  }
+  if(t.closest("[data-add-race]")){
+    if(!customData.extraRacialMoves[char.classId]) customData.extraRacialMoves[char.classId]=[];
+    customData.extraRacialMoves[char.classId].push({id:uid(), race:"", moves:[{id:uid(), name:"", text:""}]});
+    renderPlaybook(); save(); return;
+  }
+  if(t.closest("[data-add-race-move]")){
+    const gid=t.closest("[data-add-race-move]").dataset.addRaceMove;
+    const g=(customData.extraRacialMoves[char.classId]||[]).find(x=>x.id===gid);
+    if(g) g.moves.push({id:uid(), name:"", text:""});
+    renderPlaybook(); save(); return;
+  }
+  if(t.closest("[data-add-align]")){
+    if(!customData.extraAlignments[char.classId]) customData.extraAlignments[char.classId]=[];
+    customData.extraAlignments[char.classId].push({id:uid(), name:"", text:""});
+    renderPlaybook(); save(); return;
+  }
+  if(t.closest("[data-add-bond]")){ char.bonds.push(""); renderPlaybook(); save(); return; }
+  if(d.bondDel!==undefined){ char.bonds.splice(+d.bondDel,1); renderPlaybook(); save(); return; }
+  if(d.cadvDel){
+    const name=(customData.extraMoves[char.classId]||[]).find(x=>x.id===d.cadvDel)?.name;
+    customData.extraMoves[char.classId]=(customData.extraMoves[char.classId]||[]).filter(x=>x.id!==d.cadvDel);
+    if(name) char.advancedMoves=char.advancedMoves.filter(n=>n!==name);
+    renderPlaybook(); save(); return;
+  }
+  if(d.craceDel){
+    customData.extraRacialMoves[char.classId]=(customData.extraRacialMoves[char.classId]||[]).filter(x=>x.id!==d.craceDel);
+    renderPlaybook(); save(); return;
+  }
+  if(d.calignDel){
+    customData.extraAlignments[char.classId]=(customData.extraAlignments[char.classId]||[]).filter(x=>x.id!==d.calignDel);
+    renderPlaybook(); save(); return;
+  }
+  if(d.crmoveDel){
+    const [gid,mid]=d.crmoveDel.split(":");
+    const g=(customData.extraRacialMoves[char.classId]||[]).find(x=>x.id===gid);
+    if(g) g.moves=g.moves.filter(x=>x.id!==mid);
+    renderPlaybook(); save(); return;
+  }
+  if(t.closest("[data-add-spell-section]")){
+    const k=t.closest("[data-add-spell-section]").dataset.addSpellSection;
+    if(!(char.manualSpells||[]).includes(k)) char.manualSpells.push(k);
+    renderPlaybook(); save(); return;
+  }
+  if(d.delSpellSection!==undefined){ char.manualSpells=(char.manualSpells||[]).filter(x=>x!==d.delSpellSection); renderPlaybook(); save(); return; }
+  if(d.addSpell!==undefined){ const [k,g]=d.addSpell.split(":"); const s=char.spells[k]; if(s) s.list.push({id:uid(), group:g, name:"", text:"", available:false}); renderPlaybook(); save(); return; }
+  if(d.spellDel!==undefined){ const [k,id]=d.spellDel.split(":"); const s=char.spells[k]; if(s) s.list=s.list.filter(x=>x.id!==id); renderPlaybook(); save(); return; }
+});
+
+function toggleAdv(name, checked){
+  const cls=getClass(char.classId); const m=classMoves(cls);
+  const all=allAdvancedMoves(m);
+  const mv=all.find(x=>x.name===name);
+  if(!mv) return;
+  if(checked){
+    if(!char.advancedMoves.includes(name)) char.advancedMoves.push(name);
+    repList(mv).forEach(r=>{ char.advancedMoves=char.advancedMoves.filter(n=>n!==r); });
+  } else {
+    char.advancedMoves=char.advancedMoves.filter(n=>n!==name);
+    char.advancedMoves=char.advancedMoves.filter(n=>{ const dep=all.find(x=>x.name===n); return !(dep&&reqList(dep).includes(name)); });
+  }
+  renderPlaybook(); save();
+}
+function toggleStarting(name, checked){
+  const cls=getClass(char.classId); const m=classMoves(cls);
+  const mv=m.starting.find(x=>x.name===name);
+  if(!mv) return;
+  if(checked){
+    if(!char.startingChoices.includes(name)) char.startingChoices.push(name);
+    repList(mv).forEach(r=>{ char.startingChoices=char.startingChoices.filter(n=>n!==r); });
+  } else {
+    char.startingChoices=char.startingChoices.filter(n=>n!==name);
+  }
+  renderPlaybook(); save();
+}
+
+function bind(){
+  document.getElementById("btnMode").addEventListener("click", ()=>{
+    const ds = refDetailsState();
+    mode = mode==="edit" ? "view" : "edit";
+    renderPlaybook();
+    renderRef();
+    restoreRefDetails(ds);
+    save();
+  });
+  document.getElementById("btnNew").addEventListener("click", ()=>{
+    if(confirm("确定清空当前角色及所有自定义数据？")){
+      char=defaultChar();
+      customData={classes:[], extraMoves:{}, extraRacialMoves:{}, extraAlignments:{}};
+      renderClassSelect(); renderPlaybook(); save();
+    }
+  });
+  document.getElementById("btnExport").addEventListener("click", exportJSON);
+  document.getElementById("btnImport").addEventListener("click", ()=>document.getElementById("fileImport").click());
+  document.getElementById("fileImport").addEventListener("change", importJSON);
+  document.getElementById("btnImportRules").addEventListener("click", ()=>document.getElementById("fileRules").click());
+  document.getElementById("fileRules").addEventListener("change", importRules);
+  document.getElementById("btnRulesPanel").addEventListener("click", ()=>{
+    document.getElementById("rulesPanel").classList.toggle("hidden");
+  });
+  document.getElementById("btnClearRules").addEventListener("click", clearRules);
+  document.getElementById("btnPrint").addEventListener("click", ()=>{
+    const prev=mode; mode="view"; renderPlaybook();
+    const restore=()=>{ mode=prev; renderPlaybook(); window.removeEventListener("afterprint",restore); };
+    window.addEventListener("afterprint",restore);
+    window.print();
+  });
+}
+
+function exportJSON(){
+  const payload={kind:"dw-card-export",version:4,character:char,custom:customData,exportedAt:new Date().toISOString()};
+  const text=JSON.stringify(payload,null,2);
+  const blob=new Blob([text],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download=(char.name||"角色")+"-地城世界角色卡.json";
+  a.click(); URL.revokeObjectURL(a.href);
+}
+function importJSON(e){
+  const f=e.target.files[0]; if(!f)return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    const text=String(reader.result||"");
+    let data=null;
+    try{ data=JSON.parse(text); }
+    catch(err){
+      const m=text.match(/window\.DW_CARD\s*=\s*([\s\S]*);\s*$/);
+      if(m){ try{ data=JSON.parse(m[1]); }catch(e2){} }
+    }
+    if(!data){ alert("无法识别的文件：应为 JSON（兼容旧的 window.DW_CARD 格式）。"); return; }
+    if(data.kind==="dw-card-export"){
+      if(data.character) char=Object.assign(defaultChar(),data.character);
+      if(data.custom) customData=data.custom;
+      alert("已导入角色与自定义数据。");
+    } else if(data.classes||data.extraMoves||data.extraRacialMoves||data.extraAlignments){
+      customData={classes:(data.classes||[]).concat(customData.classes||[]),
+        extraMoves:Object.assign(customData.extraMoves||{},data.extraMoves||{}),
+        extraRacialMoves:Object.assign(customData.extraRacialMoves||{},data.extraRacialMoves||{}),
+        extraAlignments:Object.assign(customData.extraAlignments||{},data.extraAlignments||{})};
+      alert("已导入自定义数据。");
+    } else { alert("无法识别的数据。"); }
+    normalizeCustomData();
+    ensureSpellData();
+    Object.values(customData.extraMoves||{}).forEach(arr=>arr.forEach(m=>{ if(!m.id)m.id=uid(); }));
+    Object.values(customData.extraRacialMoves||{}).forEach(arr=>arr.forEach(g=>{ if(!g.id)g.id=uid(); (g.moves||[]).forEach(m=>{ if(!m.id)m.id=uid(); }); }));
+    Object.values(customData.extraAlignments||{}).forEach(arr=>arr.forEach(a=>{ if(!a.id)a.id=uid(); }));
+    renderClassSelect(); renderPlaybook(); save();
+  };
+  reader.readAsText(f);
+  e.target.value="";
+}
+
+function effectiveRules(){
+  return ruleStack.reduce((acc, layer) => deepMerge(acc, layer.data), {});
+}
+function applyEffective(){
+  applyData(effectiveRules());
+  if(!DW_DATA || !DW_DATA.classes || !DW_DATA.classes.length){
+    renderNoRules();
+    save();
+    return;
+  }
+  ensureSpellData();
+  renderClassSelect(); renderPlaybook(); renderRef(); save();
+}
+function checkAffected(after){
+  const items = [];
+  const cls = (after.classes||[]).find(c=>c.id===char.classId);
+  if(char.classId && !cls){
+    items.push("· 当前职业「"+char.classId+"」在新规则中已不存在");
+  }
+  if(cls){
+    const raceNames = (cls.racialMoves||[]).map(g=>g.race);
+    for(const r of (char.races||[])){ if(!raceNames.includes(r)) items.push("· 种族「"+r+"」在新规则中已不存在"); }
+    const alignNames = (cls.alignment||[]).map(a=>a.name);
+    for(const a of (char.alignments||[])){ if(!alignNames.includes(a)) items.push("· 阵营「"+a+"」在新规则中已不存在"); }
+    const moveNames = [];
+    (cls.startingMoves||[]).forEach(m=>moveNames.push(m.name));
+    for(const t of ["2-5","6-10"]){ (cls.advancedMoves&&cls.advancedMoves[t]||[]).forEach(m=>moveNames.push(m.name)); }
+    for(const m of (char.advancedMoves||[])){ if(!moveNames.includes(m)) items.push("· 进阶动作「"+m+"」在新规则中已不存在"); }
+    for(const m of (char.startingChoices||[])){ if(!moveNames.includes(m)) items.push("· 起始动作「"+m+"」在新规则中已不存在"); }
+  }
+  return items;
+}
+function removeRule(index){
+  const layer = ruleStack[index];
+  if(!layer) return;
+  const afterStack = ruleStack.filter((_,i)=>i!==index);
+  const after = afterStack.reduce((acc,l)=>deepMerge(acc,l.data), {});
+  const affected = checkAffected(after);
+  let msg = "确定撤销「"+layer.name+"」？";
+  if(affected.length) msg = "撤销「"+layer.name+"」将影响现有角色卡：\n\n"+affected.join("\n")+"\n\n确定撤销？";
+  if(!confirm(msg)) return;
+  ruleStack = afterStack;
+  saveRules();
+  applyEffective();
+  renderRulesPanel();
+}
+function clearRules(){
+  if(ruleStack.length && !confirm("确定清空整个规则栈（移除全部 "+ruleStack.length+" 层）？")) return;
+  ruleStack = [];
+  saveRules();
+  lsSet("dw-rules", "");   // 同时清掉旧版的单份规则键，避免残留
+  applyData(null);
+  renderNoRules();
+  save();
+}
+function importRules(e){
+  const f=e.target.files[0]; if(!f)return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const data=JSON.parse(String(reader.result||""));
+      if(ruleStack.length === 0 && (!data || !data.classes || !data.classes.length)){
+        alert("第一份导入的规则（底层）应包含 classes 数组。"); return;
+      }
+      ruleStack.push({name: f.name, data});
+      saveRules();
+      applyEffective();
+      renderRulesPanel();
+    }catch(err){ alert("规则 JSON 解析失败："+err.message); }
+  };
+  reader.readAsText(f);
+  e.target.value="";
+}
+
+function renderRulesPanel(){
+  const list = document.getElementById("rulesList");
+  if(!list) return;
+  if(!ruleStack.length){
+    list.innerHTML = '<div class="hint">（空）尚无规则，请点「📥 规则」导入底层规则。</div>';
+  } else {
+    list.innerHTML = ruleStack.map((layer, i) => ({layer, i})).reverse().map(({layer, i}) =>
+      `<div class="rule-layer"><span class="rule-layer-name">${esc(layer.name)}</span>${i===0?'<span class="rule-tag">底层</span>':''}<button class="xbtn" data-rule-del="${i}" title="撤销该层">✕</button></div>`
+    ).join("");
+  }
+}
+
+function renderNoRules(){
+  renderRefTabs();
+  document.getElementById("playbook").innerHTML = '<div class="empty">⚠️ 未加载规则<br><br>请点「📥 规则」导入第一份规则 JSON（底层，需包含 classes）。之后可继续导入规则包叠加。</div>';
+  const sel = document.getElementById("classSelect");
+  if(sel) sel.innerHTML = '<option value="">—— 选择职业 ——</option>';
+  const body = document.getElementById("refBody");
+  if(body) body.innerHTML = '<div class="ref-empty">未加载规则。</div>';
+  renderRulesPanel();
+}
+
+function init(){
+  const start = () => {
+    loadRules();
+    applyData(effectiveRules());
+    if(!DW_DATA || !DW_DATA.classes || !DW_DATA.classes.length){
+      renderNoRules();
+      bind();
+      return;
+    }
+    document.getElementById("jsonSchema").textContent = JSON.stringify({
+      "meta": {
+        "stats": ["力量","敏捷","体质","智力","睿知","魅力"],
+        "statsMode": "scores",
+        "modTable": {"1-3":-3,"4-5":-2,"6-8":-1,"9-12":0,"13-15":1,"16-17":2,"18":3},
+        "debilities": {"力量":"虚弱","敏捷":"颤抖","体质":"患病","智力":"晕眩","睿知":"困惑","魅力":"疤痕"},
+        "labels": {"look":"外观","race":"种族动作","raceName":"种族","alignment":"阵营动作","alignmentNote":"动机 / Drive","starting":"起始动作","advanced":"进阶动作","customAdvanced":"自定义 / 导入动作","gear":"装备","bonds":"羁绊","notes":"笔记","load":"负载上限","hpMax":"最大生命","defaultFormula":"默认","blank":" ","casterLevel":"施法等级","prepareCap":"准备上限"},
+        "advancedTiers": [{"key":"2-5","label":"进阶 · 2~5 级","minLevel":1},{"key":"6-10","label":"进阶 · 6~10 级","minLevel":6}],
+        "spellSections": {"spellbook":{"title":"法术书","source":"法师法术","trigger":"法术书","spellClass":"wizard","groups":["戏法","等级 1","等级 3","等级 5","等级 7","等级 9"]}}
+      },
+      "classes":[{"id":"自定义 id","name":"职业名","intro":"简介（可省略）","hp":"6+ 体质","damage":"d6","load":"9+ 力量",
+        "look":[["选项 A","选项 B"]],
+        "racialMoves":[{"race":"机关人","moves":[{"name":"钢铁存续","text":"说明"}]}],
+        "startingMoves":[{"name":"动作名","text":"说明"}],
+        "alignment":[{"name":"善良","text":"动机说明"}],
+        "gear":{"groups":[{"prompt":"选择：","options":["选项 1","选项 2"]}]},
+        "bonds":["___ 模板"],
+        "advancedMoves":{"2-5":[{"name":"动作","text":"...","requires":null,"replaces":null}],"6-10":[]}}],
+      "basicMoves":[{"name":"砍劈","text":"..."}],
+      "specialMoves":[{"name":"临死一息","text":"..."}],
+      "spells":{"wizard":[{"group":"戏法","name":"光亮术","text":"..."}]}
+    }, null, 2);
+    load();
+    renderClassSelect();
+    renderPlaybook();
+    renderRef();
+    bind();
+    renderRulesPanel();
+  };
+
+  start();
+}
+init();
+</script>
+</body>
+</html>

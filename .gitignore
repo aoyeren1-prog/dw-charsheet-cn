@@ -1,0 +1,19 @@
+# ===== 构建产物（走 Release 分发）=====
+地城世界车卡工具.html
+
+# ===== 他人项目，用链接引用=====
+Dungeon-World-HTML-SRD-ZH/
+Dungeon-World-HTML-SRD-EN/
+dw-playbooks-tex-main/
+
+# ===== 房规扩展（自用 Obsidian 库，尚未整合入工具）=====
+Unlimited Dungeons CN/
+
+# ===== 杂物 =====
+备份_*/
+.pip-test-*/
+acl-recovery/
+*.xlsx
+Thumbs.db
+.DS_Store
+*.log

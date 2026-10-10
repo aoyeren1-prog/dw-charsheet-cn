@@ -1,0 +1,48 @@
+# 许可说明（License）
+
+本仓库包含两类内容，分别适用不同许可。
+
+## 一、代码（`builder/` 目录及工具本体）
+
+MIT License
+
+Copyright (c) 2026 <名字>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+## 二、规则数据（`data.json`）
+
+规则数据是 *Dungeon World* 及其汉化版的衍生内容，依据上游许可分发：
+
+- **Creative Commons Attribution 3.0 Unported**（CC-BY 3.0）
+  https://creativecommons.org/licenses/by/3.0/
+- **Open Game License v1.0a**（OGL）
+  http://www.opengamingfoundation.org/ogl.html
+
+### OGL 版权声明（COPYRIGHT NOTICE）
+
+Open Game License v 1.0 Copyright 2000, Wizards of the Coast, Inc.
+
+Dungeon World Copyright 2012, Sage Kobold Productions; Authors Sage LaTorra and Adam Koebel.
+
+Dungeon World HTML SRD 2013, Andrew Codispoti; Author Andrew Codispoti.
+
+Rot Grub from the Tome of Horrors Copyright 2002, Necromancer Games, Inc.; Authors Scott Greene and Clark Peterson, based on original material by Gary Gygax.
+
+> 数据来源链：Dungeon World（Sage LaTorra & Adam Koebel）→ HTML SRD（flyingturtle / Andrew Codispoti）→ 中文繁体汉化（Hazmole）→ OpenCC 繁转简。详见 `README.md`。
