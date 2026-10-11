@@ -19,6 +19,13 @@
   --line-2:#9aa; --line-3:#bbb; --line-4:#ccc; --line-5:#ddd;
   --warn:#b06a1a; --danger:#c0392b; --danger-bg:#fdecea;
   --tag-bg:#eee3c8; --tag-ink:#8a6a20; --on-ink:#ffffff;
+  /* 资料边栏（默认跟随纸面，可单独覆盖以区别于角色卡） */
+  --ref-paper:var(--paper); --ref-ink:var(--ink);
+  --ref-ink-2:var(--ink-2); --ref-ink-3:var(--ink-3); --ref-ink-4:var(--ink-4); --ref-ink-5:var(--ink-5);
+  --ref-paperline:var(--paperline); --ref-line-4:var(--line-4); --ref-line-5:var(--line-5);
+  /* 动作左侧色条：按来源填色可区分（默认透明 = 不显示） */
+  --bar-race:transparent; --bar-align:transparent; --bar-start:transparent; --bar-adv:transparent;
+  --bar-custom:transparent; --bar-spell:transparent; --bar-compendium:transparent;
 }
 *{box-sizing:border-box}
 input,select,textarea,button{font-family:inherit}
@@ -57,33 +64,33 @@ body{background:var(--bg);color:var(--text);font-family:"Segoe UI","Microsoft Ya
 .playbook{background:var(--paper);color:var(--ink);border-radius:6px;padding:20px 22px;min-height:600px;box-shadow:0 4px 24px rgba(0,0,0,.4)}
 
 /* ===== 参考资料边栏 (浅色) ===== */
-.ref{position:sticky;top:64px;max-height:calc(100vh - 80px);overflow:auto;background:var(--paper);border:1px solid var(--line-4);border-radius:8px;display:flex;flex-direction:column}
-.ref-tabs{display:flex;border-bottom:1px solid var(--paperline);position:sticky;top:0;background:var(--paper);z-index:5}
-.ref-tab{flex:1;background:transparent;color:var(--ink-4);border:none;padding:9px 4px;cursor:pointer;font-size:13px;border-bottom:2px solid transparent}
-.ref-tab.active{color:var(--ink);border-bottom-color:var(--accent);font-weight:600}
+.ref{position:sticky;top:64px;max-height:calc(100vh - 80px);overflow:auto;background:var(--ref-paper);border:1px solid var(--ref-line-4);border-radius:8px;display:flex;flex-direction:column}
+.ref-tabs{display:flex;border-bottom:1px solid var(--ref-paperline);position:sticky;top:0;background:var(--ref-paper);z-index:5}
+.ref-tab{flex:1;background:transparent;color:var(--ref-ink-4);border:none;padding:9px 4px;cursor:pointer;font-size:13px;border-bottom:2px solid transparent}
+.ref-tab.active{color:var(--ref-ink);border-bottom-color:var(--accent);font-weight:600}
 .ref-body{padding:12px 14px}
-.ref-empty{color:var(--ink-4);font-size:12.5px;text-align:center;padding:30px 10px}
-.ref-sec{font-size:12.5px;font-weight:700;color:var(--ink);margin:14px 0 6px;letter-spacing:.5px;border-bottom:1px solid var(--paperline);padding-bottom:3px}
+.ref-empty{color:var(--ref-ink-4);font-size:12.5px;text-align:center;padding:30px 10px}
+.ref-sec{font-size:12.5px;font-weight:700;color:var(--ref-ink);margin:14px 0 6px;letter-spacing:.5px;border-bottom:1px solid var(--ref-paperline);padding-bottom:3px}
 .ref-sec:first-child{margin-top:0}
-.ref-intro{font-size:12px;color:var(--ink-2);margin-bottom:8px}
-.rmv{border:1px solid var(--line-4);border-radius:6px;margin-bottom:7px;background:var(--paper)}
-.rmv summary{display:flex;align-items:center;gap:6px;padding:7px 9px;cursor:pointer;font-size:13px;font-weight:600;color:var(--ink);list-style:none}
-.rmv summary::before{content:"▸";color:var(--ink-4);font-size:10px;flex:none}
+.ref-intro{font-size:12px;color:var(--ref-ink-2);margin-bottom:8px}
+.rmv{border:1px solid var(--ref-line-4);border-radius:6px;margin-bottom:7px;background:var(--ref-paper);position:relative}
+.rmv summary{display:flex;align-items:center;gap:6px;padding:7px 9px;cursor:pointer;font-size:13px;font-weight:600;color:var(--ref-ink);list-style:none}
+.rmv summary::before{content:"▸";color:var(--ref-ink-4);font-size:10px;flex:none}
 .rmv[open] summary::before{content:"▾"}
 .rmv summary::-webkit-details-marker{display:none}
-.rmv summary .src{font-size:10.5px;font-weight:400;color:var(--ink-4);margin-left:auto;white-space:nowrap}
+.rmv summary .src{font-size:10.5px;font-weight:400;color:var(--ref-ink-4);margin-left:auto;white-space:nowrap}
 .rmv .rmv-b{margin-left:6px;padding:1px 6px;border-radius:4px;font-size:11px;border:1px solid var(--accent);color:var(--tag-ink);background:transparent;cursor:pointer}
 .rmv .rmv-b:hover{background:var(--accent);color:var(--accent-ink)}
-.rmv .rmv-t{padding:6px 9px 8px;font-size:12px;color:var(--ink-2);border-top:1px solid var(--paperline)}
+.rmv .rmv-t{padding:6px 9px 8px;font-size:12px;color:var(--ref-ink-2);border-top:1px solid var(--ref-paperline)}
 .rmv .rmv-foot{padding:0 9px 8px;text-align:right}
 .rmv .rmv-t p{margin:3px 0}
 .rmv .rmv-t ul{margin:3px 0;padding-left:18px}
 .rmv .rmv-t .tag{background:var(--tag-bg);color:var(--tag-ink);border-radius:3px;padding:0 4px;font-size:11px}
-.ref-search{width:100%;background:var(--paper);color:var(--ink);border:1px solid var(--line-5);border-radius:6px;padding:7px 9px;font-size:13px;margin-bottom:4px}
-.ref-spell-group{margin:10px 0 4px;font-size:13px;font-weight:700;color:var(--ink-3)}
-.ref-spell-list{border:1px solid var(--line-4);border-radius:6px;margin-bottom:10px;background:var(--paper)}
-.ref-spell-list summary{display:flex;align-items:center;gap:6px;padding:10px 12px;cursor:pointer;font-size:15px;font-weight:700;color:var(--ink);list-style:none}
-.ref-spell-list summary::before{content:"▸";color:var(--ink-4);font-size:11px;flex:none}
+.ref-search{width:100%;background:var(--ref-paper);color:var(--ref-ink);border:1px solid var(--ref-line-5);border-radius:6px;padding:7px 9px;font-size:13px;margin-bottom:4px}
+.ref-spell-group{margin:10px 0 4px;font-size:13px;font-weight:700;color:var(--ref-ink-3)}
+.ref-spell-list{border:1px solid var(--ref-line-4);border-radius:6px;margin-bottom:10px;background:var(--ref-paper)}
+.ref-spell-list summary{display:flex;align-items:center;gap:6px;padding:10px 12px;cursor:pointer;font-size:15px;font-weight:700;color:var(--ref-ink);list-style:none}
+.ref-spell-list summary::before{content:"▸";color:var(--ref-ink-4);font-size:11px;flex:none}
 .ref-spell-list[open] summary::before{content:"▾"}
 .ref-spell-list summary::-webkit-details-marker{display:none}
 .ref-spell-list .ref-spell-inner{padding:0 12px 10px}
@@ -137,6 +144,15 @@ input[data-bind=coins]::-webkit-outer-spin-button,input[data-bind=coins]::-webki
 /* ===== 动作卡 ===== */
 .mv{border:1px solid var(--line-2);border-radius:4px;padding:7px 9px;margin-bottom:7px;background:var(--paper);position:relative}
 .mv.disabled{opacity:.45}
+/* 动作左侧色条（--bar 由来源 class 或内联样式指定） */
+.mv::before,.rmv::before{content:"";position:absolute;left:-1px;top:-1px;bottom:-1px;width:3px;background:var(--bar,transparent);border-radius:3px 0 0 3px;pointer-events:none}
+.mv-race{--bar:var(--bar-race)}
+.mv-align{--bar:var(--bar-align)}
+.mv-start{--bar:var(--bar-start)}
+.mv-adv{--bar:var(--bar-adv)}
+.mv-custom{--bar:var(--bar-custom)}
+.mv-spell{--bar:var(--bar-spell)}
+.mv-compendium{--bar:var(--bar-compendium)}
 .mv .mv-h{display:flex;align-items:flex-start;gap:6px}
 .mv .mv-h .chk{flex:none;margin-top:3px}
 .mv .mv-n{font-weight:700;font-size:13px;flex:1}
@@ -678,12 +694,12 @@ function raceHtml(cls, m){
     const checked = char.races.includes(g.race);
     const raceName = (char.moveEdits[editKey("race",g.race)]||{}).name || g.race;
     const moves = g.moves.map(mv=>mvCard("racial", mv)).join("");
-    return `<div class="mv"><div class="mv-h"><input type="checkbox" class="chk" value="${esc(g.race)}" data-race="${esc(g.race)}" ${checked?"checked":""}><div class="mv-n"><input data-key="${esc(editKey("race",g.race))}" data-field="name" value="${esc(raceName)}"></div></div>${moves}</div>`;
+    return `<div class="mv mv-race"><div class="mv-h"><input type="checkbox" class="chk" value="${esc(g.race)}" data-race="${esc(g.race)}" ${checked?"checked":""}><div class="mv-n"><input data-key="${esc(editKey("race",g.race))}" data-field="name" value="${esc(raceName)}"></div></div>${moves}</div>`;
   }).join("");
   const cust = customGroups.map(g=>{
     const checked = char.races.includes(g.race);
     const moves = g.moves.map(mv=>mvCardCustomRace(g._id, mv)).join("");
-    return `<div class="mv"><div class="mv-h"><input type="checkbox" class="chk" data-race-id="${esc(g._id)}" ${checked?"checked":""}><div class="mv-n"><input data-crace-name="${esc(g._id)}" value="${esc(g.race)}" placeholder="${esc(LABELS.raceName)}"></div><button class="del" data-crace-del="${esc(g._id)}" title="删除该${esc(LABELS.raceName)}">✕</button></div>${moves}<div class="mv-add"><button data-add-race-move="${esc(g._id)}">＋ 添加动作</button></div></div>`;
+    return `<div class="mv mv-custom"><div class="mv-h"><input type="checkbox" class="chk" data-race-id="${esc(g._id)}" ${checked?"checked":""}><div class="mv-n"><input data-crace-name="${esc(g._id)}" value="${esc(g.race)}" placeholder="${esc(LABELS.raceName)}"></div><button class="del" data-crace-del="${esc(g._id)}" title="删除该${esc(LABELS.raceName)}">✕</button></div>${moves}<div class="mv-add"><button data-add-race-move="${esc(g._id)}">＋ 添加动作</button></div></div>`;
   }).join("");
   return `<div class="pb-sec"><h3>${esc(LABELS.race)}</h3>${tmp}${cust}<div class="addrow"><button data-add-race>＋ 新建${esc(LABELS.raceName)}</button></div></div>`;
 }
@@ -697,11 +713,11 @@ function alignHtml(cls, m){
   }
   const inner = m.alignments.map(a=>{
     if(a._custom){
-      return `<div class="mv"><button class="del" data-calign-del="${esc(a.id)}" title="删除">✕</button><div class="mv-h"><input type="checkbox" class="chk" data-align-id="${esc(a.id)}" ${char.alignments.includes(a.name)?"checked":""}><div class="mv-n"><input data-calign-name="${esc(a.id)}" value="${esc(a.name)}" placeholder="${esc(LABELS.alignmentName)}"></div></div><div class="mv-t"><textarea data-calign-text="${esc(a.id)}">${esc(a.text)}</textarea></div></div>`;
+      return `<div class="mv mv-custom"><button class="del" data-calign-del="${esc(a.id)}" title="删除">✕</button><div class="mv-h"><input type="checkbox" class="chk" data-align-id="${esc(a.id)}" ${char.alignments.includes(a.name)?"checked":""}><div class="mv-n"><input data-calign-name="${esc(a.id)}" value="${esc(a.name)}" placeholder="${esc(LABELS.alignmentName)}"></div></div><div class="mv-t"><textarea data-calign-text="${esc(a.id)}">${esc(a.text)}</textarea></div></div>`;
     }
     const d=moveDisplay("alignment",{name:a.name,text:a.text});
     const text=d.text!==null?d.text:a.text;
-    return `<div class="mv"><div class="mv-h"><input type="checkbox" class="chk" value="${esc(a.name)}" data-align="${esc(a.name)}" ${char.alignments.includes(a.name)?"checked":""}><div class="mv-n"><input data-key="${esc(d.key)}" data-field="name" value="${esc(d.name)}"></div></div>
+    return `<div class="mv mv-align"><div class="mv-h"><input type="checkbox" class="chk" value="${esc(a.name)}" data-align="${esc(a.name)}" ${char.alignments.includes(a.name)?"checked":""}><div class="mv-n"><input data-key="${esc(d.key)}" data-field="name" value="${esc(d.name)}"></div></div>
       <div class="mv-t"><textarea data-key="${esc(d.key)}" data-field="text">${esc(text)}</textarea></div></div>`;
   }).join("");
   return `<div class="pb-sec"><h3>${esc(LABELS.alignment)} <small>${esc(LABELS.alignmentNote)}</small></h3>${inner}<div class="addrow"><button data-add-align>＋ 添加${esc(LABELS.alignment)}</button></div></div>`;
@@ -749,7 +765,7 @@ function startingChoiceCard(mv){
   const chosen=(char.startingChoices||[]).includes(mv.name);
   const req=reqList(mv).map(r=>`<span class="req">需:${esc(r)}</span>`).join("");
   const rep=repList(mv).map(r=>`<span class="req">互斥:${esc(r)}</span>`).join("");
-  return `<div class="mv"><div class="mv-h"><input type="checkbox" class="chk" data-sadv="${esc(mv.name)}" ${chosen?"checked":""}><div class="mv-n"><input data-key="${esc(d.key)}" data-field="name" value="${esc(d.name)}">${req}${rep}</div></div>
+  return `<div class="mv mv-start"><div class="mv-h"><input type="checkbox" class="chk" data-sadv="${esc(mv.name)}" ${chosen?"checked":""}><div class="mv-n"><input data-key="${esc(d.key)}" data-field="name" value="${esc(d.name)}">${req}${rep}</div></div>
     <div class="mv-t"><textarea data-key="${esc(d.key)}" data-field="text">${esc(text)}</textarea></div></div>`;
 }
 
@@ -769,7 +785,7 @@ function advHtml(cls, m){
     const disabled=reqs.some(r=>!chosen.includes(r));
     const req=reqs.map(r=>`<span class="req">需:${esc(r)}</span>`).join("");
     const rep=reps.map(r=>`<span class="req">替:${esc(r)}</span>`).join("");
-    return `<div class="mv ${disabled?"disabled":""}"><div class="mv-h">
+    return `<div class="mv mv-adv ${disabled?"disabled":""}"><div class="mv-h">
       <input type="checkbox" class="chk" data-adv="${esc(mv.name)}" ${chosen.includes(mv.name)?"checked":""} ${disabled?"disabled":""}>
       <div class="mv-n"><input data-key="${esc(d.key)}" data-field="name" value="${esc(d.name)}">${req}${rep}</div></div>
       <div class="mv-t"><textarea data-key="${esc(d.key)}" data-field="text">${esc(text)}</textarea></div></div>`;
@@ -810,14 +826,19 @@ function spellSectionHtml(key){
   }).join("");
   return `<div class="pb-sec"><h3>${esc(cfg.title)} ${h3r}</h3>${groups}</div>`;
 }
+function spellBarStyle(key){
+  const color = SPELL_SECTIONS[key] && SPELL_SECTIONS[key].color;
+  return color ? `--bar:${color}` : "";
+}
 function spellCard(key, s){
   const avail = s.available !== false;
+  const bar = spellBarStyle(key);
   if(mode==="edit"){
-    return `<div class="mv ${avail?"":"spell-off"}"><button class="del" data-spell-del="${key}:${esc(s.id)}" title="删除">✕</button>
+    return `<div class="mv mv-spell ${avail?"":"spell-off"}" style="${bar}"><button class="del" data-spell-del="${key}:${esc(s.id)}" title="删除">✕</button>
       <div class="mv-h"><input type="checkbox" class="chk" data-spell-avail="${key}:${esc(s.id)}" ${avail?"checked":""} title="可用/不可用"><div class="mv-n"><input data-spell-name="${key}:${esc(s.id)}" value="${esc(s.name)}" placeholder="法术名"></div></div>
       <div class="mv-t"><textarea data-spell-text="${key}:${esc(s.id)}">${esc(s.text||"")}</textarea></div></div>`;
   }
-  return `<div class="mv ${avail?"":"spell-off"}"><div class="mv-h"><input type="checkbox" class="chk" data-spell-avail="${key}:${esc(s.id)}" ${avail?"checked":""} title="可用/不可用"><div class="mv-n">${esc(s.name||"未命名法术")}</div></div><div class="mv-t">${markdownToHtml(s.text||"")}</div></div>`;
+  return `<div class="mv mv-spell ${avail?"":"spell-off"}" style="${bar}"><div class="mv-h"><input type="checkbox" class="chk" data-spell-avail="${key}:${esc(s.id)}" ${avail?"checked":""} title="可用/不可用"><div class="mv-n">${esc(s.name||"未命名法术")}</div></div><div class="mv-t">${markdownToHtml(s.text||"")}</div></div>`;
 }
 function addSpellSectionHtml(){
   if(mode!=="edit") return "";
@@ -1006,30 +1027,34 @@ function importSearchItem(idx){
   renderPlaybook(); save();
 }
 
+function mvKindClass(kind){
+  const m = {racial:"mv-race", alignment:"mv-align", starting:"mv-start", adv:"mv-adv"};
+  return m[kind] || "";
+}
 function mvCard(kind, mv){
   const d=moveDisplay(kind, mv);
   const text=d.text!==null?d.text:mv.text;
-  return `<div class="mv"><div class="mv-h"><div class="mv-n"><input data-key="${esc(d.key)}" data-field="name" value="${esc(d.name)}"></div></div>
+  return `<div class="mv ${mvKindClass(kind)}"><div class="mv-h"><div class="mv-n"><input data-key="${esc(d.key)}" data-field="name" value="${esc(d.name)}"></div></div>
     <div class="mv-t"><textarea data-key="${esc(d.key)}" data-field="text">${esc(text)}</textarea></div></div>`;
 }
 function mvViewCard(kind, mv){
   const key = moveBoxKey(kind, mv);
   boxReg[key] = { get: () => getMoveMarkdown(kind, mv), set: (t) => setMoveMarkdown(kind, mv, t) };
   if(mv._custom){
-    return `<div class="mv"><div class="mv-h"><span class="ck-mark on"></span><div class="mv-n">${esc(mv.name)}</div></div><div class="mv-t">${applyBoxes(markdownToHtml(mv.text), key)}</div></div>`;
+    return `<div class="mv mv-custom"><div class="mv-h"><span class="ck-mark on"></span><div class="mv-n">${esc(mv.name)}</div></div><div class="mv-t">${applyBoxes(markdownToHtml(mv.text), key)}</div></div>`;
   }
   const d=moveDisplay(kind, mv);
   const txt = d.text!==null ? markdownToHtml(d.text) : markdownToHtml(mv.text);
-  return `<div class="mv"><div class="mv-h"><span class="ck-mark on"></span><div class="mv-n">${esc(d.name)}</div></div><div class="mv-t">${applyBoxes(txt, key)}</div></div>`;
+  return `<div class="mv ${mvKindClass(kind)}"><div class="mv-h"><span class="ck-mark on"></span><div class="mv-n">${esc(d.name)}</div></div><div class="mv-t">${applyBoxes(txt, key)}</div></div>`;
 }
 function mvCardCustomAdv(mv){
-  return `<div class="mv"><button class="del" data-cadv-del="${esc(mv.id)}" title="删除">✕</button>
+  return `<div class="mv mv-custom"><button class="del" data-cadv-del="${esc(mv.id)}" title="删除">✕</button>
     <div class="mv-h"><input type="checkbox" class="chk" data-adv="${esc(mv.name)}" ${(char.advancedMoves||[]).includes(mv.name)?"checked":""}>
       <div class="mv-n"><input data-cadv-name="${esc(mv.id)}" value="${esc(mv.name)}" placeholder="动作名"></div></div>
     <div class="mv-t"><textarea data-cadv-text="${esc(mv.id)}" placeholder="动作内容">${esc(mv.text)}</textarea></div></div>`;
 }
 function mvCardCustomRace(gid, mv){
-  return `<div class="mv"><button class="del" data-crmove-del="${esc(gid)}:${esc(mv.id)}" title="删除">✕</button>
+  return `<div class="mv mv-custom"><button class="del" data-crmove-del="${esc(gid)}:${esc(mv.id)}" title="删除">✕</button>
     <div class="mv-h"><div class="mv-n"><input data-crmove-name="${esc(gid)}:${esc(mv.id)}" value="${esc(mv.name)}" placeholder="动作名"></div></div>
     <div class="mv-t"><textarea data-crmove-text="${esc(gid)}:${esc(mv.id)}" placeholder="动作内容">${esc(mv.text)}</textarea></div></div>`;
 }
