@@ -200,6 +200,9 @@ input[data-bind=coins]::-webkit-outer-spin-button,input[data-bind=coins]::-webki
 .gear-line.pre{white-space:pre-wrap}
 .gear-group{margin-top:6px}
 .gear-prompt{font-size:11px;color:var(--ink-4)}
+.gear-prompt .tag{background:var(--paper-2);color:var(--ink-4);border:1px solid var(--ink-5);border-radius:3px;padding:0 3px;font-size:10px}
+.gear-add{border:1px solid var(--accent);background:transparent;color:var(--tag-ink);border-radius:4px;width:18px;height:18px;padding:0;font-size:12px;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.gear-add:hover{background:var(--accent);color:var(--accent-ink)}
 .coins-input{width:80px;border:1px solid var(--line-5);border-radius:3px;padding:3px 6px;background:var(--paper);color:var(--ink);font-size:13px}
 .spell-group{margin-top:6px}
 .spell-group-h{font-size:12px;font-weight:700;color:var(--ink-3);margin-bottom:4px;border-bottom:1px solid var(--paperline);padding-bottom:2px}
@@ -242,14 +245,14 @@ details.help pre{background:var(--panel2);padding:10px;border-radius:6px;overflo
 <div class="toolbar">
   <h1>⚔ 地城世界 · 车卡</h1>
   <select id="classSelect"><option value="">—— 选择职业 ——</option></select>
-  <button id="btnImportRules" title="导入规则 JSON（叠加到规则栈顶）">📥 规则</button>
+  <button id="btnImportRules" title="导入规则 JSON（叠加到规则栈顶）">📥 导入规则</button>
   <input type="file" id="fileRules" accept=".json,application/json" class="hidden">
   <button id="btnRulesPanel" title="管理规则栈">🗂 规则栈</button>
   <span class="spacer"></span>
   <button id="btnMode" class="mode-btn">👁 查看模式</button>
-  <button id="btnNew" title="清空并新建">新建</button>
-  <button id="btnImport">导入</button>
-  <button id="btnExport">导出</button>
+  <button id="btnNew" title="清空并新建角色">新建角色</button>
+  <button id="btnImport">导入角色</button>
+  <button id="btnExport">导出角色</button>
   <button class="primary" id="btnPrint">🖨 导出 PDF</button>
   <input type="file" id="fileImport" accept=".json,application/json,.js,application/javascript,text/javascript" class="hidden">
 </div>
@@ -272,7 +275,7 @@ details.help pre{background:var(--panel2);padding:10px;border-radius:6px;overflo
   </div>
   <details class="help">
     <summary>规则 JSON 格式说明（导入规则 / 导入职业）</summary>
-    <p class="help-note">点「📥 规则」导入一份<b>规则 JSON</b>（`data.json` 或你自己的房规.json），导入后存进浏览器、刷新自动生效。「导入 / 导出」角色卡用 <b>JSON 文件</b>（兼容旧的 <code>window.DW_CARD = {…}</code> 格式）。改规则只需改<b>规则 JSON</b> 后重新导入一次；注意 <b>classes[].advancedMoves 的键</b>要与 <b>meta.advancedTiers 的 key</b> 一致。</p>
+    <p class="help-note">点「📥 导入规则」导入一份<b>规则 JSON</b>（`data.json` 或你自己的房规.json），导入后存进浏览器、刷新自动生效。「导入角色 / 导出角色」角色卡用 <b>JSON 文件</b>（兼容旧的 <code>window.DW_CARD = {…}</code> 格式）。改规则只需改<b>规则 JSON</b> 后重新导入一次；注意 <b>classes[].advancedMoves 的键</b>要与 <b>meta.advancedTiers 的 key</b> 一致。</p>
     <pre id="jsonSchema"></pre>
   </details>
 </div>
@@ -736,7 +739,7 @@ function gearHtml(cls){
   }
   return `<div class="pb-sec"><h3>${esc(LABELS.gear)} ${loadHdr}</h3>
     <textarea class="fillbox" data-bind="gear">${esc(char.gear)}</textarea>
-    ${groups.length?groups.map(g=>`<div class="gear-group"><div class="gear-prompt">${esc(g.prompt)}</div>`+g.options.map(o=>`<div class="opt"><label class="optt"><input type="checkbox" class="chk" data-gearopt="${esc(stripTags(o))}"> ${esc(stripTags(o))}</label></div>`).join("")+`</div>`).join(""):""}
+    ${groups.length?groups.map(g=>`<div class="gear-group"><div class="gear-prompt md">${markdownToHtml(g.prompt)}</div>`+g.options.map(o=>`<div class="opt"><button class="gear-add" data-gearopt="${esc(stripTags(o))}" title="加入装备">＋</button> <span>${esc(stripTags(o))}</span></div>`).join("")+`</div>`).join(""):""}
     <div class="gear-group"><div class="gear-prompt">金币</div></div><input data-bind="coins" type="number" value="${char.coins||0}" min="0" class="coins-input"></div>`;
 }
 
@@ -1129,7 +1132,6 @@ document.addEventListener("change", e=>{
   if(d.align!==undefined){ if(t.checked){ if(!char.alignments.includes(d.align)) char.alignments.push(d.align); } else { char.alignments=char.alignments.filter(x=>x!==d.align); } renderPlaybook(); save(); return; }
   if(d.alignId!==undefined){ const a=(customData.extraAlignments[char.classId]||[]).find(x=>x.id===d.alignId); if(a){ if(t.checked){ if(!char.alignments.includes(a.name)) char.alignments.push(a.name); } else { char.alignments=char.alignments.filter(x=>x!==a.name); } renderPlaybook(); save(); } return; }
   if(d.look!==undefined){ const i=+d.look; if(!Array.isArray(char.look[i])) char.look[i]=[]; if(t.checked){ if(!char.look[i].includes(t.value)) char.look[i].push(t.value); } else { char.look[i]=char.look[i].filter(x=>x!==t.value); } renderPlaybook(); save(); return; }
-  if(d.gearopt!==undefined){ if(t.checked){ char.gear=(char.gear?char.gear+"\n":"")+d.gearopt; const g=document.querySelector('[data-bind="gear"]'); if(g){ g.value=char.gear; autosize(g); } } save(); return; }
   if(d.deb!==undefined){
     const st=d.deb;
     if(t.checked){ if(!char.debilities.includes(st)) char.debilities.push(st); }
@@ -1158,6 +1160,7 @@ document.addEventListener("click", e=>{
   if(d.ruleDel!==undefined){ removeRule(+d.ruleDel); return; }
   if(t.closest("[data-ref-tab]")){ refTab=t.closest("[data-ref-tab]").dataset.refTab; renderRef(); save(); return; }
   if(d.imp!==undefined){ importSearchItem(+d.imp); return; }
+  if(d.gearopt!==undefined){ char.gear=(char.gear?char.gear+"\n":"")+d.gearopt; const g=document.querySelector('[data-bind="gear"]'); if(g){ g.value=char.gear; autosize(g); } save(); return; }
   if(t.closest("[data-add-adv]")){
     if(!customData.extraMoves[char.classId]) customData.extraMoves[char.classId]=[];
     customData.extraMoves[char.classId].push({id:uid(), name:"", text:"", tier:"2-5", requires:null, replaces:null});
@@ -1395,7 +1398,7 @@ function renderRulesPanel(){
   const list = document.getElementById("rulesList");
   if(!list) return;
   if(!ruleStack.length){
-    list.innerHTML = '<div class="hint">（空）尚无规则，请点「📥 规则」导入底层规则。</div>';
+    list.innerHTML = '<div class="hint">（空）尚无规则，请点「📥 导入规则」导入底层规则。</div>';
   } else {
     list.innerHTML = ruleStack.map((layer, i) => ({layer, i})).reverse().map(({layer, i}) =>
       `<div class="rule-layer"><span class="rule-layer-name">${esc(layer.name)}</span>${i===0?'<span class="rule-tag">底层</span>':''}<button class="xbtn" data-rule-del="${i}" title="撤销该层">✕</button></div>`
@@ -1405,7 +1408,7 @@ function renderRulesPanel(){
 
 function renderNoRules(){
   renderRefTabs();
-  document.getElementById("playbook").innerHTML = '<div class="empty">⚠️ 未加载规则<br><br>请点「📥 规则」导入第一份规则 JSON（底层，需包含 classes）。之后可继续导入规则包叠加。</div>';
+  document.getElementById("playbook").innerHTML = '<div class="empty">⚠️ 未加载规则<br><br>请点「📥 导入规则」导入第一份规则 JSON（底层，需包含 classes）。之后可继续导入规则包叠加。</div>';
   const sel = document.getElementById("classSelect");
   if(sel) sel.innerHTML = '<option value="">—— 选择职业 ——</option>';
   const body = document.getElementById("refBody");

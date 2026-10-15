@@ -9,6 +9,7 @@ Unlimited Dungeons CN/
 # ===== 杂物 =====
 备份_*/
 .pip-test-*/
+.pnpm*/
 acl-recovery/
 *.xlsx
 Thumbs.db

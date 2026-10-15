@@ -273,15 +273,24 @@ def parse_gear(root):
                 continue
             tag = child.tag.lower()
             if tag == "p":
-                intro.append(html_to_markdown(LH.tostring(child, encoding="unicode")))
+                txt = html_to_markdown(LH.tostring(child, encoding="unicode", with_tail=False))
+                # 去掉冗余的「负载上限为 X」句（load 已单独解析显示）
+                txt = re.sub(r"你的负载上限[^。]*。\s*", "", txt).strip()
+                if txt:
+                    intro.append(txt)
             elif tag == "ul":
-                opts = [html_to_text(LH.tostring(li, encoding="unicode")) for li in child.xpath("./li")]
+                opts = [html_to_text(LH.tostring(li, encoding="unicode", with_tail=False)) for li in child.xpath("./li")]
                 groups.append({"prompt": (cur_prompt or "选择：").strip(), "options": opts})
                 cur_prompt = ""
-            tail = (child.tail or "").strip()
-            if tail:
-                cur_prompt = tail
-    return {"intro": "\n".join(intro).strip(), "groups": groups}
+            else:
+                # 内联元素（如 <tag>、<span>）也是 prompt 的一部分，转成标签语法并累积
+                cur_prompt += html_to_markdown(LH.tostring(child, encoding="unicode", with_tail=False))
+            cur_prompt += (child.tail or "")
+    # 把起始装备说明（原 intro）拼进第一个分组提示里，避免丢失
+    intro_text = "\n".join(intro).strip()
+    if intro_text and groups:
+        groups[0]["prompt"] = intro_text + "\n\n" + groups[0]["prompt"]
+    return {"groups": groups}
 
 def parse_moves():
     path = os.path.join(WORKSPACE, "Dungeon-World-HTML-SRD-ZH", "content", "moves.html")
