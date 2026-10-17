@@ -126,7 +126,7 @@ input[data-bind=coins]::-webkit-outer-spin-button,input[data-bind=coins]::-webki
 .pb-num{text-align:center;border:1px solid var(--line-3);border-radius:4px;padding:4px 6px}
 .pb-num .k{font-size:12px;color:var(--ink-3)}
 .pb-num .v{font-size:22px;font-weight:800}
-.pb-num input{width:56px;border:none;border-bottom:1px dashed var(--ink-5);text-align:center;font-size:22px;font-weight:800;background:transparent;color:var(--ink)}
+.pb-num input{width:68px;border:none;border-bottom:1px dashed var(--ink-5);text-align:center;font-size:22px;font-weight:800;background:transparent;color:var(--ink)}
 .pb-num .formula{font-size:10px;color:var(--ink-5);margin-top:1px}
 .formula-link{margin:0;padding:0;border:none;background:none;color:inherit;font:inherit;text-decoration:none;cursor:pointer}
 .formula-link:hover{color:var(--accent);text-decoration:underline}
@@ -211,6 +211,20 @@ input[data-bind=coins]::-webkit-outer-spin-button,input[data-bind=coins]::-webki
 .bond-line input{flex:1;border:none;border-bottom:1px dashed var(--ink-5);background:transparent;font-size:12.5px;color:var(--ink)}
 .bond-line .x{border:none;background:transparent;color:var(--line-3);cursor:pointer;font-size:13px;padding:2px 4px;border-radius:3px;line-height:1}
 .bond-line .x:hover{color:var(--danger);background:var(--danger-bg)}
+.heritage-boxes{display:flex;gap:6px;padding:4px 0 6px}
+.heritage-box{display:inline-flex;align-items:center;cursor:pointer}
+.heritage-box .chk{width:18px;height:18px;border-width:1.5px;border-radius:3px}
+.heritage-box .chk:checked::after{content:none}
+.heritage-up{position:relative;text-indent:16px}
+.heritage-up .chk{position:absolute;left:-2px;top:0;width:12px;height:12px;border-width:1.2px;border-radius:2px}
+.heritage-up .chk:checked::after{font-size:8px}
+.heritage-up .chk:disabled{opacity:1;cursor:default}
+.question-hint{font-size:11px;color:var(--ink-4);margin-top:6px;line-height:1.5}
+.counters{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+.counters .bond-line input{flex:1;min-width:0}
+.counters .bond-line .coins-input{flex:none;width:52px;border:none;border-bottom:1px dashed var(--ink-5);background:transparent;text-align:center;padding:0}
+.counters .bond-line .x{flex:none}
+.counters-add{margin-bottom:8px}
 .xbtn{border:none;background:transparent;color:var(--line-3);cursor:pointer;font-size:13px;line-height:1;padding:2px 4px;border-radius:3px}
 .xbtn:hover{color:var(--danger);background:var(--danger-bg)}
 .empty{color:var(--ink-5);text-align:center;padding:70px 20px;font-size:14px}
@@ -281,7 +295,7 @@ details.help pre{background:var(--panel2);padding:10px;border-radius:6px;overflo
 </div>
 
 <script>
-let DW_DATA = null, META = {}, STATS = [], STATS_MODE = "scores", ADV_TIERS = [], DEBILITIES = {}, LABELS = {}, SPELL_SECTIONS = {}, PREPARE_CAP_FORMULA = "", STAT_DISTRIBUTION = null, REF_SECTIONS = [];
+let DW_DATA = null, META = {}, STATS = [], STATS_MODE = "scores", ADV_TIERS = [], DEBILITIES = {}, LABELS = {}, SPELL_SECTIONS = {}, PREPARE_CAP_FORMULA = "", STAT_DISTRIBUTION = null, REF_SECTIONS = [], STAT_MIN = null, STAT_MAX = null, DEBILITY_PENALTY = "on", COINS_ENABLED = true;
 function applyData(data){
   DW_DATA = data || {};
   META = DW_DATA.meta || {};
@@ -293,7 +307,7 @@ function applyData(data){
     look:"外观", race:"种族动作", raceName:"种族", alignment:"阵营动作", alignmentNote:"动机 / Drive", alignmentName:"阵营",
     starting:"起始动作", advanced:"进阶动作", customAdvanced:"其他", gear:"装备", bonds:"羁绊", notes:"笔记",
     load:"负载上限", hpMax:"最大生命", hpCur:"当前生命", armor:"护甲", damage:"伤害", name:"姓名", level:"等级", xp:"XP",
-    defaultFormula:"默认", blank:" ", casterLevel:"施法等级", prepareCap:"准备上限", statDist:"初始分配"
+    defaultFormula:"默认", blank:" ", casterLevel:"施法等级", prepareCap:"准备上限", statDist:"初始分配", coins:"金币"
   }, META.labels || {});
   SPELL_SECTIONS = META.spellSections || {
     spellbook: { title:"法术书", source:"法师法术", trigger:"法术书", spellClass:"wizard", groups:["戏法","等级 1","等级 3","等级 5","等级 7","等级 9"] },
@@ -301,6 +315,10 @@ function applyData(data){
   };
   PREPARE_CAP_FORMULA = META.prepareCapFormula || "";
   STAT_DISTRIBUTION = META.statDistribution || null;
+  STAT_MIN = (META.statMin !== undefined) ? META.statMin : null;
+  STAT_MAX = (META.statMax !== undefined) ? META.statMax : null;
+  DEBILITY_PENALTY = META.debilityPenalty || "on";
+  COINS_ENABLED = META.coins !== "off";
   REF_SECTIONS = META.refSections || [
     {id:"moves", title:"通用动作", type:"groups", groups:[
       {key:"basicMoves", label:"基本动作"},
@@ -375,7 +393,7 @@ function defaultChar(){
   return {name:"",classId:"",races:[],alignments:[],level:1,xp:0,
     stats,
     look:[], lookNotes:"", hpMax:0, load:0, hpCur:0, armor:0, damage:"",
-    gear:"", bonds:[], advancedMoves:[], startingChoices:[], coins:0, notes:"", moveEdits:{}, debilities:[],
+    gear:"", bonds:[], advancedMoves:[], startingChoices:[], coins:0, notes:"", moveEdits:{}, debilities:[], counters:[],
     spells, manualSpells:[]};
 }
 function mod(score){
@@ -390,9 +408,18 @@ function mod(score){
 }
 function fmtMod(m){return (m>0?"+":"")+m;}
 function statMod(score){ return STATS_MODE==="modifiers" ? (score||0) : mod(score); }
-function effMod(score, stat){ return statMod(score) - (((char.debilities||[]).includes(stat))?1:0); }
+function effMod(score, stat){ return statMod(score) - ((DEBILITY_PENALTY==="on" && (char.debilities||[]).includes(stat))?1:0); }
+function statBoundsAttr(isMod){
+  if(STAT_MIN!==null || STAT_MAX!==null){
+    return `${STAT_MIN!==null?` min="${STAT_MIN}"`:""}${STAT_MAX!==null?` max="${STAT_MAX}"`:""}`;
+  }
+  return isMod ? ' min="-4" max="4"' : ' min="1" max="18"';
+}
 function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
 function stripTags(html){ const d=document.createElement("div"); d.innerHTML=html||""; return d.textContent||""; }
+function inlineMarkdown(t){
+  return esc(t).replace(/\{([^{}]+)\}/g,'<span class="tag">$1</span>').replace(/\*\*([^*]+)\*\*/g,"<strong>$1</strong>").replace(/\*([^*]+)\*/g,"<em>$1</em>");
+}
 function markdownToHtml(md){
   const lines=String(md||"").split("\n");
   const out=[]; let list=[]; let para=[];
@@ -562,6 +589,7 @@ function normalizeChar(){
   char.alignments = char.alignments || [];
   char.startingChoices = char.startingChoices || [];
   char.look = (char.look || []).map(x => Array.isArray(x) ? x : (x ? [x] : []));
+  char.counters = char.counters || [];
 }
 function load(){
   try{
@@ -597,7 +625,7 @@ function renderPlaybook(){
   root.innerHTML =
     headHtml(cls) + statsHtml(cls) +
     `<div class="pb-cols">
-      <div class="pb-left">${lookHtml(cls)}${raceHtml(cls,m)}${alignHtml(cls,m)}${gearHtml(cls)}${bondsHtml(cls)}${notesHtml()}${spellSectionsHtml()}${addSpellSectionHtml()}</div>
+      <div class="pb-left">${lookHtml(cls)}${raceHtml(cls,m)}${alignHtml(cls,m)}${heritageHtml()}${gearHtml(cls)}${bondsHtml(cls)}${notesHtml(cls)}${spellSectionsHtml()}${addSpellSectionHtml()}</div>
       <div class="pb-right">${startingHtml(cls,m)}${advHtml(cls,m)}</div>
     </div>`;
   autosizeAll();
@@ -646,7 +674,7 @@ function statsHtml(cls){
     const em = fmtMod(effMod(v, s));
     const debHtml = `<label class="deb"><input type="checkbox" class="chk" data-deb="${esc(s)}" ${(char.debilities||[]).includes(s)?"checked":""}>${esc(DEBILITIES[s])}</label>`;
     const val = mode==="edit"
-      ? `<input type="number" data-stat="${esc(s)}" value="${v}" ${isMod?'min="-4" max="4"':'min="1" max="18"'}">`
+      ? `<input type="number" data-stat="${esc(s)}" value="${v}"${statBoundsAttr(isMod)}">`
       : `<div class="v"${isMod?` data-mod="${esc(s)}"`:""}>${isMod?em:v}</div>`;
     const modRow = isMod ? "" : `<div class="m" data-mod="${esc(s)}">${em}</div>`;
     return `<div class="pb-stat"><div class="n">${esc(s)}</div>${val}${modRow}${debHtml}</div>`;
@@ -726,6 +754,13 @@ function alignHtml(cls, m){
   return `<div class="pb-sec"><h3>${esc(LABELS.alignment)} <small>${esc(LABELS.alignmentNote)}</small></h3>${inner}<div class="addrow"><button data-add-align>＋ 添加${esc(LABELS.alignment)}</button></div></div>`;
 }
 
+function coinsHtml(){
+  if(!COINS_ENABLED) return "";
+  if(mode==="view"){
+    return char.coins?`<div class="hint">${esc(LABELS.coins)} ${esc(char.coins)}</div>`:"";
+  }
+  return `<div class="gear-group"><div class="gear-prompt">${esc(LABELS.coins)}</div></div><input data-bind="coins" type="number" value="${char.coins||0}" min="0" class="coins-input">`;
+}
 function gearHtml(cls){
   const groups=(cls.gear&&cls.gear.groups)||[];
   const load = char.load||defaultLoad(cls);
@@ -735,12 +770,12 @@ function gearHtml(cls){
   if(mode==="view"){
     return `<div class="pb-sec"><h3>${esc(LABELS.gear)} ${loadHdr}</h3>
       <textarea class="fillbox" data-bind="gear">${esc(char.gear)}</textarea>
-      ${char.coins?`<div class="hint">金币 ${esc(char.coins)}</div>`:""}</div>`;
+      ${coinsHtml()}</div>`;
   }
   return `<div class="pb-sec"><h3>${esc(LABELS.gear)} ${loadHdr}</h3>
     <textarea class="fillbox" data-bind="gear">${esc(char.gear)}</textarea>
     ${groups.length?groups.map(g=>`<div class="gear-group"><div class="gear-prompt md">${markdownToHtml(g.prompt)}</div>`+g.options.map(o=>`<div class="opt"><button class="gear-add" data-gearopt="${esc(stripTags(o))}" title="加入装备">＋</button> <span>${esc(stripTags(o))}</span></div>`).join("")+`</div>`).join(""):""}
-    <div class="gear-group"><div class="gear-prompt">金币</div></div><input data-bind="coins" type="number" value="${char.coins||0}" min="0" class="coins-input"></div>`;
+    ${coinsHtml()}</div>`;
 }
 
 function bondsHtml(cls){
@@ -751,6 +786,32 @@ function bondsHtml(cls){
     return `<div class="pb-sec"><h3>${esc(LABELS.bonds)}</h3>${lines||`<div class="hint">无${esc(LABELS.bonds)}</div>`}</div>`;
   }
   return `<div class="pb-sec"><h3>${esc(LABELS.bonds)}</h3>${char.bonds.map((b,i)=>`<div class="bond-line"><input data-bond="${i}" value="${esc(b)}" placeholder="${esc(LABELS.bonds)}"><button class="x" data-bond-del="${i}" title="删除">✕</button></div>`).join("")}<div class="addrow"><button data-add-bond>＋ 添加${esc(LABELS.bonds)}</button></div></div>`;
+}
+
+function heritageHtml(){
+  const cfg = META.heritage;
+  if(!cfg) return "";
+  const h = char.heritage = char.heritage || {boxes:[false,false,false], moves:["","",""], third:false};
+  const n = h.third ? 3 : 2;
+  const boxes = h.boxes.map((b,i)=>{
+    if(i>=n) return "";
+    return `<label class="heritage-box"><input type="checkbox" class="chk" data-heritage-box="${i}" ${b?"checked":""}></label>`;
+  }).join("");
+  const lines = h.moves.map((m,i)=>{
+    if(i>=n) return "";
+    if(mode==="edit"){
+      return `<div class="bond-line"><input data-heritage-move="${i}" value="${esc(m||"")}" placeholder="血统动作"></div>`;
+    }
+    return `<div class="bond-line md">${renderFieldMarkdown(m||"", "heritage::"+i, ()=>char.heritage.moves[i]||"", t=>{char.heritage.moves[i]=t;})}</div>`;
+  }).join("");
+  const body = [];
+  if(cfg.note) body.push(markdownToHtml(cfg.note));
+  if(cfg.upgradePrompt) body.push(markdownToHtml(cfg.upgradePrompt));
+  if(cfg.upgradeEffect){
+    body.push(`<p class="heritage-up"><input type="checkbox" class="chk" data-heritage-third ${h.third?"checked":""}${mode==="view"?" disabled":""}>${inlineMarkdown(cfg.upgradeEffect)}</p>`);
+  }
+  const card = body.length ? `<div class="mv mv-heritage"><div class="mv-t">${body.join("")}</div></div>` : "";
+  return `<div class="pb-sec"><h3>${esc(cfg.title||"血统")}</h3><div class="heritage-boxes">${boxes}</div>${lines}${card}</div>`;
 }
 
 function startingHtml(cls, m){
@@ -803,8 +864,16 @@ function advHtml(cls, m){
   return `<div class="pb-sec"><h3>${esc(LABELS.advanced)}</h3>${html}<div class="addrow"><button data-add-adv>＋ 添加${esc(LABELS.advanced)}</button></div></div>`;
 }
 
-function notesHtml(){
-  return `<div class="pb-sec"><h3>${esc(LABELS.notes)}</h3><textarea class="fillbox" data-bind="notes">${esc(char.notes||"")}</textarea></div>`;
+function countersHtml(){
+  const list = (char.counters||[]).map((c,i)=>`
+    <div class="bond-line"><input data-counter-name="${i}" value="${esc(c.name||"")}" placeholder="计数器名"><input type="number" class="coins-input" data-counter-val="${i}" value="${c.value||0}">${mode==="edit"?`<button class="x" data-counter-del="${i}" title="删除">✕</button>`:""}</div>`).join("");
+  const add = mode==="edit" ? `<div class="addrow counters-add"><button data-add-counter>＋ 添加计数器</button></div>` : "";
+  return `${list?`<div class="counters">${list}</div>`:""}${add}`;
+}
+function notesHtml(cls){
+  const questions = (cls && cls.questions) || [];
+  const qHtml = questions.map(q=>`<div class="question-hint">${markdownToHtml(q)}</div>`).join("");
+  return `<div class="pb-sec"><h3>${esc(LABELS.notes)}</h3>${countersHtml()}<textarea class="fillbox" data-bind="notes">${esc(char.notes||"")}</textarea>${qHtml}</div>`;
 }
 
 function spellSectionsHtml(){
@@ -893,7 +962,13 @@ function groupsHtml(sec){
     const moves = DW_DATA[g.key] || [];
     if(!moves.length) continue;
     const src = g.label || sec.title;
-    const cards = moves.map(m => rmvCardHtml({name:m.name, html:m.text, source:src, importable:false}, -1)).join("");
+    const cards = moves.map(m => {
+      if(g.importable){
+        const idx = lastSearchItems.push({kind:"move", name:m.name, html:m.text, source:src, importable:true}) - 1;
+        return rmvCardHtml({name:m.name, html:m.text, source:src, importable:true}, idx);
+      }
+      return rmvCardHtml({name:m.name, html:m.text, source:src, importable:false}, -1);
+    }).join("");
     if(g.label) html += `<div class="ref-sec">${esc(g.label)}</div>`;
     html += cards;
   }
@@ -955,7 +1030,7 @@ function collectRaces(){
 function classMovesFlat(c){
   const items = [];
   (c.startingMoves||[]).forEach(m => items.push({kind:"move", name:m.name, html:m.text, source:c.name, classId:c.id, importable:true}));
-  for(const lv of ["2-5","6-10"]) (c.advancedMoves[lv]||[]).forEach(m => items.push({kind:"move", name:m.name, html:m.text, source:c.name, classId:c.id, importable:true}));
+  for(const t of ADV_TIERS) (c.advancedMoves[t.key]||[]).forEach(m => items.push({kind:"move", name:m.name, html:m.text, source:c.name, classId:c.id, importable:true}));
   (c.racialMoves||[]).forEach(g => (g.moves||[]).forEach(m => items.push({kind:"racial", name:m.name, html:m.text, source:c.name, race:g.race, classId:c.id, importable:true})));
   (c.alignment||[]).forEach(a => items.push({kind:"alignment", name:a.name, html:a.text, source:c.name, classId:c.id, importable:true}));
   return items;
@@ -1112,6 +1187,9 @@ document.addEventListener("input", e=>{
     save(); return;
   }
   if(d.bond!==undefined){ char.bonds[+d.bond]=t.value; save(); return; }
+  if(d.counterName!==undefined){ const c=(char.counters||[])[+d.counterName]; if(c) c.name=t.value; save(); return; }
+  if(d.counterVal!==undefined){ const c=(char.counters||[])[+d.counterVal]; if(c) c.value=parseInt(t.value)||0; save(); return; }
+  if(d.heritageMove!==undefined){ const h=char.heritage=char.heritage||{boxes:[false,false,false],moves:["","",""],third:false}; h.moves[+d.heritageMove]=t.value; save(); return; }
   if(d.lookcustom!==undefined){
     const i=+d.lookcustom;
     const cls=getClass(char.classId);
@@ -1140,6 +1218,8 @@ document.addEventListener("change", e=>{
     if(modEl) modEl.textContent=fmtMod(effMod(char.stats[st]||(STATS_MODE==="modifiers"?0:10), st));
     save(); return;
   }
+  if(d.heritageBox!==undefined){ const h=char.heritage=char.heritage||{boxes:[false,false,false],moves:["","",""],third:false}; h.boxes[+d.heritageBox]=t.checked; renderPlaybook(); save(); return; }
+  if(d.heritageThird!==undefined){ const h=char.heritage=char.heritage||{boxes:[false,false,false],moves:["","",""],third:false}; h.third=t.checked; renderPlaybook(); save(); return; }
   if(d.adv!==undefined){ toggleAdv(d.adv, t.checked); return; }
   if(d.sadv!==undefined){ toggleStarting(d.sadv, t.checked); return; }
   if(d.spellAvail!==undefined){ const [k,id]=d.spellAvail.split(":"); const s=spellFind(k,id); if(s){ s.available=t.checked; renderPlaybook(); save(); } return; }
@@ -1184,6 +1264,8 @@ document.addEventListener("click", e=>{
   }
   if(t.closest("[data-add-bond]")){ char.bonds.push(""); renderPlaybook(); save(); return; }
   if(d.bondDel!==undefined){ char.bonds.splice(+d.bondDel,1); renderPlaybook(); save(); return; }
+  if(d.addCounter!==undefined){ (char.counters=char.counters||[]).push({id:uid(), name:"", value:0}); renderPlaybook(); save(); return; }
+  if(d.counterDel!==undefined){ char.counters.splice(+d.counterDel,1); renderPlaybook(); save(); return; }
   if(d.cadvDel){
     const name=(customData.extraMoves[char.classId]||[]).find(x=>x.id===d.cadvDel)?.name;
     customData.extraMoves[char.classId]=(customData.extraMoves[char.classId]||[]).filter(x=>x.id!==d.cadvDel);
@@ -1343,7 +1425,7 @@ function checkAffected(after){
   const alignNames = (cls.alignment||[]).map(a=>a.name).concat((customData.extraAlignments[char.classId]||[]).map(a=>a.name));
   const moveNames = [];
   (cls.startingMoves||[]).forEach(m=>moveNames.push(m.name));
-  for(const t of ["2-5","6-10"]){ (cls.advancedMoves&&cls.advancedMoves[t]||[]).forEach(m=>moveNames.push(m.name)); }
+  for(const t of ADV_TIERS){ (cls.advancedMoves&&cls.advancedMoves[t.key]||[]).forEach(m=>moveNames.push(m.name)); }
   (customData.extraMoves[char.classId]||[]).forEach(m=>moveNames.push(m.name));
 
   for(const r of (char.races||[])){ if(!raceNames.includes(r)) items.push("· 种族「"+r+"」"); }

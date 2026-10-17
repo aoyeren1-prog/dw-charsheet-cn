@@ -20,6 +20,8 @@
 
 `classes` 是**必需**的（至少一个）。`basicMoves` / `specialMoves` / `spells` / `customMoves` / `compendium` 可为空数组或省略。
 
+除上述固定键外，顶层还可加**任意自定义动作数组**（如 `"wizardDomains": [...]`），只要在 `meta.refSections` 里用 `type:"groups"` 的 `groups[].key` 指向它，就能作为资料边栏的一个分类展示。
+
 ---
 
 ## 二、`meta` —— 规则配置
@@ -36,11 +38,15 @@
 | `refSections` | `array` | 资料边栏页签与内容组织 | 见下 |
 | `prepareCapFormula` | `string` | 准备上限公式 | `"施法等级+1"` |
 | `statDistribution` | `array` | 初始属性分配（`"scores"` 模式） | `[16,15,13,12,9,8]` |
+| `statMin` / `statMax` | `number` | 属性输入框上下限（可选，覆盖模式默认值） | `-1` / `3` |
+| `debilityPenalty` | `string` | 异常状态是否扣减显示调整值：`"on"`（扣 1）或 `"off"`（不扣） | `"off"` |
+| `coins` | `string` | 金币字段开关：`"on"` / `"off"`（`"off"` 时不显示金币） | `"off"` |
+| `heritage` | `object` | 血统区块配置（可选） | 见下 |
 | `source` / `license` | `string` | 来源 / 许可元信息（可选，仅记录） | — |
 
 ### `labels` 常用键
 
-`look`（外观）、`race`（种族动作）、`raceName`（种族）、`alignment`（阵营动作）、`alignmentNote`（动机）、`alignmentName`（阵营）、`starting`（起始动作）、`advanced`（进阶动作）、`customAdvanced`（自定义/其他动作组）、`gear`（装备）、`bonds`（羁绊）、`notes`（笔记）、`load`（负载上限）、`hpMax`（最大生命）、`hpCur`（当前生命）、`armor`（护甲）、`damage`（伤害）、`name`（姓名）、`level`（等级）、`xp`（XP）、`defaultFormula`（默认公式按钮）、`blank`（空占位）、`casterLevel`（施法等级）、`prepareCap`（准备上限）、`statDist`（初始分配）。
+`look`（外观）、`race`（种族动作）、`raceName`（种族）、`alignment`（阵营动作）、`alignmentNote`（动机）、`alignmentName`（阵营）、`starting`（起始动作）、`advanced`（进阶动作）、`customAdvanced`（自定义/其他动作组）、`gear`（装备）、`bonds`（羁绊）、`notes`（笔记）、`load`（负载上限）、`hpMax`（最大生命）、`hpCur`（当前生命）、`armor`（护甲）、`damage`（伤害）、`name`（姓名）、`level`（等级）、`xp`（XP）、`defaultFormula`（默认公式按钮）、`blank`（空占位）、`casterLevel`（施法等级）、`prepareCap`（准备上限）、`statDist`（初始分配）、`coins`（金币）。
 
 ### `spellSections`
 
@@ -77,10 +83,26 @@
 ]
 ```
 
-- `type:"groups"`：动作分类展示。`groups` 里 `key` 指向顶层某个动作数组，`label` 是分类标题（**`null` 则无标题、直接平铺**）。
+- `type:"groups"`：动作分类展示。`groups` 里 `key` 指向顶层某个动作数组，`label` 是分类标题（**`null` 则无标题、直接平铺**）。组可加 `importable:true`，为该组每个动作显示「＋导入」按钮（导入为角色的自定义/导入动作）。
 - `type:"extension"`：扩展页 = 动作类别（`groups`，用法同 `type:"groups"`）+ 概略职业 / 新种族（`articles` 指向顶层某个 `compendium` 数组）。
 - `type:"spells"`：法术列表（可导入到角色法术板块）。
 - `type:"search"`：全库搜索。
+
+### `heritage`（血统区块）
+
+可选。配置一个「血统」区块：标题 + 可标记格 + 可写动作 + 规则说明（含可选的「升级」解锁开关）。
+
+```jsonc
+"heritage": {
+  "title": "血统",                                   // 区块标题
+  "note": "每次聚会开始时……标记一个血统格……",      // 规则说明（markdown，不含升级段）
+  "upgradePrompt": "当你升级时……你可以选择：",        // 升级开关的提示（可选）
+  "upgradeEffect": "获得第三个血统格……"               // 升级开关勾选后的效果文本（可选）
+}
+```
+
+- 区块默认渲染 **2 个可标记格 + 2 条可写动作**；勾选 `upgradePrompt`/`upgradeEffect` 定义的「升级」开关后，显示第 3 格 + 第 3 条动作。
+- 查看模式下，可标记格仍可标记/擦除；「升级」开关仅编辑模式可改。
 
 ---
 
@@ -113,8 +135,8 @@
     { "name":"混乱", "text":"你远离文明世界的习俗常规。" }
   ],
   "gear": {
-    "intro": "你的负载上限是...",   // 可选
     "groups": [
+      { "prompt": "你起始拥有……（装备说明；无 options 的组只显示这段提示）", "options": [] },
       { "prompt": "选择你的武器：", "options": ["斧头 (近身, 1 重量)", "..."] }
     ]
   },
@@ -124,7 +146,10 @@
   "advancedMoves": {            // 进阶动作，键对应 advancedTiers 的 key
     "2-5":  [ { "name":"如饥似渴", "text":"...", "requires":null, "replaces":null } ],
     "6-10": [ ]
-  }
+  },
+  "questions": [                // 「问自己的问题」（可选）：笔记栏下方的角色塑造提示
+    "你身上的哪种举止习惯，最明显地让你显得像个外来者？"
+  ]
 }
 ```
 

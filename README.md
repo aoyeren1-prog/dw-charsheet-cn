@@ -1,6 +1,6 @@
 # 地城世界 · 车卡工具（Dungeon World Digital Character Sheet CN）
 
-纯前端、可离线使用的《地城世界》角色卡工具（简体中文）。单个 HTML 文件，`file://` 双击打开即可。
+纯前端、可离线使用的 TRPG 角色卡工具（简体中文），通过规则 JSON 支持《地城世界》(Dungeon World) 与《无限地城》(Unlimited Dungeons) 两种规则。单个 HTML 文件，`file://` 双击打开即可。
 
 - 左侧角色卡 + 右侧资料边栏
 - 编辑 / 查看双模式，浏览器打印导出 PDF
@@ -11,8 +11,8 @@
 
 ## 快速开始
 
-1. 下载 `地城世界车卡工具.html` 和 `DW.json`（DW 原版规则数据），或在 **Releases** 页面获取
-2. 双击打开 HTML，点右上角 **「📥 规则」** 选择 `DW.json`。
+1. 下载 `地城世界车卡工具.html`，以及规则数据（`DW.json` 地城世界 / `UD.json` 无限地城），或在 **Releases** 页面获取
+2. 双击打开 HTML，点右上角 **「📥 规则」** 选择对应的规则 JSON（如 `DW.json` 或 `UD.json`）。
 3. 开始车卡。规则会自动存进浏览器，刷新后无需重新导入。
 
 > 角色数据存 `localStorage`，换浏览器/清缓存会丢；重要角色请用工具内「导出」备份成 JSON。
@@ -30,20 +30,15 @@
 
 ## 构建流程
 
-环境需 Python 3（含 `lxml` 与 `opencc` 依赖，可自行 pip 安装）。
+环境需 Python 3。
 
 ```powershell
-# 1) 从 SRD 重新抽取数据（繁体→简体）→ data.json
-python builder\extract_data.py
-
-# 2) 把模板组装成最终 HTML
+# 1) 把模板组装成最终 HTML
 python builder\build.py
 
-# 3) 把底层 + 规则包深合并成一份稳定规则
-python builder\merge_rules.py data.json my-classpack.json -o merged.json
+# 2) 把底层 + 规则包深合并成一份稳定规则
+python builder\merge_rules.py DW.json my-classpack.json -o merged.json
 ```
-
-> `extract_data.py` 读取中文汉化版 SRD（Hazmole 等翻译，繁体）的 `content/classes`。该 SRD 未随仓库分发；如需重新抽取，从 <https://github.com/hazmole/Dungeon-World-HTML-SRD> 下载并解压到本工作区即可——脚本会自动识别 `Dungeon-World-HTML-SRD` / `-master` / `-ZH` 等目录名，**无需手动改名**。
 
 ---
 
@@ -52,14 +47,10 @@ python builder\merge_rules.py data.json my-classpack.json -o merged.json
 ```
 ├─ builder\                 ← 源码与脚本
 │   ├─ app_template.html    ← UI 与逻辑唯一源头
-│   ├─ extract_data.py      ← SRD → data.json
 │   ├─ build.py             ← 模板 → 最终 HTML
 │   └─ merge_rules.py       ← 合并规则包
-├─ data.json                ← 规则数据（交付物）
 ├─ README.md / LICENSE / .gitignore
 ```
-
-构建产物 `地城世界车卡工具.html` 不入库，走 GitHub Release 分发。
 
 ---
 
@@ -87,6 +78,9 @@ python builder\merge_rules.py data.json my-classpack.json -o merged.json
 官网：https://www.dungeon-world.com/
 原始源：https://github.com/Sagelt/Dungeon-World
 
+**《无限地城 Unlimited Dungeons》**——《地城世界》的规则魔改（衍生同人作品，无单一作者署名，为地城世界粉丝社群的集大成之作），采用 CC BY-SA 4.0 授权。
+原文：https://drive.google.com/file/d/1pv6kVVJhbJi1vr8hVeWh1NqrDQJKgY1B/view?usp=drivesdk
+
 **Dungeon World HTML SRD**（英文）由 flyingturtle（Andrew Codispoti, 2013）制作：
 https://github.com/flyingturtle/Dungeon-World-HTML-SRD
 
@@ -106,19 +100,13 @@ https://github.com/rfkeepers/dw-playbooks-tex
 
 - 后续应当支持标签术语库，形式待定。
 
-### 2. 支持 Unlimited Dungeons
-
-- 待严肃学习完 Unlimited Dungeons 规则后，拓展工具以支持该规则。
-- 前期已做部分铺垫：`meta.refSections` 去硬编码（页签/动作分类可配）、`statsMode:"modifiers"`、`statDistribution`、`spellSections`、`prepareCapFormula` 等。
-- 待读完后确认 UD 具体规则结构，再补实现。
-
-### 3. 微调资料边栏样式
+### 2. 微调资料边栏样式
 
 - 现状：资料边栏的所有动作、组合全都是同一配色，看起来容易眼花，这一点在“扩展”页面中尤其明显。
 - 后续有空时应该修改配色，让各种条目之间有些许差别，降低阅读负担。
 - （已分离部分动作样式，不过没有修改配色）
 
-### 4. 装备 / 笔记栏支持 `{标签名}` 标签样式
+### 3. 装备 / 笔记栏支持 `{标签名}` 标签样式
 
 - 现状：装备（gear）和笔记（notes）栏是 textarea 直出、**不做 markdown 渲染**，因此其中的 `{标签名}` 语法不生效——而在动作、羁绊等做渲染的地方，`{标签名}` 会变成高亮标签（见 `markdownToHtml` 里的 `\{([^{}]+)\}`）。
 - 难点：装备/笔记要求**编辑模式下仍可直接编辑文本**，如何在「可编辑 textarea」前提下渲染出标签样式，二者冲突。
