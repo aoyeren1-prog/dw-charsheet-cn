@@ -218,7 +218,9 @@ input[data-bind=coins]::-webkit-outer-spin-button,input[data-bind=coins]::-webki
 .heritage-up{position:relative;text-indent:16px}
 .heritage-up .chk{position:absolute;left:-2px;top:0;width:12px;height:12px;border-width:1.2px;border-radius:2px}
 .heritage-up .chk:checked::after{font-size:8px}
-.heritage-up .chk:disabled{opacity:1;cursor:default}
+.heritage-up .chk:disabled{opacity:1;cursor:default;pointer-events:none}
+.h-toggle{border:1px solid var(--line-3);background:var(--paper);color:var(--ink);border-radius:3px;padding:2px 6px;font-size:11px;cursor:pointer}
+.h-toggle:hover{border-color:var(--accent);color:var(--accent)}
 .question-hint{font-size:11px;color:var(--ink-4);margin-top:6px;line-height:1.5}
 .counters{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
 .counters .bond-line input{flex:1;min-width:0}
@@ -791,7 +793,13 @@ function bondsHtml(cls){
 function heritageHtml(){
   const cfg = META.heritage;
   if(!cfg) return "";
-  const h = char.heritage = char.heritage || {boxes:[false,false,false], moves:["","",""], third:false};
+  const h = char.heritage = char.heritage || {boxes:[false,false,false], moves:["","",""], third:false, hidden:false};
+  const title = cfg.title || "血统";
+  const toggleBtn = `<button type="button" class="h-toggle" data-heritage-toggle title="显示 / 隐藏">${h.hidden ? "显示" : "隐藏"}</button>`;
+  const hdr = `<h3>${esc(title)} <span class="h3r">${toggleBtn}</span></h3>`;
+  if(h.hidden){
+    return `<div class="pb-sec">${hdr}</div>`;
+  }
   const n = h.third ? 3 : 2;
   const boxes = h.boxes.map((b,i)=>{
     if(i>=n) return "";
@@ -811,7 +819,7 @@ function heritageHtml(){
     body.push(`<p class="heritage-up"><input type="checkbox" class="chk" data-heritage-third ${h.third?"checked":""}${mode==="view"?" disabled":""}>${inlineMarkdown(cfg.upgradeEffect)}</p>`);
   }
   const card = body.length ? `<div class="mv mv-heritage"><div class="mv-t">${body.join("")}</div></div>` : "";
-  return `<div class="pb-sec"><h3>${esc(cfg.title||"血统")}</h3><div class="heritage-boxes">${boxes}</div>${lines}${card}</div>`;
+  return `<div class="pb-sec">${hdr}<div class="heritage-boxes">${boxes}</div>${lines}${card}</div>`;
 }
 
 function startingHtml(cls, m){
@@ -1294,6 +1302,7 @@ document.addEventListener("click", e=>{
   if(d.delSpellSection!==undefined){ char.manualSpells=(char.manualSpells||[]).filter(x=>x!==d.delSpellSection); renderPlaybook(); save(); return; }
   if(d.addSpell!==undefined){ const [k,g]=d.addSpell.split(":"); const s=char.spells[k]; if(s) s.list.push({id:uid(), group:g, name:"", text:"", available:false}); renderPlaybook(); save(); return; }
   if(d.spellDel!==undefined){ const [k,id]=d.spellDel.split(":"); const s=char.spells[k]; if(s) s.list=s.list.filter(x=>x.id!==id); renderPlaybook(); save(); return; }
+  if(d.heritageToggle!==undefined){ const h=char.heritage=char.heritage||{boxes:[false,false,false],moves:["","",""],third:false}; h.hidden=!h.hidden; renderPlaybook(); save(); return; }
 });
 
 function toggleAdv(name, checked){
@@ -1415,8 +1424,8 @@ function applyEffective(){
 function checkAffected(after){
   const items = [];
   const cls = (after.classes||[]).find(c=>c.id===char.classId);
-  if(char.classId && !cls){
-    items.push("· 当前职业「"+char.classId+"」");
+  if(!cls){
+    if(char.classId) items.push("· 当前职业「"+char.classId+"」");
     return items;
   }
   // 合并「移除后规则」+「自定义数据」，得到移除后仍有效的完整集合，避免误报自定义内容
