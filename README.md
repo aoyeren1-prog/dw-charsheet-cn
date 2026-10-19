@@ -23,7 +23,7 @@
 
 规则数据是一个 JSON 文件，顶层含 `meta`（配置）、`classes`（职业）、`basicMoves` / `specialMoves`（动作）、`spells`（法术）。所有板块名、动作分类、属性模型都由 `meta` 驱动。
 
-- 只想**改几个字段**：看 `houserule-test.json` 示例即可。
+- 只想**改几个字段**：看 `DW-HouseRuleTest.json` 示例即可。
 - 想**导入 / 定制整套规则**：见 [`RULES_FORMAT.md`](RULES_FORMAT.md)（完整字段、类型、标记语法、公式、分层合并）。
 
 ---
