@@ -45,11 +45,17 @@ python builder\merge_rules.py DW.json my-classpack.json -o merged.json
 ## 目录结构
 
 ```
-├─ builder\                 ← 源码与脚本
-│   ├─ app_template.html    ← UI 与逻辑唯一源头
-│   ├─ build.py             ← 模板 → 最终 HTML
-│   └─ merge_rules.py       ← 合并规则包
-├─ README.md / LICENSE / .gitignore
+├─ builder\                     ← 源码与脚本
+│   ├─ app_template.html        ← UI 与逻辑
+│   ├─ build.py                 ← 模板 → 成品 转换脚本
+│   └─ merge_rules.py           ← 合并规则包脚本
+├─ 地城世界车卡工具.html         ← 成品工具
+├─ DW.json                      ← 地城世界 Dungeon World 规则
+├─ DW-HouseRuleTest.json        ← 房规示例
+├─ UD.json                      ← 无限地城 Unlimited Dungeons 规则
+├─ UD-DistantShoresPack.json    ← 远岸风景补充包 Distant Shores Pack 规则
+├─ RULES_FORMAT.md              ← 规则 json 结构说明
+├─ README.md / LICENSE / .gitignore / ...
 ```
 
 ---
@@ -78,7 +84,7 @@ python builder\merge_rules.py DW.json my-classpack.json -o merged.json
 官网：https://www.dungeon-world.com/
 原始源：https://github.com/Sagelt/Dungeon-World
 
-**《无限地城 Unlimited Dungeons》**——《地城世界》的规则魔改（衍生同人作品，无单一作者署名，为地城世界粉丝社群的集大成之作），采用 CC BY-SA 4.0 授权。
+**《无限地城 Unlimited Dungeons》**——《地城世界》的规则魔改（地城世界粉丝社群的衍生同人作品，无单一作者署名），采用 CC BY-SA 4.0 授权。
 原文：https://drive.google.com/file/d/1pv6kVVJhbJi1vr8hVeWh1NqrDQJKgY1B/view?usp=drivesdk
 
 **Dungeon World HTML SRD**（英文）由 flyingturtle（Andrew Codispoti, 2013）制作：
