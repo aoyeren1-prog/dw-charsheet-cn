@@ -12,6 +12,7 @@ Unlimited Dungeons CN/
 .pnpm*/
 .kilo*/
 acl-recovery/
+_acl-recovery/
 *.xlsx
 Thumbs.db
 .DS_Store

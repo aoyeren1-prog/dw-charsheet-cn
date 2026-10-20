@@ -62,8 +62,6 @@ python builder\merge_rules.py DW.json my-classpack.json -o merged.json
 
 ## 提交规范（Commit）
 
-约定式提交的简化版，一行一个意思：
-
 | 前缀 | 用途 |
 |---|---|
 | `feat` | 新功能 |
@@ -101,6 +99,10 @@ https://github.com/rfkeepers/dw-playbooks-tex
 ---
 
 ## TODO
+
+### 0. UD 数据
+
+- 由于 UD 内容尚未校对完，数据 json 格式尚未完全做好，目前只是预览。
 
 ### 1. 装备内容
 
