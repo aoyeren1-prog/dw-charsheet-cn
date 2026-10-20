@@ -10,6 +10,7 @@ Unlimited Dungeons CN/
 备份_*/
 .pip-test-*/
 .pnpm*/
+.kilo*/
 acl-recovery/
 *.xlsx
 Thumbs.db
@@ -17,3 +18,4 @@ Thumbs.db
 *.log
 *workspace
 builder/extract*
+Reference/

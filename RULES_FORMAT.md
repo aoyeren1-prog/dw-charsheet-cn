@@ -14,11 +14,12 @@
   "specialMoves": [ /* 特殊动作，见第四节 */ ],
   "spells":       { /* 法术，见第五节 */ },
   "customMoves":  [ /* 自定义动作，见第六节 */ ],
-  "compendium":   [ /* 概略职业 / 新种族，见第六节 */ ]
+  "compendium":   [ /* 概略职业 / 新种族，见第六节 */ ],
+  "tags":         [ /* 标签定义，见第七节 */ ]
 }
 ```
 
-`classes` 是**必需**的（至少一个）。`basicMoves` / `specialMoves` / `spells` / `customMoves` / `compendium` 可为空数组或省略。
+`classes` 是**必需**的（至少一个）。`basicMoves` / `specialMoves` / `spells` / `customMoves` / `compendium` / `tags` 可为空数组或省略。
 
 除上述固定键外，顶层还可加**任意自定义动作数组**（如 `"wizardDomains": [...]`），只要在 `meta.refSections` 里用 `type:"groups"` 的 `groups[].key` 指向它，就能作为资料边栏的一个分类展示。
 
@@ -85,6 +86,7 @@
 
 - `type:"groups"`：动作分类展示。`groups` 里 `key` 指向顶层某个动作数组，`label` 是分类标题（**`null` 则无标题、直接平铺**）。组可加 `importable:true`，为该组每个动作显示「＋导入」按钮（导入为角色的自定义/导入动作）。
 - `type:"extension"`：扩展页 = 动作类别（`groups`，用法同 `type:"groups"`）+ 概略职业 / 新种族（`articles` 指向顶层某个 `compendium` 数组）。
+- `type:"tags"`：标签列表。显示顶层 `tags` 数组中定义的所有标签，按 `category` 分组，展示标签颜色和描述。
 - `type:"spells"`：法术列表（可导入到角色法术板块）。
 - `type:"search"`：全库搜索。
 
@@ -248,6 +250,28 @@
 | `[ ]` / `[x]` | 勾选框（查看模式可点击切换） |
 
 > 装备（gear）和笔记（notes）栏当前**不做渲染**，是纯文本，`{标签名}` 会原样显示——一个不好修的缺陷（README「待办事项」）。
+
+### 标签颜色定义
+
+可在顶层定义 `tags` 对象，按分类组织标签并指定颜色。未定义的标签使用默认灰色背景 + 黑色文字。
+
+```jsonc
+"tags": {
+  "距离": [                   // 分类名（作为折叠组标题）
+    {
+      "name": "触及",         // 必需：标签名（与 {标签名} 匹配）
+      "color": "#ecacac",    // 可选：背景色（CSS 颜色值）
+      "textColor": "#fff",   // 可选：文字色（未设置则为黑色）
+      "description": "需要接触到目标才能使用"  // 可选：说明文字
+    }
+  ],
+  "通用": [
+    { "name": "笨重", "description": "该装备笨重难用" }
+  ]
+}
+```
+
+资料边栏新增"标签"页签，按分类折叠展示所有标签及其颜色。
 
 ---
 

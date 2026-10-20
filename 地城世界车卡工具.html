@@ -18,7 +18,7 @@
   --paperline:#cfd4dd;
   --line-2:#9aa; --line-3:#bbb; --line-4:#ccc; --line-5:#ddd;
   --warn:#b06a1a; --danger:#c0392b; --danger-bg:#fdecea;
-  --tag-bg:#eee3c8; --tag-ink:#8a6a20; --on-ink:#ffffff;
+  --tag-bg:#e0e0e0; --tag-ink:#000000; --on-ink:#ffffff;
   /* 资料边栏（默认跟随纸面，可单独覆盖以区别于角色卡） */
   --ref-paper:var(--paper); --ref-ink:var(--ink);
   --ref-ink-2:var(--ink-2); --ref-ink-3:var(--ink-3); --ref-ink-4:var(--ink-4); --ref-ink-5:var(--ink-5);
@@ -85,7 +85,7 @@ body{background:var(--bg);color:var(--text);font-family:"Segoe UI","Microsoft Ya
 .rmv .rmv-foot{padding:0 9px 8px;text-align:right}
 .rmv .rmv-t p{margin:3px 0}
 .rmv .rmv-t ul{margin:3px 0;padding-left:18px}
-.rmv .rmv-t .tag{background:var(--tag-bg);color:var(--tag-ink);border-radius:3px;padding:0 4px;font-size:11px}
+.rmv .rmv-t .tag{background:var(--tag-bg);color:var(--tag-ink);border-radius:3px;padding:0 4px;font-size:12px}
 .ref-search{width:100%;background:var(--ref-paper);color:var(--ref-ink);border:1px solid var(--ref-line-5);border-radius:6px;padding:7px 9px;font-size:13px;margin-bottom:4px}
 .ref-spell-group{margin:10px 0 4px;font-size:13px;font-weight:700;color:var(--ref-ink-3)}
 .ref-spell-list{border:1px solid var(--ref-line-4);border-radius:6px;margin-bottom:10px;background:var(--ref-paper)}
@@ -94,6 +94,9 @@ body{background:var(--bg);color:var(--text);font-family:"Segoe UI","Microsoft Ya
 .ref-spell-list[open] summary::before{content:"▾"}
 .ref-spell-list summary::-webkit-details-marker{display:none}
 .ref-spell-list .ref-spell-inner{padding:0 12px 10px}
+.tag{background:var(--tag-bg);color:var(--tag-ink);border-radius:3px;padding:0 4px;font-size:12px;display:inline-block}
+.tag-item{margin-bottom:6px;font-size:12px;color:var(--ref-ink-2);line-height:1.6}
+.tag-item .tag{margin-right:4px}
 
 /* ===== 页头 ===== */
 .pb-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:12px}
@@ -171,7 +174,7 @@ input[data-bind=coins]::-webkit-outer-spin-button,input[data-bind=coins]::-webki
 .md ul{margin:3px 0;padding-left:18px}
 .md li{margin:1px 0}
 .notes-md{font-size:12.5px;color:var(--ink-2);padding:2px 0;line-height:1.5}
-.mv .tag{background:var(--tag-bg);color:var(--tag-ink);border-radius:3px;padding:0 4px;font-size:11px}
+.mv .tag{background:var(--tag-bg);color:var(--tag-ink);border-radius:3px;padding:0 4px;font-size:12px}
 .mv .del{position:absolute;top:4px;right:4px;border:none;background:transparent;color:var(--line-3);cursor:pointer;font-size:13px;line-height:1;padding:2px 4px;border-radius:3px;z-index:2}
 .mv .del:hover{color:var(--danger);background:var(--danger-bg)}
 .mv-add{margin-top:4px}
@@ -199,8 +202,8 @@ input[data-bind=coins]::-webkit-outer-spin-button,input[data-bind=coins]::-webki
 .gear-line{font-size:12.5px;padding:2px 0}
 .gear-line.pre{white-space:pre-wrap}
 .gear-group{margin-top:6px}
-.gear-prompt{font-size:11px;color:var(--ink-4)}
-.gear-prompt .tag{background:var(--paper-2);color:var(--ink-4);border:1px solid var(--ink-5);border-radius:3px;padding:0 3px;font-size:10px}
+.gear-prompt{font-size:12px;color:var(--ink-4)}
+.gear-prompt .tag{background:var(--paper-2);color:var(--ink-4);border:1px solid var(--ink-5);border-radius:3px;padding:0 3px;font-size:12px}
 .gear-add{border:1px solid var(--accent);background:transparent;color:var(--tag-ink);border-radius:4px;width:18px;height:18px;padding:0;font-size:12px;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;flex:none}
 .gear-add:hover{background:var(--accent);color:var(--accent-ink)}
 .coins-input{width:80px;border:1px solid var(--line-5);border-radius:3px;padding:3px 6px;background:var(--paper);color:var(--ink);font-size:13px}
@@ -221,7 +224,7 @@ input[data-bind=coins]::-webkit-outer-spin-button,input[data-bind=coins]::-webki
 .heritage-up .chk:disabled{opacity:1;cursor:default;pointer-events:none}
 .h-toggle{border:1px solid var(--line-3);background:var(--paper);color:var(--ink);border-radius:3px;padding:2px 6px;font-size:11px;cursor:pointer}
 .h-toggle:hover{border-color:var(--accent);color:var(--accent)}
-.question-hint{font-size:11px;color:var(--ink-4);margin-top:6px;line-height:1.5}
+.question-hint{font-size:12px;color:var(--ink-4);margin-top:6px;line-height:1.5}
 .counters{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
 .counters .bond-line input{flex:1;min-width:0}
 .counters .bond-line .coins-input{flex:none;width:52px;border:none;border-bottom:1px dashed var(--ink-5);background:transparent;text-align:center;padding:0}
@@ -230,7 +233,7 @@ input[data-bind=coins]::-webkit-outer-spin-button,input[data-bind=coins]::-webki
 .xbtn{border:none;background:transparent;color:var(--line-3);cursor:pointer;font-size:13px;line-height:1;padding:2px 4px;border-radius:3px}
 .xbtn:hover{color:var(--danger);background:var(--danger-bg)}
 .empty{color:var(--ink-5);text-align:center;padding:70px 20px;font-size:14px}
-.hint{font-size:11px;color:var(--ink-4);margin-top:4px}
+.hint{font-size:12px;color:var(--ink-4);margin-top:4px}
 .addrow{margin-top:6px}
 .addrow button{background:var(--paper);color:var(--ink);border:1px dashed var(--ink-5);border-radius:4px;padding:4px 10px;cursor:pointer;font-size:12px}
 .addrow button:hover{border-color:var(--accent);color:var(--accent)}
@@ -333,6 +336,7 @@ function applyData(data){
     {id:"search", title:"资料速查", type:"search"}
   ];
   if(!REF_SECTIONS.some(s => s.id === refTab)) refTab = REF_SECTIONS[0] ? REF_SECTIONS[0].id : "search";
+  buildTagMap();
 }
 
 /* ============ 规则合并（分层） ============ */
@@ -384,6 +388,7 @@ let boxReg = {};
 let ruleStack = [];
 let customData = {classes:[], extraMoves:{}, extraRacialMoves:{}, extraAlignments:{}};
 let char = defaultChar();
+let TAG_COLOR_MAP = {};
 
 function uid(){ return "c"+Math.random().toString(36).slice(2,9); }
 function defaultChar(){
@@ -417,15 +422,52 @@ function statBoundsAttr(isMod){
   }
   return isMod ? ' min="-4" max="4"' : ' min="1" max="18"';
 }
+function buildTagMap() {
+  TAG_COLOR_MAP = {};
+  const tags = DW_DATA.tags || {};
+  // tags 现在是 { "分类名": [{name, color, ...}, ...] } 结构
+  for (const category in tags) {
+    const tagList = tags[category] || [];
+    tagList.forEach(tag => {
+      if (tag.name && tag.color) {
+        TAG_COLOR_MAP[tag.name] = {
+          color: tag.color,
+          textColor: tag.textColor || null
+        };
+      }
+    });
+  }
+}
+function getTagColor(tagName) {
+  return TAG_COLOR_MAP[tagName] || null;
+}
 function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
 function stripTags(html){ const d=document.createElement("div"); d.innerHTML=html||""; return d.textContent||""; }
 function inlineMarkdown(t){
-  return esc(t).replace(/\{([^{}]+)\}/g,'<span class="tag">$1</span>').replace(/\*\*([^*]+)\*\*/g,"<strong>$1</strong>").replace(/\*([^*]+)\*/g,"<em>$1</em>");
+  return esc(t).replace(/\{([^{}]+)\}/g, (match, tagName) => {
+    const tagStyle = getTagColor(tagName);
+    let style = '';
+    if (tagStyle) {
+      const bg = tagStyle.color;
+      const fg = tagStyle.textColor;
+      style = fg ? ` style="background:${bg};color:${fg};"` : ` style="background:${bg};"`;
+    }
+    return `<span class="tag"${style}>${tagName}</span>`;
+  }).replace(/\*\*([^*]+)\*\*/g,"<strong>$1</strong>").replace(/\*([^*]+)\*/g,"<em>$1</em>");
 }
 function markdownToHtml(md){
   const lines=String(md||"").split("\n");
   const out=[]; let list=[]; let para=[];
-  const inline=t=>esc(t).replace(/\{([^{}]+)\}/g,'<span class="tag">$1</span>').replace(/\*\*([^*]+)\*\*/g,"<strong>$1</strong>").replace(/\*([^*]+)\*/g,"<em>$1</em>");
+  const inline=t=>esc(t).replace(/\{([^{}]+)\}/g, (match, tagName) => {
+    const tagStyle = getTagColor(tagName);
+    let style = '';
+    if (tagStyle) {
+      const bg = tagStyle.color;
+      const fg = tagStyle.textColor;
+      style = fg ? ` style="background:${bg};color:${fg};"` : ` style="background:${bg};"`;
+    }
+    return `<span class="tag"${style}>${tagName}</span>`;
+  }).replace(/\*\*([^*]+)\*\*/g,"<strong>$1</strong>").replace(/\*([^*]+)\*/g,"<em>$1</em>");
   const flushList=()=>{ if(list.length){ out.push("<ul>"+list.map(x=>"<li>"+x+"</li>").join("")+"</ul>"); list=[]; } };
   const flushPara=()=>{ if(para.length){ out.push("<p>"+para.map(inline).join("<br>")+"</p>"); para=[]; } };
   for(const line of lines){
@@ -947,6 +989,7 @@ function renderRef(){
   if(!sec) body.innerHTML = renderRefSearch(searchKw);
   else if(sec.type === "groups") body.innerHTML = renderRefGroups(sec);
   else if(sec.type === "extension") body.innerHTML = renderRefExtension(sec);
+  else if(sec.type === "tags") body.innerHTML = renderRefTags();
   else if(sec.type === "spells") body.innerHTML = renderRefSpells();
   else body.innerHTML = renderRefSearch(searchKw);
 }
@@ -1003,6 +1046,23 @@ function renderRefExtension(sec){
   const items = DW_DATA[sec.articles] || [];
   html += items.map(it => renderArticle(it)).join("");
   return html || '<div class="ref-empty">暂无内容。</div>';
+}
+function renderRefTags() {
+  const tags = DW_DATA.tags || {};
+  if (!Object.keys(tags).length) {
+    return '<div class="ref-empty">未定义标签</div>';
+  }
+  
+  let html = '';
+  for (const [category, tagList] of Object.entries(tags)) {
+    const items = tagList.map(tag => {
+      const desc = tag.description ? ` ${inlineMarkdown(tag.description)}` : '';
+      return `<div class="tag-item">${inlineMarkdown(`{${tag.name}}`)}${desc}</div>`;
+    }).join('');
+    html += `<details class="rmv"><summary>${esc(category)}</summary><div class="rmv-t">${items}</div></details>`;
+  }
+  
+  return html;
 }
 function spellSectionKeyForClass(ck){ return Object.keys(SPELL_SECTIONS).find(k => SPELL_SECTIONS[k].spellClass === ck) || Object.keys(SPELL_SECTIONS)[0]; }
 function spellSourceLabel(ck){
@@ -1074,7 +1134,26 @@ function searchResultsHtml(kw){
     const cards = raceItems.map(item => { const idx = lastSearchItems.push(item)-1; return rmvCardHtml(item, idx); }).join("");
     parts.push(`<div class="ref-sec">${esc(LABELS.raceName)}：${esc(matchedRaces.join("、"))}</div>${cards}`);
   }
-  // 3. 关键词 (去重)
+  // 3. 标签
+  const tagMatches = [];
+  const tagsData = DW_DATA.tags || {};
+  for (const category in tagsData) {
+    const tagList = tagsData[category] || [];
+    tagList.forEach(tag => {
+      if (tag.name.includes(kw) || (tag.description && tag.description.includes(kw))) {
+        tagMatches.push(tag);
+      }
+    });
+  }
+  if(tagMatches.length){
+    let tagHtml = '<div class="ref-sec">标签</div>';
+    tagMatches.forEach(tag => {
+      const desc = tag.description ? ` ${inlineMarkdown(tag.description)}` : '';
+      tagHtml += `<div class="tag-item">${inlineMarkdown(`{${tag.name}}`)}${desc}</div>`;
+    });
+    parts.push(tagHtml);
+  }
+  // 4. 关键词 (去重)
   const matchedClassIds = new Set(classMatches.map(c=>c.id));
   const matchedRaceSet = new Set(matchedRaces);
   const kwItems = collectSearchable().filter(it => {
@@ -1246,6 +1325,7 @@ document.addEventListener("click", e=>{
   const t=e.target, d=t.dataset||{};
   if(d.setformula!==undefined){ applyFormula(d.setformula); return; }
   if(d.ruleDel!==undefined){ removeRule(+d.ruleDel); return; }
+  if(d.ruleReload!==undefined){ reloadRule(+d.ruleReload); return; }
   if(t.closest("[data-ref-tab]")){ refTab=t.closest("[data-ref-tab]").dataset.refTab; renderRef(); save(); return; }
   if(d.imp!==undefined){ importSearchItem(+d.imp); return; }
   if(d.gearopt!==undefined){ char.gear=(char.gear?char.gear+"\n":"")+d.gearopt; const g=document.querySelector('[data-bind="gear"]'); if(g){ g.value=char.gear; autosize(g); } save(); return; }
@@ -1443,19 +1523,47 @@ function checkAffected(after){
   for(const m of (char.startingChoices||[])){ if(!moveNames.includes(m)) items.push("· 起始动作「"+m+"」"); }
   return items;
 }
+function confirmRuleChange(actionName, layerName, newStack){
+  const after = newStack.reduce((acc, l) => deepMerge(acc, l.data), {});
+  const affected = checkAffected(after);
+  let msg = "确定" + actionName + "「" + layerName + "」？";
+  if(affected.length) msg = "检测到" + actionName + "后你角色卡里的以下条目可能受影响：\n\n" + affected.join("\n") + "\n\n确定" + actionName + "？";
+  return confirm(msg);
+}
 function removeRule(index){
   const layer = ruleStack[index];
   if(!layer) return;
   const afterStack = ruleStack.filter((_,i)=>i!==index);
-  const after = afterStack.reduce((acc,l)=>deepMerge(acc,l.data), {});
-  const affected = checkAffected(after);
-  let msg = "确定移除「"+layer.name+"」？";
-  if(affected.length) msg = "检测到你角色卡里的以下条目与「"+layer.name+"」有重合：\n\n"+affected.join("\n")+"\n\n移除后对这些条目的影响未知。确定移除？";
-  if(!confirm(msg)) return;
+  if(!confirmRuleChange("移除", layer.name, afterStack)) return;
   ruleStack = afterStack;
   saveRules();
   applyEffective();
   renderRulesPanel();
+}
+function reloadRule(index){
+  const layer = ruleStack[index];
+  if(!layer) return;
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  input.onchange = e => {
+    const f = e.target.files[0];
+    if(!f) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try{
+        const newData = JSON.parse(String(reader.result||""));
+        const tempStack = ruleStack.map((l, i) => i === index ? {name: f.name, data: newData} : l);
+        if(!confirmRuleChange("重载", layer.name, tempStack)) return;
+        ruleStack[index] = {name: f.name, data: newData};
+        saveRules();
+        applyEffective();
+        renderRulesPanel();
+      }catch(err){ alert("规则 JSON 解析失败："+err.message); }
+    };
+    reader.readAsText(f);
+  };
+  input.click();
 }
 function clearRules(){
   if(ruleStack.length && !confirm("确定清空整个规则栈（移除全部 "+ruleStack.length+" 层）？")) return;
@@ -1492,7 +1600,7 @@ function renderRulesPanel(){
     list.innerHTML = '<div class="hint">（空）尚无规则，请点「📥 导入规则」导入底层规则。</div>';
   } else {
     list.innerHTML = ruleStack.map((layer, i) => ({layer, i})).reverse().map(({layer, i}) =>
-      `<div class="rule-layer"><span class="rule-layer-name">${esc(layer.name)}</span>${i===0?'<span class="rule-tag">底层</span>':''}<button class="xbtn" data-rule-del="${i}" title="撤销该层">✕</button></div>`
+      `<div class="rule-layer"><span class="rule-layer-name">${esc(layer.name)}</span>${i===0?'<span class="rule-tag">底层</span>':''}<button class="xbtn" data-rule-reload="${i}" title="重新加载该层">⟳</button><button class="xbtn" data-rule-del="${i}" title="撤销该层">✕</button></div>`
     ).join("");
   }
 }
