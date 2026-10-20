@@ -62,8 +62,6 @@ python builder\merge_rules.py DW.json my-classpack.json -o merged.json
 
 ## 提交规范（Commit）
 
-约定式提交的简化版，一行一个意思：
-
 | 前缀 | 用途 |
 |---|---|
 | `feat` | 新功能 |
