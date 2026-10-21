@@ -344,3 +344,139 @@ python builder\merge_rules.py data.json my-classpack.json -o merged.json
   "spells": {}
 }
 ```
+
+---
+
+## 十一、实验性功能（为 DW2 适配准备）
+
+> ⚠️ **本节所有字段均为实验性功能**，是为适配未来的《地城世界 2》（DW2）规则而预先加入的。DW2 仍是 beta，这些字段的语义、命名、结构随时可能调整，请勿在要长期使用的正式规则里依赖它们。
+
+### 1. Conditions 多态状态（取代 debilities）
+
+| 键 | 类型 | 说明 |
+|---|---|---|
+| `meta.conditions` | `array` | 状态列表 `[{key, label, stat}]`，`stat` 是该状态对应的受损属性 |
+| `meta.conditionStates` | `array` | 状态列表，**长度决定状态数**（`["clear","marked"]` 二态、`["clear","marked","locked"]` 三态） |
+
+```jsonc
+"conditions": [
+  { "key":"exhausted",  "label":"力竭", "stat":"STR" },
+  { "key":"frightened", "label":"受惊", "stat":"DEX" }
+],
+"conditionStates": ["clear","marked","locked"]
+```
+
+- 当 `meta.conditions` 存在时，角色卡异常状态改用这套多态状态（每个属性格子下方一个可循环点击的状态钮），**取代**旧的 `meta.debilities`（属性→状态名映射）。
+- 状态数由 `conditionStates` 数组长度决定：DW1 二态、DW2 三态，未来四/五态也可扩。
+
+### 2. Treasure Track（财富轨道）
+
+| 键 | 类型 | 说明 |
+|---|---|---|
+| `meta.treasureTiers` | `array` | 阶层列表 `[{key, label, slots}]`，`slots` 是该阶层格数（`0` = 无格） |
+
+```jsonc
+"treasureTiers": [
+  { "key":"broke", "label":"破产", "slots":4 },
+  { "key":"poor",  "label":"贫穷", "slots":6 },
+  { "key":"aristocratic", "label":"贵族", "slots":0 }
+]
+```
+
+渲染为一条分段轨道：**点某格直接填充到该格、点已填充格清到该格**（双向），当前财富等级（已填满的最高阶层）标签高亮。格数、阶层全由数据决定。
+
+### 3. Advancement（升级选项）
+
+| 键 | 类型 | 说明 |
+|---|---|---|
+| `meta.advancement` | `array` | 分段数组 `[{minLevel, text}]`，`text` 是**纯文本**（含 `[ ]` 勾选框），`minLevel` 是解锁等级 |
+
+```jsonc
+"advancement": [
+  { "minLevel":1, "text":"当你升级时，HP +1，并选择以下一项：\n\n[ ] +1 任意属性（max +2）\n[ ] 获得一个 Path（含起始动作）" },
+  { "minLevel":5, "text":"从 5 级起，你还可以选择：\n\n[ ] Multiclass — 获得其他职业的 Path" }
+]
+```
+
+- 每段是一段**纯文本**，勾选框就是文本里的 `[ ]`（复用动作文本的勾选框机制，`[x]` 表示勾选）。
+- 角色等级低于某段 `minLevel` 时，该段整体置灰 + 勾选框禁用。
+
+### 4. XP 轨道
+
+| 键 | 类型 | 说明 |
+|---|---|---|
+| `meta.xpTrackSize` | `number` | XP 格数（配了才启用轨道，否则用数字输入框） |
+
+```jsonc
+"xpTrackSize": 5
+```
+
+XP 改为轨道（点击填充），**不自动归零、不自动升级**——升级由玩家自行决定。
+
+### 5. Relationship Depth（关系深度）
+
+| 键 | 类型 | 说明 |
+|---|---|---|
+| `meta.relationshipDepthMax` | `number` | 关系深度上限（默认 3） |
+
+角色数据 `char.relationships` 是 `[{target, description, depth}]`，在羁绊（bonds）区域上方渲染：每条关系 = 目标输入框 + 描述输入框 + 一条 Depth 轨道（点击填充/清空）。
+
+### 6. Origins（起源）
+
+| 键 | 类型 | 说明 |
+|---|---|---|
+| `meta.origins` | `array` | 字段列表 `[{key, label, prefix, hint}]` |
+
+```jsonc
+"origins": [
+  { "key":"ancestry",  "label":"血缘", "prefix":"我是",   "hint":"如：矮人、精灵、人类……" },
+  { "key":"community", "label":"社群", "prefix":"我来自", "hint":"如：佣兵团、商队……" }
+]
+```
+
+- `prefix`：输入框预填文字（如「我是」），可编辑，未填写时显示。
+- `hint`：输入框下方的灰色示例文字。
+- 缺省 `prefix`/`hint` 时输入框为空、无示例。
+
+### 7. 伤害开关
+
+| 键 | 类型 | 说明 |
+|---|---|---|
+| `meta.showDamage` | `bool` | `false` 时属性栏不显示伤害（DW2 伤害由武器定义） |
+
+### 8. modifiers 模式公式显示
+
+| 键 | 类型 | 说明 |
+|---|---|---|
+| `meta.showFormulaInModifiers` | `bool` | `true` 时 `statsMode:"modifiers"` 也显示 HP/负载公式（默认隐藏） |
+
+公式另支持 **`等级`** 关键词（取角色当前等级），如 `"hp":"10+等级"`。
+
+### 9. 职业内覆盖进阶分段
+
+`classes[].advancedTiers` 可覆盖全局 `meta.advancedTiers`（道途 / Path 是职业独有的）：
+
+```jsonc
+"advancedTiers": [
+  { "key":"guardian", "label":"守护者 Path", "note":"以血肉之躯挡在同伴身前", "minLevel":1 }
+],
+"advancedMoves": { "guardian": [ ... ] }
+```
+
+`note` 是分组名下方的灰色说明文字（可选）。
+
+### 10. Struggle（心结）
+
+顶层 `struggles`（可导入的心结列表）+ `struggleHelp`（规则说明），在 `refSections` 里加一个 `type:"groups"` 页签：
+
+```jsonc
+"refSections": [
+  { "id":"struggles", "title":"心结", "type":"groups", "groups":[
+    { "key":"struggleHelp", "label":"怎么处理心结" },
+    { "key":"struggles", "label":"心结列表", "importable":true, "kind":"struggle" }
+  ]}
+]
+```
+
+- `struggles` 里的每个心结是动作（`{name, text}`），`importable:true` 使其可导入。
+- `kind:"struggle"` 让导入进角色卡的「心结」板块（而非自定义动作）。

@@ -107,18 +107,33 @@ body{background:var(--bg);color:var(--text);font-family:"Segoe UI","Microsoft Ya
 .pb-info .it .k{font-size:10px;color:var(--ink-4)}
 .pb-info .it .v{font-size:16px;font-weight:700}
 .pb-info input{background:transparent;border:none;border-bottom:1px dashed var(--ink-5);font-size:16px;font-weight:700;color:var(--ink);width:64px;text-align:left}
+.pb-info .it .track{height:22px;align-content:center}
+.pb-info .it .track .trc{width:18px;height:18px}
 
 /* ===== 数值 ===== */
 .pb-stats{position:relative;display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;margin-bottom:12px}
 .stat-dist{position:absolute;top:0;left:0;font-size:11px;color:var(--ink-5);line-height:1.2;white-space:nowrap}
-.pb-statgrid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
-.pb-stat{text-align:center}
+.pb-statgrid{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.pb-stat{flex:1 1 0;min-width:52px;text-align:center}
 .pb-stat .n{font-size:13px;color:var(--ink-3);border-bottom:1px solid var(--paperline);padding-bottom:1px}
 .pb-stat .v{font-size:24px;font-weight:800}
 .pb-stat .m{font-size:15px;font-weight:700;color:var(--ink-2)}
 .pb-stat .deb{display:inline-flex;align-items:center;justify-content:center;gap:3px;font-size:12px;color:var(--ink-4);margin-top:2px;cursor:pointer}
 .pb-stat .deb .chk{width:13px;height:13px;border-width:1.2px;border-radius:2px}
 .pb-stat .deb .chk:checked::after{font-size:9px}
+.cond{border:1px solid var(--ink-5);background:transparent;color:var(--ink-4);border-radius:3px;padding:1px 5px;font-size:11px;cursor:pointer;display:inline-flex;align-items:center;gap:3px;line-height:1.4;margin-top:2px}
+.cond:hover{border-color:var(--accent)}
+.cond.on{color:var(--ink);border-color:var(--ink-3)}
+.cond-mark{display:inline-block;width:11px;height:11px;border:1px solid var(--ink-4);border-radius:50%;vertical-align:-2px;box-sizing:border-box}
+.cond[data-m="1"] .cond-mark{background:linear-gradient(90deg,var(--ink) 50%,transparent 50%)}
+.cond[data-m="2"] .cond-mark{background:var(--ink);border-color:var(--ink)}
+.track{display:flex;flex-wrap:wrap;gap:3px;align-items:center}
+.trl{font-size:14px;color:var(--ink-4);margin:0 3px}
+.trl.on{color:var(--ink);font-weight:700}
+.trc{width:14px;height:14px;border:1px solid var(--ink-5);border-radius:2px;background:transparent;padding:0;cursor:pointer}
+.trc.on{background:var(--accent);border-color:var(--accent)}
+.advt-seg{margin:6px 0 2px;font-size:12.5px}
+.advt-seg.locked{opacity:.5}
 .pb-stat input{width:100%;border:none;border-bottom:1px dashed var(--ink-5);text-align:center;font-size:24px;font-weight:800;background:transparent;color:var(--ink)}
 .pb-stat input[type=number],.pb-num input[type=number],.h3r input[type=number],input[data-bind=coins]{-moz-appearance:textfield;appearance:textfield}
 .pb-stat input[type=number]::-webkit-outer-spin-button,.pb-stat input[type=number]::-webkit-inner-spin-button,
@@ -170,6 +185,8 @@ input[data-bind=coins]::-webkit-outer-spin-button,input[data-bind=coins]::-webki
 .mv .mv-t input.mbox,input.mbox{appearance:none;-webkit-appearance:none;width:13px;height:13px;border:1.5px solid var(--ink-4);border-radius:3px;background:var(--paper);vertical-align:-2px;margin:0 2px;cursor:pointer}
 .mv .mv-t input.mbox:hover,input.mbox:hover{border-color:var(--accent)}
 .mv .mv-t input.mbox:checked,input.mbox:checked{background:var(--ink);border-color:var(--ink)}
+input.mbox:disabled{border-color:var(--ink-5);cursor:not-allowed;opacity:.5}
+input.mbox:disabled:hover{border-color:var(--ink-5)}
 .md p{margin:3px 0}
 .md ul{margin:3px 0;padding-left:18px}
 .md li{margin:1px 0}
@@ -214,6 +231,16 @@ input[data-bind=coins]::-webkit-outer-spin-button,input[data-bind=coins]::-webki
 .bond-line input{flex:1;border:none;border-bottom:1px dashed var(--ink-5);background:transparent;font-size:12.5px;color:var(--ink)}
 .bond-line .x{border:none;background:transparent;color:var(--line-3);cursor:pointer;font-size:13px;padding:2px 4px;border-radius:3px;line-height:1}
 .bond-line .x:hover{color:var(--danger);background:var(--danger-bg)}
+.bond-line.rel input[data-rel-target]{flex:0 0 90px}
+.bond-line.rel input[data-rel-desc]{flex:1}
+.rel-depth{display:inline-flex;align-items:center;gap:2px}
+.rel-depth .trc{width:14px;height:14px}
+.rel-depth-v{font-size:10px;letter-spacing:1px;color:var(--ink-4)}
+.origin-line{padding:3px 0;border-bottom:1px dotted var(--line-4);font-size:12.5px}
+.origin-row{display:flex;align-items:center;gap:2px}
+.origin-row b{font-weight:700;white-space:nowrap}
+.origin-row input{flex:1;min-width:0;border:none;border-bottom:1px dashed var(--ink-5);background:transparent;font-size:12.5px;color:var(--ink)}
+.origin-hint{font-size:11px;color:var(--ink-5);margin-top:2px}
 .heritage-boxes{display:flex;gap:6px;padding:4px 0 6px}
 .heritage-box{display:inline-flex;align-items:center;cursor:pointer}
 .heritage-box .chk{width:18px;height:18px;border-width:1.5px;border-radius:3px}
@@ -234,10 +261,11 @@ input[data-bind=coins]::-webkit-outer-spin-button,input[data-bind=coins]::-webki
 .xbtn:hover{color:var(--danger);background:var(--danger-bg)}
 .empty{color:var(--ink-5);text-align:center;padding:70px 20px;font-size:14px}
 .hint{font-size:12px;color:var(--ink-4);margin-top:4px}
-.addrow{margin-top:6px}
+.addrow{margin-top:6px;display:flex;gap:6px;flex-wrap:wrap}
 .addrow button{background:var(--paper);color:var(--ink);border:1px dashed var(--ink-5);border-radius:4px;padding:4px 10px;cursor:pointer;font-size:12px}
 .addrow button:hover{border-color:var(--accent);color:var(--accent)}
-.adv-tier{font-size:11px;color:var(--warn);font-weight:700;margin:8px 0 4px}
+.adv-tier{font-size:12.5px;color:var(--warn);font-weight:700;margin:8px 0 4px}
+.adv-tier-note{font-size:11px;color:var(--ink-5);font-weight:400;margin:-2px 0 4px}
 .faint{color:var(--ink-5)}
 
 /* ===== 打印 ===== */
@@ -300,7 +328,7 @@ details.help pre{background:var(--panel2);padding:10px;border-radius:6px;overflo
 </div>
 
 <script>
-let DW_DATA = null, META = {}, STATS = [], STATS_MODE = "scores", ADV_TIERS = [], DEBILITIES = {}, LABELS = {}, SPELL_SECTIONS = {}, PREPARE_CAP_FORMULA = "", STAT_DISTRIBUTION = null, REF_SECTIONS = [], STAT_MIN = null, STAT_MAX = null, DEBILITY_PENALTY = "on", COINS_ENABLED = true;
+let DW_DATA = null, META = {}, STATS = [], STATS_MODE = "scores", ADV_TIERS = [], DEBILITIES = {}, LABELS = {}, SPELL_SECTIONS = {}, PREPARE_CAP_FORMULA = "", STAT_DISTRIBUTION = null, REF_SECTIONS = [], STAT_MIN = null, STAT_MAX = null, DEBILITY_PENALTY = "on", COINS_ENABLED = true, CONDITIONS = null, CONDITION_STATES = ["clear","marked"], SHOW_FORMULA_IN_MODIFIERS = false, XP_TRACK_SIZE = null, ADVANCEMENT_SEGS = [], TREASURE_TIERS = [], RELATIONSHIP_DEPTH_MAX = 3, ORIGINS = null, SHOW_DAMAGE = true;
 function applyData(data){
   DW_DATA = data || {};
   META = DW_DATA.meta || {};
@@ -324,6 +352,16 @@ function applyData(data){
   STAT_MAX = (META.statMax !== undefined) ? META.statMax : null;
   DEBILITY_PENALTY = META.debilityPenalty || "on";
   COINS_ENABLED = META.coins !== "off";
+  CONDITIONS = META.conditions || null;
+  CONDITION_STATES = META.conditionStates || ["clear","marked"];
+  SHOW_FORMULA_IN_MODIFIERS = META.showFormulaInModifiers === true;
+  XP_TRACK_SIZE = META.xpTrackSize || null;
+  ADVANCEMENT_SEGS = META.advancement || [];
+  if(typeof ADVANCEMENT_SEGS === "string") ADVANCEMENT_SEGS = [{minLevel:1, text: ADVANCEMENT_SEGS}];
+  TREASURE_TIERS = META.treasureTiers || [];
+  RELATIONSHIP_DEPTH_MAX = META.relationshipDepthMax || 3;
+  ORIGINS = META.origins || null;
+  SHOW_DAMAGE = META.showDamage !== false;
   REF_SECTIONS = META.refSections || [
     {id:"moves", title:"通用动作", type:"groups", groups:[
       {key:"basicMoves", label:"基本动作"},
@@ -401,7 +439,7 @@ function defaultChar(){
     stats,
     look:[], lookNotes:"", hpMax:0, load:0, hpCur:0, armor:0, damage:"",
     gear:"", bonds:[], advancedMoves:[], startingChoices:[], coins:0, notes:"", moveEdits:{}, debilities:[], counters:[],
-    spells, manualSpells:[]};
+    spells, manualSpells:[], conditions:{}, relationships:[], treasure:0, struggle:null, origins:{ancestry:"",community:"",background:""}};
 }
 function mod(score){
   const table = META.modTable || {"1-3":-3, "4-5":-2, "6-8":-1, "9-12":0, "13-15":1, "16-17":2, "18":3};
@@ -480,10 +518,10 @@ function markdownToHtml(md){
   return out.join("");
 }
 function moveBoxKey(kind, mv){ return mv._custom ? ("custom::"+(mv.id||"")) : editKey(kind, mv.name); }
-function applyBoxes(html, key){
+function applyBoxes(html, key, disabled){
   let idx = 0;
   return String(html||"").replace(/\[([ xX])\]/g, (m, c)=>{
-    const box = `<input type="checkbox" class="mbox" data-movebox="${esc(key)}" data-box="${idx}"${c !== " " ? " checked" : ""}>`;
+    const box = `<input type="checkbox" class="mbox" data-movebox="${esc(key)}" data-box="${idx}"${c !== " " ? " checked" : ""}${disabled ? " disabled" : ""}>`;
     idx++;
     return box;
   });
@@ -518,9 +556,9 @@ function toggleTextBox(md, index){
     return m;
   });
 }
-function renderFieldMarkdown(md, key, get, set){
+function renderFieldMarkdown(md, key, get, set, disabled){
   boxReg[key] = {get, set};
-  return applyBoxes(markdownToHtml(md), key);
+  return applyBoxes(markdownToHtml(md), key, disabled);
 }
 
 function mergedClasses(){ return (DW_DATA.classes||[]).concat(customData.classes||[]); }
@@ -539,12 +577,13 @@ function mergeRacialGroups(builtin, extra){
   });
   return Object.values(map);
 }
+function tiersFor(cls){ return (cls && cls.advancedTiers && cls.advancedTiers.length) ? cls.advancedTiers : ADV_TIERS; }
 function classMoves(cls){
   const racialGroups = mergeRacialGroups(cls.racialMoves||[], customData.extraRacialMoves[cls.id]||[]);
   const races = racialGroups.filter(g=>g.race).map(g=>g.race);
   const alignments = (cls.alignment||[]).map(a=>({...a,_custom:false})).concat((customData.extraAlignments[cls.id]||[]).map(a=>({...a,_custom:true})));
   const starting = cls.startingMoves||[];
-  const advTiers = ADV_TIERS.map(t => ({...t, moves:(cls.advancedMoves[t.key]||[]).map(m=>({...m,_custom:false}))}));
+  const advTiers = tiersFor(cls).map(t => ({...t, moves:(cls.advancedMoves[t.key]||[]).map(m=>({...m,_custom:false}))}));
   const customMoves=(customData.extraMoves[cls.id]||[]).map(m=>({...m,_custom:true}));
   return {racialGroups, races, alignments, starting, advTiers, customMoves};
 }
@@ -576,6 +615,7 @@ function evalFormula(formula, ctx){
     if(/^-?\d+$/.test(t)){ sum += parseInt(t,10); continue; }
     if(STATS.includes(t)){ sum += (char.stats[t]||0); continue; }
     if(t === LABELS.casterLevel){ sum += ((ctx && ctx.effectiveLevel)||0); continue; }
+    if(t === "等级" || t === "level"){ sum += (char.level||0); continue; }
     return null;
   }
   return sum;
@@ -634,6 +674,11 @@ function normalizeChar(){
   char.startingChoices = char.startingChoices || [];
   char.look = (char.look || []).map(x => Array.isArray(x) ? x : (x ? [x] : []));
   char.counters = char.counters || [];
+  char.conditions = char.conditions || {};
+  char.relationships = char.relationships || [];
+  char.origins = char.origins || {ancestry:"",community:"",background:""};
+  char.treasure = char.treasure || 0;
+  if(char.struggle === undefined) char.struggle = null;
 }
 function load(){
   try{
@@ -669,8 +714,8 @@ function renderPlaybook(){
   root.innerHTML =
     headHtml(cls) + statsHtml(cls) +
     `<div class="pb-cols">
-      <div class="pb-left">${lookHtml(cls)}${raceHtml(cls,m)}${alignHtml(cls,m)}${heritageHtml()}${gearHtml(cls)}${bondsHtml(cls)}${notesHtml(cls)}${spellSectionsHtml()}${addSpellSectionHtml()}</div>
-      <div class="pb-right">${startingHtml(cls,m)}${advHtml(cls,m)}</div>
+      <div class="pb-left">${lookHtml(cls)}${originsHtml()}${raceHtml(cls,m)}${alignHtml(cls,m)}${heritageHtml()}${gearHtml(cls)}${treasureHtml()}${bondsHtml(cls)}${struggleHtml()}${notesHtml(cls)}${spellSectionsHtml()}${addSpellSectionHtml()}</div>
+      <div class="pb-right">${startingHtml(cls,m)}${advHtml(cls,m)}${advancementHtml()}</div>
     </div>`;
   autosizeAll();
 }
@@ -680,12 +725,12 @@ function headHtml(cls){
     `<div class="pb-info">
       <div class="it"><span class="k">${esc(LABELS.name)}</span><input data-bind="name" value="${esc(char.name)}" placeholder="角色名"></div>
       <div class="it"><span class="k">${esc(LABELS.level)}</span><input type="number" data-bind="level" value="${char.level}" min="1" max="10"></div>
-      <div class="it"><span class="k">${esc(LABELS.xp)}</span><input type="number" data-bind="xp" value="${char.xp||0}" min="0"></div>
+      <div class="it"><span class="k">${esc(LABELS.xp)}</span>${XP_TRACK_SIZE?xpHtml():`<input type="number" data-bind="xp" value="${char.xp||0}" min="0">`}</div>
     </div>` :
     `<div class="pb-info">
       <div class="it"><span class="k">${esc(LABELS.name)}</span><span class="v">${esc(char.name||"—")}</span></div>
       <div class="it"><span class="k">${esc(LABELS.level)}</span><span class="v">${esc(char.level)}</span></div>
-      <div class="it"><span class="k">${esc(LABELS.xp)}</span><input type="number" data-bind="xp" value="${char.xp||0}" min="0"></div>
+      <div class="it"><span class="k">${esc(LABELS.xp)}</span>${XP_TRACK_SIZE?xpHtml():`<input type="number" data-bind="xp" value="${char.xp||0}" min="0">`}</div>
     </div>`;
   return `<div class="pb-head">
     <div><div class="pb-class">${esc(cls.name)}</div>
@@ -695,7 +740,7 @@ function headHtml(cls){
 }
 
 function formulaHint(txt, setter, hideInModifiers){
-  if(STATS_MODE==="modifiers"){
+  if(STATS_MODE==="modifiers" && !SHOW_FORMULA_IN_MODIFIERS){
     return hideInModifiers ? "" : `<span class="formula-hint">${esc(LABELS.blank||" ")}</span>`;
   }
   const body = esc(txt);
@@ -704,11 +749,22 @@ function formulaHint(txt, setter, hideInModifiers){
   }
   return `<span class="formula-hint">（${body}）</span>`;
 }
-function distHint(){
+function distHint(cls){
+  const note = cls && cls.statNote;
+  if(note) return `<div class="stat-dist">${esc(LABELS.statDist||"初始分配")}：${esc(note)}</div>`;
   const arr = STAT_DISTRIBUTION;
   if(!arr || !arr.length) return "";
   const txt = STATS_MODE==="modifiers" ? arr.map(s=>mod(s)).map(m => (m>0 ? "+"+m : String(m))).join(", ") : arr.join(", ");
   return `<div class="stat-dist">${esc(LABELS.statDist||"初始分配")}：${txt}</div>`;
+}
+function conditionFor(stat){
+  if(!CONDITIONS) return null;
+  return CONDITIONS.find(c=>c.stat===stat);
+}
+function conditionBtn(c){
+  const st = char.conditions[c.key] || 0;
+  const stateName = CONDITION_STATES[st] || "";
+  return `<button type="button" class="cond${st?" on":""}" data-cond="${esc(c.key)}" data-m="${st}" title="${esc(c.label)}${stateName?`（${esc(stateName)}）`:""}"><span class="cond-mark"></span> ${esc(c.label)}</button>`;
 }
 function statsHtml(cls){
   const hp = char.hpMax||defaultHP(cls);
@@ -716,18 +772,19 @@ function statsHtml(cls){
   const statCells = STATS.map(s=>{
     const v = char.stats[s] || (isMod?0:10);
     const em = fmtMod(effMod(v, s));
-    const debHtml = `<label class="deb"><input type="checkbox" class="chk" data-deb="${esc(s)}" ${(char.debilities||[]).includes(s)?"checked":""}>${esc(DEBILITIES[s])}</label>`;
+    const cond = conditionFor(s);
+    const condHtml = cond ? conditionBtn(cond) : (CONDITIONS ? "" : `<label class="deb"><input type="checkbox" class="chk" data-deb="${esc(s)}" ${(char.debilities||[]).includes(s)?"checked":""}>${esc(DEBILITIES[s])}</label>`);
     const val = mode==="edit"
       ? `<input type="number" data-stat="${esc(s)}" value="${v}"${statBoundsAttr(isMod)}">`
       : `<div class="v"${isMod?` data-mod="${esc(s)}"`:""}>${isMod?em:v}</div>`;
     const modRow = isMod ? "" : `<div class="m" data-mod="${esc(s)}">${em}</div>`;
-    return `<div class="pb-stat"><div class="n">${esc(s)}</div>${val}${modRow}${debHtml}</div>`;
+    return `<div class="pb-stat"><div class="n">${esc(s)}</div>${val}${modRow}${condHtml}</div>`;
   }).join("");
   const curHp = `<div class="pb-num"><div class="k">${esc(LABELS.hpCur)}</div><input type="number" data-bind="hpCur" value="${char.hpCur||hp}" min="0"></div>`;
   const maxHp = mode==="edit" ? `<div class="pb-num"><div class="k">${esc(LABELS.hpMax)}</div><input type="number" data-bind="hpMax" value="${hp}" min="0"><div class="formula">${formulaHint(cls.hp, "hpMax")}</div></div>` : `<div class="pb-num"><div class="k">${esc(LABELS.hpMax)}</div><div class="v">${hp}</div><div class="formula">${formulaHint(cls.hp, "hpMax")}</div></div>`;
   const armor = mode==="edit" ? `<div class="pb-num"><div class="k">${esc(LABELS.armor)}</div><input type="number" data-bind="armor" value="${char.armor||0}" min="0"></div>` : `<div class="pb-num"><div class="k">${esc(LABELS.armor)}</div><div class="v">${esc(char.armor||0)}</div></div>`;
-  const dmg = mode==="edit" ? `<div class="pb-num"><div class="k">${esc(LABELS.damage)}</div><input data-bind="damage" value="${esc(char.damage||cls.damage||"")}"></div>` : `<div class="pb-num"><div class="k">${esc(LABELS.damage)}</div><div class="v">${esc(char.damage||cls.damage||"")}</div></div>`;
-  return `<div class="pb-stats">${distHint()}<div class="pb-statgrid">${statCells}</div><div class="pb-nums">${curHp}${maxHp}${armor}${dmg}</div></div>`;
+  const dmg = SHOW_DAMAGE ? (mode==="edit" ? `<div class="pb-num"><div class="k">${esc(LABELS.damage)}</div><input data-bind="damage" value="${esc(char.damage||cls.damage||"")}"></div>` : `<div class="pb-num"><div class="k">${esc(LABELS.damage)}</div><div class="v">${esc(char.damage||cls.damage||"")}</div></div>`) : "";
+  return `<div class="pb-stats">${distHint(cls)}<div class="pb-statgrid">${statCells}</div><div class="pb-nums">${curHp}${maxHp}${armor}${dmg}</div></div>`;
 }
 
 function lookHtml(cls){
@@ -758,6 +815,7 @@ function lookHtml(cls){
 }
 
 function raceHtml(cls, m){
+  if(!m.racialGroups.length) return "";
   const customGroups = m.racialGroups.filter(g=>g._custom);
   const templateGroups = m.racialGroups.filter(g=>!g._custom);
   if(mode==="view"){
@@ -822,14 +880,47 @@ function gearHtml(cls){
     ${coinsHtml()}</div>`;
 }
 
+function trackHtml(tiers, value, key){
+  let gi = 0;
+  let currentKey = null, acc = 0;
+  for(const t of tiers){ if(value >= acc) currentKey = t.key; acc += (t.slots||0); }
+  let html = "";
+  for(const t of tiers){
+    const slots = t.slots || 0;
+    html += `<span class="trl${t.key===currentKey?" on":""}">${esc(t.label)}</span>`;
+    for(let i=0;i<slots;i++){
+      const on = gi < value;
+      html += `<button type="button" class="trc${on?" on":""}" data-track="${key}:${gi}"></button>`;
+      gi++;
+    }
+  }
+  return `<div class="track">${html}</div>`;
+}
+function treasureHtml(){
+  if(!TREASURE_TIERS || !TREASURE_TIERS.length) return "";
+  return `<div class="pb-sec"><h3>${esc(LABELS.treasure||"财富")}</h3>${trackHtml(TREASURE_TIERS, char.treasure||0, "treasure")}</div>`;
+}
+function xpHtml(){
+  if(!XP_TRACK_SIZE) return "";
+  const cells = Array.from({length:XP_TRACK_SIZE},(_,gi)=>`<button type="button" class="trc${gi<(char.xp||0)?" on":""}" data-track="xp:${gi}"></button>`).join("");
+  return `<div class="track">${cells}</div>`;
+}
 function bondsHtml(cls){
   const templates=cls.bonds||[];
   if(!char.bonds.length && templates.length) char.bonds=templates.slice();
+  const relDepth = RELATIONSHIP_DEPTH_MAX || 3;
+  const relHtml = mode==="edit"
+    ? (char.relationships||[]).map((r,i)=>`<div class="bond-line rel">
+        <input data-rel-target="${i}" value="${esc(r.target||"")}" placeholder="关系目标">
+        <input data-rel-desc="${i}" value="${esc(r.description||"")}" placeholder="关系描述">
+        <span class="rel-depth">${Array.from({length:relDepth},(_,d)=>`<button type="button" class="trc${d<(r.depth||0)?" on":""}" data-track="rel_${i}:${d}"></button>`).join("")}</span>
+        <button class="x" data-rel-del="${i}" title="删除">✕</button></div>`).join("")
+    : (char.relationships||[]).filter(r=>r.target).map(r=>`<div class="bond-line"><b>${esc(r.target)}</b>${r.description?` <span class="faint">${esc(r.description)}</span>`:""} <span class="rel-depth-v">${Array.from({length:relDepth},(_,d)=>(r.depth||0)>d?"●":"○").join("")}</span></div>`).join("");
   if(mode==="view"){
     const lines = char.bonds.map((b,i)=>b?`<div class="bond-line md">${renderFieldMarkdown(b, "bond::"+i, ()=>char.bonds[i]||"", t=>{char.bonds[i]=t;})}</div>`:"").join("");
-    return `<div class="pb-sec"><h3>${esc(LABELS.bonds)}</h3>${lines||`<div class="hint">无${esc(LABELS.bonds)}</div>`}</div>`;
+    return `<div class="pb-sec"><h3>${esc(LABELS.bonds)}</h3>${relHtml}${lines||`<div class="hint">无${esc(LABELS.bonds)}</div>`}</div>`;
   }
-  return `<div class="pb-sec"><h3>${esc(LABELS.bonds)}</h3>${char.bonds.map((b,i)=>`<div class="bond-line"><input data-bond="${i}" value="${esc(b)}" placeholder="${esc(LABELS.bonds)}"><button class="x" data-bond-del="${i}" title="删除">✕</button></div>`).join("")}<div class="addrow"><button data-add-bond>＋ 添加${esc(LABELS.bonds)}</button></div></div>`;
+  return `<div class="pb-sec"><h3>${esc(LABELS.bonds)}</h3>${relHtml}${char.bonds.map((b,i)=>`<div class="bond-line"><input data-bond="${i}" value="${esc(b)}" placeholder="${esc(LABELS.bonds)}"><button class="x" data-bond-del="${i}" title="删除">✕</button></div>`).join("")}<div class="addrow"><button data-add-bond>＋ 添加${esc(LABELS.bonds)}</button><button data-add-rel>＋ 添加关系</button></div></div>`;
 }
 
 function heritageHtml(){
@@ -890,7 +981,7 @@ function advHtml(cls, m){
     const checked=allAdvancedMoves(m).filter(x=>chosen.includes(x.name));
     return `<div class="pb-sec"><h3>${esc(LABELS.advanced)}</h3>${checked.map(mv=>mvViewCard("adv",mv)).join("")||'<div class="hint">未选择</div>'}</div>`;
   }
-  const tier=(title,moves)=>`<div class="adv-tier">${title}</div>`+moves.map(mv=>{
+  const tier=(t)=>`<div class="adv-tier">${esc(t.label)}</div>${t.note?`<div class="adv-tier-note">${esc(t.note)}</div>`:""}`+t.moves.map(mv=>{
     if(mv._custom) return mvCardCustomAdv(mv);
     const d=moveDisplay("adv",mv);
     const text=d.text!==null?d.text:mv.text;
@@ -908,10 +999,51 @@ function advHtml(cls, m){
   m.advTiers.forEach(t=>{
     if(!t.moves.length) return;
     if(lvl < t.minLevel) html += `<div class="hint">升至 ${t.minLevel} 级后解锁${t.label}。</div>`;
-    else html += tier(t.label, t.moves);
+    else html += tier(t);
   });
-  if(m.customMoves.length) html += tier(LABELS.customAdvanced, m.customMoves);
+  if(m.customMoves.length) html += tier({label:LABELS.customAdvanced, moves:m.customMoves});
   return `<div class="pb-sec"><h3>${esc(LABELS.advanced)}</h3>${html}<div class="addrow"><button data-add-adv>＋ 添加${esc(LABELS.advanced)}</button></div></div>`;
+}
+
+function advancementHtml(){
+  if(!ADVANCEMENT_SEGS.length) return "";
+  const lvl = char.level || 1;
+  if(!char.advancementSegs || char.advancementSegs.length !== ADVANCEMENT_SEGS.length){
+    char.advancementSegs = ADVANCEMENT_SEGS.map(s => (s && s.text) || (typeof s === "string" ? s : ""));
+  }
+  let html = "";
+  ADVANCEMENT_SEGS.forEach((s, si)=>{
+    const minLevel = (s && typeof s === "object" && s.minLevel) || 1;
+    const locked = lvl < minLevel;
+    const seg = char.advancementSegs[si] || "";
+    html += `<div class="advt-seg${locked?" locked":""}">${renderFieldMarkdown(seg, "advancement::"+si, ()=>char.advancementSegs[si], tt=>{ char.advancementSegs[si] = tt; }, locked)}</div>`;
+  });
+  return `<div class="pb-sec"><h3>${esc(LABELS.advancement||"升级选项")}</h3>${html}</div>`;
+}
+
+function struggleHtml(){
+  if(!char.struggle) return "";
+  const s = char.struggle;
+  if(mode==="view"){
+    return `<div class="pb-sec"><h3>${esc(LABELS.struggle||"心结")}</h3><div class="mv mv-custom"><div class="mv-h"><span class="ck-mark on"></span><div class="mv-n">${esc(s.name)}</div></div><div class="mv-t">${markdownToHtml(s.text)}</div></div></div>`;
+  }
+  return `<div class="pb-sec"><h3>${esc(LABELS.struggle||"心结")} <span class="h3r"><button type="button" class="xbtn" data-struggle-resolve title="解决（移除）">✕ 解决</button></span></h3><div class="mv mv-custom"><div class="mv-h"><div class="mv-n"><input data-struggle-name value="${esc(s.name)}"></div></div><div class="mv-t"><textarea data-struggle-text>${esc(s.text)}</textarea></div></div></div>`;
+}
+
+function originsHtml(){
+  const fields = ORIGINS || [{key:"ancestry",label:"血缘"},{key:"community",label:"社群"},{key:"background",label:"背景"}];
+  if(!fields.length) return "";
+  const o = char.origins || {};
+  if(mode==="view"){
+    const lines = fields.filter(f=>o[f.key]).map(f=>`<div class="origin-line"><b>${esc(f.label)}</b>：${esc(o[f.key])}</div>`).join("");
+    if(!lines) return "";
+    return `<div class="pb-sec"><h3>${esc(LABELS.origins||"起源")}</h3>${lines}</div>`;
+  }
+  const inputs = fields.map(f=>{
+    const val = (o[f.key] !== undefined && o[f.key] !== "") ? o[f.key] : (f.prefix || "");
+    return `<div class="origin-line"><div class="origin-row"><b>${esc(f.label)}</b>：<input data-origin="${f.key}" value="${esc(val)}"></div>${f.hint?`<div class="origin-hint">${esc(f.hint)}</div>`:""}</div>`;
+  }).join("");
+  return `<div class="pb-sec"><h3>${esc(LABELS.origins||"起源")}</h3>${inputs}</div>`;
 }
 
 function countersHtml(){
@@ -1015,7 +1147,8 @@ function groupsHtml(sec){
     const src = g.label || sec.title;
     const cards = moves.map(m => {
       if(g.importable){
-        const idx = lastSearchItems.push({kind:"move", name:m.name, html:m.text, source:src, importable:true}) - 1;
+        const kind = g.kind || "move";
+        const idx = lastSearchItems.push({kind, name:m.name, html:m.text, source:src, importable:true}) - 1;
         return rmvCardHtml({name:m.name, html:m.text, source:src, importable:true}, idx);
       }
       return rmvCardHtml({name:m.name, html:m.text, source:src, importable:false}, -1);
@@ -1098,7 +1231,7 @@ function collectRaces(){
 function classMovesFlat(c){
   const items = [];
   (c.startingMoves||[]).forEach(m => items.push({kind:"move", name:m.name, html:m.text, source:c.name, classId:c.id, importable:true}));
-  for(const t of ADV_TIERS) (c.advancedMoves[t.key]||[]).forEach(m => items.push({kind:"move", name:m.name, html:m.text, source:c.name, classId:c.id, importable:true}));
+  for(const t of tiersFor(c)) (c.advancedMoves[t.key]||[]).forEach(m => items.push({kind:"move", name:m.name, html:m.text, source:c.name, classId:c.id, importable:true}));
   (c.racialMoves||[]).forEach(g => (g.moves||[]).forEach(m => items.push({kind:"racial", name:m.name, html:m.text, source:c.name, race:g.race, classId:c.id, importable:true})));
   (c.alignment||[]).forEach(a => items.push({kind:"alignment", name:a.name, html:a.text, source:c.name, classId:c.id, importable:true}));
   return items;
@@ -1188,6 +1321,8 @@ function importSearchItem(idx){
   } else if(item.kind === "move"){
     if(!customData.extraMoves[char.classId]) customData.extraMoves[char.classId]=[];
     customData.extraMoves[char.classId].push({id:uid(), name:item.name, text:item.html, tier:"2-5", requires:null, replaces:null});
+  } else if(item.kind === "struggle"){
+    char.struggle = {name:item.name, text:item.html};
   }
   renderPlaybook(); save();
 }
@@ -1274,6 +1409,11 @@ document.addEventListener("input", e=>{
     save(); return;
   }
   if(d.bond!==undefined){ char.bonds[+d.bond]=t.value; save(); return; }
+  if(d.relTarget!==undefined){ const r=char.relationships[+d.relTarget]=char.relationships[+d.relTarget]||{target:"",description:"",depth:0}; r.target=t.value; save(); return; }
+  if(d.relDesc!==undefined){ const r=char.relationships[+d.relDesc]=char.relationships[+d.relDesc]||{target:"",description:"",depth:0}; r.description=t.value; save(); return; }
+  if(d.struggleName!==undefined){ if(char.struggle) char.struggle.name=t.value; save(); return; }
+  if(d.struggleText!==undefined){ if(char.struggle) char.struggle.text=t.value; autosize(t); save(); return; }
+  if(d.origin!==undefined){ char.origins[d.origin]=t.value; save(); return; }
   if(d.counterName!==undefined){ const c=(char.counters||[])[+d.counterName]; if(c) c.name=t.value; save(); return; }
   if(d.counterVal!==undefined){ const c=(char.counters||[])[+d.counterVal]; if(c) c.value=parseInt(t.value)||0; save(); return; }
   if(d.heritageMove!==undefined){ const h=char.heritage=char.heritage||{boxes:[false,false,false],moves:["","",""],third:false}; h.moves[+d.heritageMove]=t.value; save(); return; }
@@ -1329,6 +1469,8 @@ document.addEventListener("click", e=>{
   if(t.closest("[data-ref-tab]")){ refTab=t.closest("[data-ref-tab]").dataset.refTab; renderRef(); save(); return; }
   if(d.imp!==undefined){ importSearchItem(+d.imp); return; }
   if(d.gearopt!==undefined){ char.gear=(char.gear?char.gear+"\n":"")+d.gearopt; const g=document.querySelector('[data-bind="gear"]'); if(g){ g.value=char.gear; autosize(g); } save(); return; }
+  if(d.cond!==undefined){ const n=CONDITION_STATES.length; const cur=char.conditions[d.cond]||0; char.conditions[d.cond]=(cur+1)%n; renderPlaybook(); save(); return; }
+  if(d.track!==undefined){ const [key,idx]=d.track.split(":"); const k=parseInt(idx); const cur = key==="treasure"?(char.treasure||0):key==="xp"?(char.xp||0):(key.startsWith("rel_")?((char.relationships[parseInt(key.slice(4))]||{}).depth||0):0); const val=(k<cur)?k:(k+1); if(key==="treasure") char.treasure=val; else if(key==="xp") char.xp=val; else if(key.startsWith("rel_")){ const ri=parseInt(key.slice(4)); if(char.relationships[ri]) char.relationships[ri].depth=val; } renderPlaybook(); save(); return; }
   if(t.closest("[data-add-adv]")){
     if(!customData.extraMoves[char.classId]) customData.extraMoves[char.classId]=[];
     customData.extraMoves[char.classId].push({id:uid(), name:"", text:"", tier:"2-5", requires:null, replaces:null});
@@ -1352,6 +1494,9 @@ document.addEventListener("click", e=>{
   }
   if(t.closest("[data-add-bond]")){ char.bonds.push(""); renderPlaybook(); save(); return; }
   if(d.bondDel!==undefined){ char.bonds.splice(+d.bondDel,1); renderPlaybook(); save(); return; }
+  if(d.relDel!==undefined){ char.relationships.splice(+d.relDel,1); renderPlaybook(); save(); return; }
+  if(t.closest("[data-add-rel]")){ char.relationships.push({target:"",description:"",depth:0}); renderPlaybook(); save(); return; }
+  if(d.struggleResolve!==undefined){ char.struggle=null; renderPlaybook(); save(); return; }
   if(d.addCounter!==undefined){ (char.counters=char.counters||[]).push({id:uid(), name:"", value:0}); renderPlaybook(); save(); return; }
   if(d.counterDel!==undefined){ char.counters.splice(+d.counterDel,1); renderPlaybook(); save(); return; }
   if(d.cadvDel){
@@ -1514,7 +1659,7 @@ function checkAffected(after){
   const alignNames = (cls.alignment||[]).map(a=>a.name).concat((customData.extraAlignments[char.classId]||[]).map(a=>a.name));
   const moveNames = [];
   (cls.startingMoves||[]).forEach(m=>moveNames.push(m.name));
-  for(const t of ADV_TIERS){ (cls.advancedMoves&&cls.advancedMoves[t.key]||[]).forEach(m=>moveNames.push(m.name)); }
+  for(const t of tiersFor(cls)){ (cls.advancedMoves&&cls.advancedMoves[t.key]||[]).forEach(m=>moveNames.push(m.name)); }
   (customData.extraMoves[char.classId]||[]).forEach(m=>moveNames.push(m.name));
 
   for(const r of (char.races||[])){ if(!raceNames.includes(r)) items.push("· 种族「"+r+"」"); }
