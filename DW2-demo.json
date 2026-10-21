@@ -13,8 +13,8 @@
     ],
     "conditionStates": ["clear", "marked", "locked"],
     "xpTrackSize": 5,
-    "showFormulaInModifiers": true,
     "showDamage": false,
+    "showFormula": false,
     "relationshipDepthMax": 3,
     "treasureTiers": [
       {"key": "broke", "label": "破产", "slots": 4},
@@ -24,11 +24,7 @@
       {"key": "rich", "label": "富有", "slots": 12},
       {"key": "aristocratic", "label": "贵族", "slots": 0}
     ],
-    "advancement": [
-      {"minLevel": 1, "text": "当你升级时，HP +1（最多 +10），并选择以下一项：\n[ ] +1 任意属性（max +2）\n[ ] 获得一个 Path（含起始动作）\n[ ] 揭示一个 Struggle\n[ ] 获得一个 Path Move\n[ ] 转职"},
-      {"minLevel": 5, "text": "从 5 级起，你还可以选择：\n[ ] +1 任意属性（max +2）\n[ ] Multiclass — 获得其他职业的 Path\n[ ] 获得一件魔法物品"},
-      {"minLevel": 10, "text": "从 10 级起，你还可以选择：\n[ ] +1 任意属性（max +3）\n[ ] Multiclass\n[ ] 获得一件 Artifact"}
-    ],
+    "advancement": "当你升级时，HP +1（最多 +10），并选择以下一项：\n\n[ ] +1 任意属性（max +2）\n[ ] 获得一个 Path（含起始动作）\n[ ] 揭示一个 Struggle\n[ ] 获得一个 Path Move\n[ ] 转职\n\n从 5 级起，你还可以选择：\n[ ] +1 任意属性（max +2）\n[ ] Multiclass — 获得其他职业的 Path\n[ ] 获得一件魔法物品\n\n从 10 级起，你还可以选择：\n[ ] +1 任意属性（max +3）\n[ ] Multiclass\n[ ] 获得一件 Artifact",
     "origins": [
       {"key": "ancestry", "label": "血缘", "prefix": "我是", "hint": "如：矮人、精灵、人类、猫人、构装体……"},
       {"key": "community", "label": "社群", "prefix": "我来自", "hint": "如：佣兵团、商队、学者团、部落……"},
@@ -56,9 +52,9 @@
     {
       "id": "fighter",
       "name": "战士",
-      "hp": "10+等级",
+      "hp": "12",
       "damage": "d10",
-      "load": "12+STR",
+      "load": "10",
       "statNote": "STR +2，选 WIS 或 CHA 也 +2，其余 0 / 0 / -1",
       "look": [
         ["冷酷的眼神", "锐利的目光", "疲惫的眼神"],

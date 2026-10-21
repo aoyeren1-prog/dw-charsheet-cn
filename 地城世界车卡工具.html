@@ -132,8 +132,6 @@ body{background:var(--bg);color:var(--text);font-family:"Segoe UI","Microsoft Ya
 .trl.on{color:var(--ink);font-weight:700}
 .trc{width:14px;height:14px;border:1px solid var(--ink-5);border-radius:2px;background:transparent;padding:0;cursor:pointer}
 .trc.on{background:var(--accent);border-color:var(--accent)}
-.advt-seg{margin:6px 0 2px;font-size:12.5px}
-.advt-seg.locked{opacity:.5}
 .pb-stat input{width:100%;border:none;border-bottom:1px dashed var(--ink-5);text-align:center;font-size:24px;font-weight:800;background:transparent;color:var(--ink)}
 .pb-stat input[type=number],.pb-num input[type=number],.h3r input[type=number],input[data-bind=coins]{-moz-appearance:textfield;appearance:textfield}
 .pb-stat input[type=number]::-webkit-outer-spin-button,.pb-stat input[type=number]::-webkit-inner-spin-button,
@@ -328,7 +326,7 @@ details.help pre{background:var(--panel2);padding:10px;border-radius:6px;overflo
 </div>
 
 <script>
-let DW_DATA = null, META = {}, STATS = [], STATS_MODE = "scores", ADV_TIERS = [], DEBILITIES = {}, LABELS = {}, SPELL_SECTIONS = {}, PREPARE_CAP_FORMULA = "", STAT_DISTRIBUTION = null, REF_SECTIONS = [], STAT_MIN = null, STAT_MAX = null, DEBILITY_PENALTY = "on", COINS_ENABLED = true, CONDITIONS = null, CONDITION_STATES = ["clear","marked"], SHOW_FORMULA_IN_MODIFIERS = false, XP_TRACK_SIZE = null, ADVANCEMENT_SEGS = [], TREASURE_TIERS = [], RELATIONSHIP_DEPTH_MAX = 3, ORIGINS = null, SHOW_DAMAGE = true;
+let DW_DATA = null, META = {}, STATS = [], STATS_MODE = "scores", ADV_TIERS = [], DEBILITIES = {}, LABELS = {}, SPELL_SECTIONS = {}, PREPARE_CAP_FORMULA = "", STAT_DISTRIBUTION = null, REF_SECTIONS = [], STAT_MIN = null, STAT_MAX = null, DEBILITY_PENALTY = "on", COINS_ENABLED = true, CONDITIONS = null, CONDITION_STATES = ["clear","marked"], XP_TRACK_SIZE = null, ADVANCEMENT_TEXT = "", TREASURE_TIERS = [], RELATIONSHIP_DEPTH_MAX = 3, ORIGINS = null, SHOW_DAMAGE = true, SHOW_FORMULA = true;
 function applyData(data){
   DW_DATA = data || {};
   META = DW_DATA.meta || {};
@@ -354,14 +352,13 @@ function applyData(data){
   COINS_ENABLED = META.coins !== "off";
   CONDITIONS = META.conditions || null;
   CONDITION_STATES = META.conditionStates || ["clear","marked"];
-  SHOW_FORMULA_IN_MODIFIERS = META.showFormulaInModifiers === true;
   XP_TRACK_SIZE = META.xpTrackSize || null;
-  ADVANCEMENT_SEGS = META.advancement || [];
-  if(typeof ADVANCEMENT_SEGS === "string") ADVANCEMENT_SEGS = [{minLevel:1, text: ADVANCEMENT_SEGS}];
+  ADVANCEMENT_TEXT = (META.advancement && typeof META.advancement === "string") ? META.advancement : (META.advancement ? (META.advancement.map(s => (s && s.text) || (typeof s === "string" ? s : "")).join("\n\n")) : "");
   TREASURE_TIERS = META.treasureTiers || [];
   RELATIONSHIP_DEPTH_MAX = META.relationshipDepthMax || 3;
   ORIGINS = META.origins || null;
   SHOW_DAMAGE = META.showDamage !== false;
+  SHOW_FORMULA = META.showFormula !== false;
   REF_SECTIONS = META.refSections || [
     {id:"moves", title:"通用动作", type:"groups", groups:[
       {key:"basicMoves", label:"基本动作"},
@@ -518,10 +515,10 @@ function markdownToHtml(md){
   return out.join("");
 }
 function moveBoxKey(kind, mv){ return mv._custom ? ("custom::"+(mv.id||"")) : editKey(kind, mv.name); }
-function applyBoxes(html, key, disabled){
+function applyBoxes(html, key){
   let idx = 0;
   return String(html||"").replace(/\[([ xX])\]/g, (m, c)=>{
-    const box = `<input type="checkbox" class="mbox" data-movebox="${esc(key)}" data-box="${idx}"${c !== " " ? " checked" : ""}${disabled ? " disabled" : ""}>`;
+    const box = `<input type="checkbox" class="mbox" data-movebox="${esc(key)}" data-box="${idx}"${c !== " " ? " checked" : ""}>`;
     idx++;
     return box;
   });
@@ -556,9 +553,9 @@ function toggleTextBox(md, index){
     return m;
   });
 }
-function renderFieldMarkdown(md, key, get, set, disabled){
+function renderFieldMarkdown(md, key, get, set){
   boxReg[key] = {get, set};
-  return applyBoxes(markdownToHtml(md), key, disabled);
+  return applyBoxes(markdownToHtml(md), key);
 }
 
 function mergedClasses(){ return (DW_DATA.classes||[]).concat(customData.classes||[]); }
@@ -739,10 +736,8 @@ function headHtml(cls){
   </div>`;
 }
 
-function formulaHint(txt, setter, hideInModifiers){
-  if(STATS_MODE==="modifiers" && !SHOW_FORMULA_IN_MODIFIERS){
-    return hideInModifiers ? "" : `<span class="formula-hint">${esc(LABELS.blank||" ")}</span>`;
-  }
+function formulaHint(txt, setter){
+  if(!SHOW_FORMULA || !txt) return "";
   const body = esc(txt);
   if(setter && mode==="edit"){
     return `<span class="formula-hint">（<button type="button" class="formula-link" data-setformula="${esc(setter)}" title="设为默认值">${body}</button>）</span>`;
@@ -1006,19 +1001,9 @@ function advHtml(cls, m){
 }
 
 function advancementHtml(){
-  if(!ADVANCEMENT_SEGS.length) return "";
-  const lvl = char.level || 1;
-  if(!char.advancementSegs || char.advancementSegs.length !== ADVANCEMENT_SEGS.length){
-    char.advancementSegs = ADVANCEMENT_SEGS.map(s => (s && s.text) || (typeof s === "string" ? s : ""));
-  }
-  let html = "";
-  ADVANCEMENT_SEGS.forEach((s, si)=>{
-    const minLevel = (s && typeof s === "object" && s.minLevel) || 1;
-    const locked = lvl < minLevel;
-    const seg = char.advancementSegs[si] || "";
-    html += `<div class="advt-seg${locked?" locked":""}">${renderFieldMarkdown(seg, "advancement::"+si, ()=>char.advancementSegs[si], tt=>{ char.advancementSegs[si] = tt; }, locked)}</div>`;
-  });
-  return `<div class="pb-sec"><h3>${esc(LABELS.advancement||"升级选项")}</h3>${html}</div>`;
+  if(!ADVANCEMENT_TEXT) return "";
+  if(char.advancementText === undefined) char.advancementText = ADVANCEMENT_TEXT;
+  return `<div class="pb-sec"><h3>${esc(LABELS.advancement||"升级")}</h3><div class="mv mv-start"><div class="mv-h"><div class="mv-n">升级</div></div><div class="mv-t">${renderFieldMarkdown(char.advancementText, "advancement", ()=>char.advancementText, t=>{ char.advancementText = t; })}</div></div></div>`;
 }
 
 function struggleHtml(){
@@ -1031,8 +1016,8 @@ function struggleHtml(){
 }
 
 function originsHtml(){
-  const fields = ORIGINS || [{key:"ancestry",label:"血缘"},{key:"community",label:"社群"},{key:"background",label:"背景"}];
-  if(!fields.length) return "";
+  const fields = ORIGINS;
+  if(!fields || !fields.length) return "";
   const o = char.origins || {};
   if(mode==="view"){
     const lines = fields.filter(f=>o[f.key]).map(f=>`<div class="origin-line"><b>${esc(f.label)}</b>：${esc(o[f.key])}</div>`).join("");

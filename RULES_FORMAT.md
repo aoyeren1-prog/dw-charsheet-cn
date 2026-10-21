@@ -385,21 +385,18 @@ python builder\merge_rules.py data.json my-classpack.json -o merged.json
 
 渲染为一条分段轨道：**点某格直接填充到该格、点已填充格清到该格**（双向），当前财富等级（已填满的最高阶层）标签高亮。格数、阶层全由数据决定。
 
-### 3. Advancement（升级选项）
+### 3. Advancement（升级）
 
 | 键 | 类型 | 说明 |
 |---|---|---|
-| `meta.advancement` | `array` | 分段数组 `[{minLevel, text}]`，`text` 是**纯文本**（含 `[ ]` 勾选框），`minLevel` 是解锁等级 |
+| `meta.advancement` | `string` | 一段**纯文本**（含 `[ ]` 勾选框），渲染成角色卡里的「升级」动作区域 |
 
 ```jsonc
-"advancement": [
-  { "minLevel":1, "text":"当你升级时，HP +1，并选择以下一项：\n\n[ ] +1 任意属性（max +2）\n[ ] 获得一个 Path（含起始动作）" },
-  { "minLevel":5, "text":"从 5 级起，你还可以选择：\n\n[ ] Multiclass — 获得其他职业的 Path" }
-]
+"advancement": "当你升级时，HP +1，并选择以下一项：\n\n[ ] +1 任意属性（max +2）\n[ ] 获得一个 Path（含起始动作）\n\n从 5 级起，你还可以选择：\n[ ] Multiclass — 获得其他职业的 Path"
 ```
 
-- 每段是一段**纯文本**，勾选框就是文本里的 `[ ]`（复用动作文本的勾选框机制，`[x]` 表示勾选）。
-- 角色等级低于某段 `minLevel` 时，该段整体置灰 + 勾选框禁用。
+- 就是一个固定放着的「升级」动作（类似起始动作区域），文本里写升级规则和选项，勾选框复用动作文本的 `[ ]` 机制（`[x]` 表示勾选）。
+- 「从 5 级起…」这类等级说明直接写进文本即可，**不做按等级的置灰 / 禁用**。
 
 ### 4. XP 轨道
 
@@ -425,7 +422,7 @@ XP 改为轨道（点击填充），**不自动归零、不自动升级**——�
 
 | 键 | 类型 | 说明 |
 |---|---|---|
-| `meta.origins` | `array` | 字段列表 `[{key, label, prefix, hint}]` |
+| `meta.origins` | `array` | **可选**。字段列表 `[{key, label, prefix, hint}]`；不配置则完全不显示起源板块 |
 
 ```jsonc
 "origins": [
@@ -444,13 +441,13 @@ XP 改为轨道（点击填充），**不自动归零、不自动升级**——�
 |---|---|---|
 | `meta.showDamage` | `bool` | `false` 时属性栏不显示伤害（DW2 伤害由武器定义） |
 
-### 8. modifiers 模式公式显示
+### 8. 公式显示开关
 
 | 键 | 类型 | 说明 |
 |---|---|---|
-| `meta.showFormulaInModifiers` | `bool` | `true` 时 `statsMode:"modifiers"` 也显示 HP/负载公式（默认隐藏） |
+| `meta.showFormula` | `bool` | `false` 时不显示 HP/负载的公式提示（DW2 的 HP/负重是写死的数字，非公式） |
 
-公式另支持 **`等级`** 关键词（取角色当前等级），如 `"hp":"10+等级"`。
+公式支持 **`等级`** 关键词（取角色当前等级），如 `"hp":"10+等级"`。缺省（`true`）时公式提示照常显示。
 
 ### 9. 职业内覆盖进阶分段
 

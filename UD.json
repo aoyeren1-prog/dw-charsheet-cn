@@ -23,6 +23,7 @@
     },
     "debilityPenalty": "off",
     "coins": "off",
+    "showFormula": false,
     "labels": {
       "race": "背景动作",
       "raceName": "背景",
