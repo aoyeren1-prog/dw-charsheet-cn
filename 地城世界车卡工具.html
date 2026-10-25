@@ -172,7 +172,6 @@ input[data-bind=coins]::-webkit-outer-spin-button,input[data-bind=coins]::-webki
 .mv .mv-h{display:flex;align-items:flex-start;gap:6px}
 .mv .mv-h .chk{flex:none;margin-top:3px}
 .mv .mv-n{font-weight:700;font-size:13px;flex:1}
-.mv .mv-n.look-h{font-size:12px}
 .mv .mv-n input{width:100%;border:none;border-bottom:1px dashed transparent;background:transparent;font-weight:700;font-size:13px;color:var(--ink)}
 .mv .mv-n input:focus{border-bottom-color:var(--accent);outline:none}
 .mv .mv-t{font-size:12px;color:var(--ink-2);margin-top:3px}
@@ -263,6 +262,7 @@ input.mbox:disabled:hover{border-color:var(--ink-5)}
 .addrow button{background:var(--paper);color:var(--ink);border:1px dashed var(--ink-5);border-radius:4px;padding:4px 10px;cursor:pointer;font-size:12px}
 .addrow button:hover{border-color:var(--accent);color:var(--accent)}
 .adv-tier{font-size:12.5px;color:var(--warn);font-weight:700;margin:8px 0 4px}
+.adv-tier.locked{opacity:.45}
 .adv-tier-note{font-size:11px;color:var(--ink-5);font-weight:400;margin:-2px 0 4px}
 .faint{color:var(--ink-5)}
 
@@ -326,7 +326,7 @@ details.help pre{background:var(--panel2);padding:10px;border-radius:6px;overflo
 </div>
 
 <script>
-let DW_DATA = null, META = {}, STATS = [], STATS_MODE = "scores", ADV_TIERS = [], DEBILITIES = {}, LABELS = {}, SPELL_SECTIONS = {}, PREPARE_CAP_FORMULA = "", STAT_DISTRIBUTION = null, REF_SECTIONS = [], STAT_MIN = null, STAT_MAX = null, DEBILITY_PENALTY = "on", COINS_ENABLED = true, CONDITIONS = null, CONDITION_STATES = ["clear","marked"], XP_TRACK_SIZE = null, ADVANCEMENT_TEXT = "", TREASURE_TIERS = [], RELATIONSHIP_DEPTH_MAX = 3, ORIGINS = null, SHOW_DAMAGE = true, SHOW_FORMULA = true;
+let DW_DATA = null, META = {}, STATS = [], STATS_MODE = "scores", ADV_TIERS = [], DEBILITIES = {}, LABELS = {}, SPELL_SECTIONS = {}, PREPARE_CAP_FORMULA = "", STAT_DISTRIBUTION = null, STAT_NOTE = "", REF_SECTIONS = [], STAT_MIN = null, STAT_MAX = null, DEBILITY_PENALTY = "on", COINS_ENABLED = true, CONDITIONS = null, CONDITION_STATES = ["clear","marked"], XP_TRACK_SIZE = null, ADVANCEMENT_TEXT = "", TREASURE_TIERS = [], RELATIONSHIP_DEPTH_MAX = 3, ORIGINS = null, SHOW_DAMAGE = true, SHOW_FORMULA = true;
 function applyData(data){
   DW_DATA = data || {};
   META = DW_DATA.meta || {};
@@ -346,6 +346,7 @@ function applyData(data){
   };
   PREPARE_CAP_FORMULA = META.prepareCapFormula || "";
   STAT_DISTRIBUTION = META.statDistribution || null;
+  STAT_NOTE = META.statNote || "";
   STAT_MIN = (META.statMin !== undefined) ? META.statMin : null;
   STAT_MAX = (META.statMax !== undefined) ? META.statMax : null;
   DEBILITY_PENALTY = META.debilityPenalty || "on";
@@ -745,7 +746,7 @@ function formulaHint(txt, setter){
   return `<span class="formula-hint">（${body}）</span>`;
 }
 function distHint(cls){
-  const note = cls && cls.statNote;
+  const note = (cls && cls.statNote) || STAT_NOTE;
   if(note) return `<div class="stat-dist">${esc(LABELS.statDist||"初始分配")}：${esc(note)}</div>`;
   const arr = STAT_DISTRIBUTION;
   if(!arr || !arr.length) return "";
@@ -802,7 +803,7 @@ function lookHtml(cls){
     const sel=char.look[i]||[];
     const boxes = list.map(o=>`<div class="opt"><label class="optt"><input type="checkbox" class="chk" value="${esc(o)}" data-look="${i}" ${sel.includes(o)?"checked":""}> ${esc(o)}</label></div>`).join("");
     const customVal = sel.filter(x=>!list.includes(x))[0] || "";
-    return `<div class="mv"><div class="mv-n look-h">第${i+1}项</div>${boxes}
+    return `<div class="mv">${boxes}
       <div class="opt gap"><label class="optt"><input class="cust" data-lookcustom="${i}" value="${esc(customVal)}" placeholder="自定义"></label></div></div>`;
   }).join("");
   const note=`<div class="opt gap"><label class="optt"><input class="cust" data-bind="lookNotes" value="${esc(char.lookNotes||"")}"></label></div>`;
@@ -976,13 +977,13 @@ function advHtml(cls, m){
     const checked=allAdvancedMoves(m).filter(x=>chosen.includes(x.name));
     return `<div class="pb-sec"><h3>${esc(LABELS.advanced)}</h3>${checked.map(mv=>mvViewCard("adv",mv)).join("")||'<div class="hint">未选择</div>'}</div>`;
   }
-  const tier=(t)=>`<div class="adv-tier">${esc(t.label)}</div>${t.note?`<div class="adv-tier-note">${esc(t.note)}</div>`:""}`+t.moves.map(mv=>{
+  const tier=(t, locked)=>`<div class="adv-tier${locked?" locked":""}">${esc(t.label)}</div>${t.note?`<div class="adv-tier-note">${esc(t.note)}</div>`:""}`+t.moves.map(mv=>{
     if(mv._custom) return mvCardCustomAdv(mv);
     const d=moveDisplay("adv",mv);
     const text=d.text!==null?d.text:mv.text;
     const reqs=reqList(mv);
     const reps=repList(mv);
-    const disabled=reqs.some(r=>!chosen.includes(r));
+    const disabled=locked || reqs.some(r=>!chosen.includes(r));
     const req=reqs.map(r=>`<span class="req">需:${esc(r)}</span>`).join("");
     const rep=reps.map(r=>`<span class="req">替:${esc(r)}</span>`).join("");
     return `<div class="mv mv-adv ${disabled?"disabled":""}"><div class="mv-h">
@@ -993,8 +994,9 @@ function advHtml(cls, m){
   let html = "";
   m.advTiers.forEach(t=>{
     if(!t.moves.length) return;
-    if(lvl < t.minLevel) html += `<div class="hint">升至 ${t.minLevel} 级后解锁${t.label}。</div>`;
-    else html += tier(t);
+    const min = t.minLevel || 1;
+    const locked = lvl < min || (t.maxLevel != null && lvl > t.maxLevel);
+    html += tier(t, locked);
   });
   if(m.customMoves.length) html += tier({label:LABELS.customAdvanced, moves:m.customMoves});
   return `<div class="pb-sec"><h3>${esc(LABELS.advanced)}</h3>${html}<div class="addrow"><button data-add-adv>＋ 添加${esc(LABELS.advanced)}</button></div></div>`;
