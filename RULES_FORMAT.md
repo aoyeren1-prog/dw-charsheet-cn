@@ -34,7 +34,7 @@
 | `modTable` | `object` | 数值区间 → 调整值 | `{"1-3":-3,"4-5":-2,"6-8":-1,"9-12":0,"13-15":1,"16-17":2,"18":3}` |
 | `debilities` | `object` | 属性 → 异常状态名 | `{"力量":"虚弱","敏捷":"颤抖",...}` |
 | `labels` | `object` | 所有界面文案（板块名、按钮、占位符） | 见下 |
-| `advancedTiers` | `array` | 进阶动作分段，角色等级低于 `minLevel` 时该段隐藏 | `[{"key":"2-5","label":"进阶 · 2~5 级","minLevel":1},{"key":"6-10","label":"进阶 · 6~10 级","minLevel":6}]` |
+| `advancedTiers` | `array` | 进阶动作分段，角色等不在 `minLevel` 和 `maxLevel` 之间时该段置灰且不可交互 | `[{"key": "2only", "label": "仅第一次升级", "minLevel":2, "maxLevel":2}{"key":"2-5","label":"进阶 · 2~5 级","minLevel":2},{"key":"6-10","label":"进阶 · 6~10 级","minLevel":6}]` |
 | `spellSections` | `object` | 法术板块定义 | 见下 |
 | `refSections` | `array` | 资料边栏页签与内容组织 | 见下 |
 | `prepareCapFormula` | `string` | 准备上限公式 | `"施法等级+1"` |
