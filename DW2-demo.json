@@ -45,7 +45,6 @@
     "xpTrackSize": 5,
     "showDamage": false,
     "showFormula": false,
-    "relationshipDepthMax": 3,
     "treasureTiers": [
       {
         "key": "broke",
@@ -78,39 +77,15 @@
         "slots": 0
       }
     ],
-    "advancement": "当你升级时，HP +1（最多 +10），并选择以下一项：\n\n[ ] +1 任意属性（max +2）\n[ ] 获得一个 Path（含起始动作）\n[ ] 揭示一个 Struggle\n[ ] 获得一个 Path Move\n[ ] 转职\n\n从 5 级起，你还可以选择：\n[ ] +1 任意属性（max +2）\n[ ] Multiclass — 获得其他职业的 Path\n[ ] 获得一件魔法物品\n\n从 10 级起，你还可以选择：\n[ ] +1 任意属性（max +3）\n[ ] Multiclass\n[ ] 获得一件 Artifact",
-    "origins": [
-      {
-        "key": "ancestry",
-        "label": "血缘",
-        "prefix": "我是",
-        "hint": "如：矮人、精灵、人类、猫人、构装体……"
-      },
-      {
-        "key": "community",
-        "label": "社群",
-        "prefix": "我来自",
-        "hint": "如：佣兵团、商队、学者团、部落……"
-      },
-      {
-        "key": "background",
-        "label": "背景",
-        "prefix": "我曾是",
-        "hint": "如：铁匠、佣兵、学徒、流浪者……"
-      }
-    ],
     "labels": {
-      "statDist": "初始分配",
-      "treasure": "财富",
       "struggle": "心结",
-      "origins": "起源",
       "advancement": "升级"
     },
     "refSections": [
       {
         "id": "moves",
         "title": "通用动作",
-        "type": "groups",
+        "type": "moves",
         "groups": [
           {
             "key": "basicMoves",
@@ -121,7 +96,7 @@
       {
         "id": "struggles",
         "title": "心结",
-        "type": "groups",
+        "type": "moves",
         "groups": [
           {
             "key": "struggleHelp",
@@ -140,7 +115,215 @@
         "title": "资料速查",
         "type": "search"
       }
-    ]
+    ],
+    "areas": {
+      "origins": {
+        "title": "起源",
+        "body": {
+          "type": "plain",
+          "elements": [
+            {
+              "type": "input",
+              "key": "ancestry",
+              "label": "血缘",
+              "prefix": "我是",
+              "hint": "如：矮人、精灵、人类、猫人、构装体……"
+            },
+            {
+              "type": "input",
+              "key": "community",
+              "label": "社群",
+              "prefix": "我来自",
+              "hint": "如：佣兵团、商队、学者团、部落……"
+            },
+            {
+              "type": "input",
+              "key": "background",
+              "label": "背景",
+              "prefix": "我曾是",
+              "hint": "如：铁匠、佣兵、学徒、流浪者……"
+            }
+          ]
+        }
+      },
+      "treasure": {
+        "title": "财富",
+        "body": {
+          "type": "plain",
+          "elements": [
+            {
+              "type": "track",
+              "key": "treasure",
+              "view": "editable",
+              "value": [
+                {
+                  "label": "破产"
+                },
+                {
+                  "slots": 4
+                },
+                {
+                  "label": "贫穷"
+                },
+                {
+                  "slots": 6
+                },
+                {
+                  "label": "适中"
+                },
+                {
+                  "slots": 8
+                },
+                {
+                  "label": "舒适"
+                },
+                {
+                  "slots": 10
+                },
+                {
+                  "label": "富有"
+                },
+                {
+                  "slots": 12
+                },
+                {
+                  "label": "贵族"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "look": {
+        "title": "外观",
+        "body": {
+          "type": "plain",
+          "elements": [
+            {
+              "type": "choices",
+              "key": "group0",
+              "layout": "break",
+              "value": []
+            },
+            {
+              "type": "input",
+              "key": "custom0",
+              "tip": "自定义"
+            },
+            {
+              "type": "choices",
+              "key": "group1",
+              "layout": "break",
+              "value": []
+            },
+            {
+              "type": "input",
+              "key": "custom1",
+              "tip": "自定义"
+            },
+            {
+              "type": "input",
+              "key": "notes",
+              "tip": "其他外观描述"
+            }
+          ]
+        }
+      },
+      "starting": {
+        "title": "起始动作",
+        "body": {
+          "type": "moveList",
+          "buttons": [
+            {
+              "label": "动作",
+              "position": "global",
+              "action": "addMove"
+            }
+          ]
+        }
+      },
+      "advanced": {
+        "title": "进阶动作",
+        "body": {
+          "type": "moveList",
+          "buttons": [
+            {
+              "label": "动作",
+              "position": "global",
+              "action": "addMove",
+              "targetGroup": "custom"
+            }
+          ],
+          "features": {
+            "selectMoves": true
+          }
+        }
+      },
+      "struggle": {
+        "title": "心结",
+        "body": {
+          "type": "moveList",
+          "buttons": [
+            {
+              "label": "心结",
+              "position": "global",
+              "action": "addMove"
+            }
+          ]
+        }
+      },
+      "advancement": {
+        "title": "升级",
+        "body": {
+          "type": "moveList",
+          "moves": [
+            {
+              "name": "升级",
+              "text": "当你升级时，HP +1（最多 +10），并选择以下一项：\n\n[ ] +1 任意属性（max +2）\n[ ] 获得一个 Path（含起始动作）\n[ ] 揭示一个 Struggle\n[ ] 获得一个 Path Move\n[ ] 转职\n\n从 5 级起，你还可以选择：\n[ ] +1 任意属性（max +2）\n[ ] Multiclass — 获得其他职业的 Path\n[ ] 获得一件魔法物品\n\n从 10 级起，你还可以选择：\n[ ] +1 任意属性（max +3）\n[ ] Multiclass\n[ ] 获得一件 Artifact"
+            }
+          ]
+        }
+      },
+      "gear": {
+        "title": "装备",
+        "body": {
+          "type": "fillbox",
+          "resetOnClassChange": true,
+          "counters": [
+            {
+              "key": "coins",
+              "label": "金币"
+            }
+          ]
+        }
+      },
+      "bonds": {
+        "title": "羁绊",
+        "body": {
+          "type": "bonds",
+          "resetOnClassChange": true,
+          "relations": true,
+          "relationDepth": 3
+        }
+      }
+    },
+    "areaLayout": {
+      "left": [
+        "look",
+        "origins",
+        "heritage",
+        "gear",
+        "treasure",
+        "bonds",
+        "struggle",
+        "notes"
+      ],
+      "right": [
+        "starting",
+        "advanced",
+        "advancement"
+      ]
+    }
   },
   "classes": [
     {
@@ -163,94 +346,7 @@
         ]
       ],
       "racialMoves": [],
-      "startingMoves": [
-        {
-          "name": "弯栅破门",
-          "text": "当你**使用蛮力破坏无生命的障碍物**时，掷 +力量。\n\n✴掷出 10+ 时，选择 3 项。\n\n✴掷出 7-9 时，选择 2 项。\n\n- 这不需要花太长时间\n- 你没有弄坏什么有价值的东西\n- 这没有产生巨大噪音"
-        }
-      ],
       "alignment": [],
-      "gear": {
-        "groups": [
-          {
-            "prompt": "选择你的武器：",
-            "options": [
-              "长剑",
-              "战斧",
-              "战锤"
-            ]
-          },
-          {
-            "prompt": "选择你的防具：",
-            "options": [
-              "链甲",
-              "皮甲",
-              "盾牌"
-            ]
-          }
-        ]
-      },
-      "bonds": [
-        "____ 与我并肩作战，我欠他一条命。",
-        "____ 曾是我的对手，如今是我的盟友。"
-      ],
-      "advancedTiers": [
-        {
-          "key": "guardian",
-          "label": "守护者 Path",
-          "note": "以血肉之躯挡在同伴身前",
-          "minLevel": 1
-        },
-        {
-          "key": "master",
-          "label": "武器大师 Path",
-          "note": "精通各种兵刃",
-          "minLevel": 1
-        },
-        {
-          "key": "veteran",
-          "label": "百战老兵 Path",
-          "note": "身经百战，无所畏惧",
-          "minLevel": 1
-        }
-      ],
-      "advancedMoves": {
-        "guardian": [
-          {
-            "name": "守护者",
-            "text": "Path 起始：当你**保护同伴**时……",
-            "requires": null
-          },
-          {
-            "name": "铁壁",
-            "text": "Path Move：当你**以守护者姿态挡下攻击**时……",
-            "requires": [
-              "守护者"
-            ]
-          }
-        ],
-        "master": [
-          {
-            "name": "武器大师",
-            "text": "Path 起始：当你**换上趁手的武器**时……",
-            "requires": null
-          },
-          {
-            "name": "致命一击",
-            "text": "Path Move：当你**用武器大师的武器致命一击**时……",
-            "requires": [
-              "武器大师"
-            ]
-          }
-        ],
-        "veteran": [
-          {
-            "name": "百战老兵",
-            "text": "当你**面对曾经击败过的敌人**时……",
-            "requires": null
-          }
-        ]
-      },
       "areas": {
         "gear": {
           "rightStats": [
@@ -258,7 +354,131 @@
               "key": "load",
               "formula": "10"
             }
-          ]
+          ],
+          "body": {
+            "options": [
+              {
+                "prompt": "选择你的武器：",
+                "options": [
+                  "长剑",
+                  "战斧",
+                  "战锤"
+                ]
+              },
+              {
+                "prompt": "选择你的防具：",
+                "options": [
+                  "链甲",
+                  "皮甲",
+                  "盾牌"
+                ]
+              }
+            ]
+          }
+        },
+        "look": {
+          "body": {
+            "elements": [
+              {
+                "key": "group0",
+                "value": [
+                  "冷酷的眼神",
+                  "锐利的目光",
+                  "疲惫的眼神"
+                ]
+              },
+              {
+                "key": "group1",
+                "value": [
+                  "干净利落的短发",
+                  "狂野的长发",
+                  "光头"
+                ]
+              }
+            ]
+          }
+        },
+        "starting": {
+          "body": {
+            "moves": [
+              {
+                "name": "弯栅破门",
+                "text": "当你**使用蛮力破坏无生命的障碍物**时，掷 +力量。\n\n✴掷出 10+ 时，选择 3 项。\n\n✴掷出 7-9 时，选择 2 项。\n\n- 这不需要花太长时间\n- 你没有弄坏什么有价值的东西\n- 这没有产生巨大噪音"
+              }
+            ]
+          }
+        },
+        "advanced": {
+          "body": {
+            "groups": [
+              {
+                "key": "guardian",
+                "label": "守护者 Path",
+                "note": "以血肉之躯挡在同伴身前",
+                "minLevel": 1,
+                "moves": [
+                  {
+                    "name": "守护者",
+                    "text": "Path 起始：当你**保护同伴**时……",
+                    "requires": null
+                  },
+                  {
+                    "name": "铁壁",
+                    "text": "Path Move：当你**以守护者姿态挡下攻击**时……",
+                    "requires": [
+                      "守护者"
+                    ]
+                  }
+                ]
+              },
+              {
+                "key": "master",
+                "label": "武器大师 Path",
+                "note": "精通各种兵刃",
+                "minLevel": 1,
+                "moves": [
+                  {
+                    "name": "武器大师",
+                    "text": "Path 起始：当你**换上趁手的武器**时……",
+                    "requires": null
+                  },
+                  {
+                    "name": "致命一击",
+                    "text": "Path Move：当你**用武器大师的武器致命一击**时……",
+                    "requires": [
+                      "武器大师"
+                    ]
+                  }
+                ]
+              },
+              {
+                "key": "veteran",
+                "label": "百战老兵 Path",
+                "note": "身经百战，无所畏惧",
+                "minLevel": 1,
+                "moves": [
+                  {
+                    "name": "百战老兵",
+                    "text": "当你**面对曾经击败过的敌人**时……",
+                    "requires": null
+                  }
+                ]
+              },
+              {
+                "key": "custom",
+                "label": "其他",
+                "moves": []
+              }
+            ]
+          }
+        },
+        "bonds": {
+          "body": {
+            "lines": [
+              "____ 与我并肩作战，我欠他一条命。",
+              "____ 曾是我的对手，如今是我的盟友。"
+            ]
+          }
         }
       }
     }

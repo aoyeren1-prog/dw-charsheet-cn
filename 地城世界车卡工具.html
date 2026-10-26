@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>地城世界 · 车卡工具</title>
+<title>地城世界车卡工具</title>
 <style>
 :root{
   /* ===== 主题配色：改这里即可整体换肤 ===== */
@@ -23,9 +23,8 @@
   --ref-paper:var(--paper); --ref-ink:var(--ink);
   --ref-ink-2:var(--ink-2); --ref-ink-3:var(--ink-3); --ref-ink-4:var(--ink-4); --ref-ink-5:var(--ink-5);
   --ref-paperline:var(--paperline); --ref-line-4:var(--line-4); --ref-line-5:var(--line-5);
-  /* 动作左侧色条：按来源填色可区分（默认透明 = 不显示） */
-  --bar-race:transparent; --bar-align:transparent; --bar-start:transparent; --bar-adv:transparent;
-  --bar-custom:transparent; --bar-spell:transparent; --bar-compendium:transparent;
+  /* 自定义动作的左侧色条（默认透明 = 不显示） */
+  --bar-custom:transparent;
 }
 *{box-sizing:border-box}
 input,select,textarea,button{font-family:inherit}
@@ -87,13 +86,7 @@ body{background:var(--bg);color:var(--text);font-family:"Segoe UI","Microsoft Ya
 .rmv .rmv-t ul{margin:3px 0;padding-left:18px}
 .rmv .rmv-t .tag{background:var(--tag-bg);color:var(--tag-ink);border-radius:3px;padding:0 4px;font-size:12px}
 .ref-search{width:100%;background:var(--ref-paper);color:var(--ref-ink);border:1px solid var(--ref-line-5);border-radius:6px;padding:7px 9px;font-size:13px;margin-bottom:4px}
-.ref-spell-group{margin:10px 0 4px;font-size:13px;font-weight:700;color:var(--ref-ink-3)}
-.ref-spell-list{border:1px solid var(--ref-line-4);border-radius:6px;margin-bottom:10px;background:var(--ref-paper)}
-.ref-spell-list summary{display:flex;align-items:center;gap:6px;padding:10px 12px;cursor:pointer;font-size:15px;font-weight:700;color:var(--ref-ink);list-style:none}
-.ref-spell-list summary::before{content:"▸";color:var(--ref-ink-4);font-size:11px;flex:none}
-.ref-spell-list[open] summary::before{content:"▾"}
-.ref-spell-list summary::-webkit-details-marker{display:none}
-.ref-spell-list .ref-spell-inner{padding:0 12px 10px}
+.ref-subsec{margin:10px 0 4px;font-size:13px;font-weight:700;color:var(--ref-ink-3)}
 .tag{background:var(--tag-bg);color:var(--tag-ink);border-radius:3px;padding:0 4px;font-size:12px;display:inline-block}
 .tag-item{margin-bottom:6px;font-size:12px;color:var(--ref-ink-2);line-height:1.6}
 .tag-item .tag{margin-right:4px}
@@ -101,7 +94,7 @@ body{background:var(--bg);color:var(--text);font-family:"Segoe UI","Microsoft Ya
 /* ===== 页头 ===== */
 .pb-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:12px}
 .pb-class{font-size:26px;font-weight:800;letter-spacing:1px;line-height:1.1}
-.pb-sub{font-size:12px;color:var(--ink-3);margin-top:2px}
+
 .pb-info{display:flex;gap:14px;flex-wrap:wrap;font-size:12px}
 .pb-info .it{display:flex;flex-direction:column;min-width:56px}
 .pb-info .it .k{font-size:10px;color:var(--ink-4)}
@@ -162,13 +155,7 @@ input[data-bind=coins]::-webkit-outer-spin-button,input[data-bind=coins]::-webki
 .mv.disabled{opacity:.45}
 /* 动作左侧色条（--bar 由来源 class 或内联样式指定） */
 .mv::before,.rmv::before{content:"";position:absolute;left:-1px;top:-1px;bottom:-1px;width:3px;background:var(--bar,transparent);border-radius:3px 0 0 3px;pointer-events:none}
-.mv-race{--bar:var(--bar-race)}
-.mv-align{--bar:var(--bar-align)}
-.mv-start{--bar:var(--bar-start)}
-.mv-adv{--bar:var(--bar-adv)}
 .mv-custom{--bar:var(--bar-custom)}
-.mv-spell{--bar:var(--bar-spell)}
-.mv-compendium{--bar:var(--bar-compendium)}
 .mv .mv-h{display:flex;align-items:flex-start;gap:6px}
 .mv .mv-h .chk{flex:none;margin-top:3px}
 .mv .mv-n{font-weight:700;font-size:13px;flex:1}
@@ -191,7 +178,8 @@ input.mbox:disabled:hover{border-color:var(--ink-5)}
 .mv .tag{background:var(--tag-bg);color:var(--tag-ink);border-radius:3px;padding:0 4px;font-size:12px}
 .mv .del{position:absolute;top:4px;right:4px;border:none;background:transparent;color:var(--line-3);cursor:pointer;font-size:13px;line-height:1;padding:2px 4px;border-radius:3px;z-index:2}
 .mv .del:hover{color:var(--danger);background:var(--danger-bg)}
-.mv-add{margin-top:4px}
+/* 下边距：分组内按钮后面可能紧跟无类别动作卡（.mv 没有 margin-top），不留则挤在一起 */
+.mv-add{margin-top:2px;margin-bottom:4px}
 .mv-add button{background:var(--paper);color:var(--ink);border:1px dashed var(--ink-5);border-radius:4px;padding:3px 8px;cursor:pointer;font-size:11.5px}
 .mv-add button:hover{border-color:var(--accent);color:var(--accent)}
 
@@ -221,19 +209,18 @@ input.mbox:disabled:hover{border-color:var(--ink-5)}
 .gear-add{border:1px solid var(--accent);background:transparent;color:var(--tag-ink);border-radius:4px;width:18px;height:18px;padding:0;font-size:12px;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;flex:none}
 .gear-add:hover{background:var(--accent);color:var(--accent-ink)}
 .coins-input{width:80px;border:1px solid var(--line-5);border-radius:3px;padding:3px 6px;background:var(--paper);color:var(--ink);font-size:13px}
-.spell-group{margin-top:6px}
-.spell-group-h{font-size:12px;font-weight:700;color:var(--ink-3);margin-bottom:4px;border-bottom:1px solid var(--paperline);padding-bottom:2px}
+
 .mv.spell-off{opacity:.5}
 .bond-line{display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px dotted var(--line-4);font-size:12.5px}
 .bond-line input{flex:1;border:none;border-bottom:1px dashed var(--ink-5);background:transparent;font-size:12.5px;color:var(--ink)}
 .bond-line .x{border:none;background:transparent;color:var(--line-3);cursor:pointer;font-size:13px;padding:2px 4px;border-radius:3px;line-height:1}
 .bond-line .x:hover{color:var(--danger);background:var(--danger-bg)}
-.bond-line.rel input[data-rel-target]{flex:0 0 90px}
-.bond-line.rel input[data-rel-desc]{flex:1}
+.bond-line.rel input[data-area^="rtarget:"]{flex:0 0 90px}
+.bond-line.rel input[data-area^="rdesc:"]{flex:1}
 .rel-depth{display:inline-flex;align-items:center;gap:2px}
 .rel-depth .trc{width:14px;height:14px}
 .rel-depth-v{font-size:10px;letter-spacing:1px;color:var(--ink-4)}
-.origin-line{padding:3px 0;border-bottom:1px dotted var(--line-4);font-size:12.5px}
+.origin-line{padding:2px 0 3px;border-bottom:1px dotted var(--line-4);font-size:12.5px}
 .origin-row{display:flex;align-items:center;gap:2px}
 .origin-row b{font-weight:700;white-space:nowrap}
 .origin-row input{flex:1;min-width:0;border:none;border-bottom:1px dashed var(--ink-5);background:transparent;font-size:12.5px;color:var(--ink)}
@@ -253,6 +240,10 @@ input.mbox:disabled:hover{border-color:var(--ink-5)}
 .counters .bond-line input{flex:1;min-width:0}
 .counters .bond-line .coins-input{flex:none;width:52px;border:none;border-bottom:1px dashed var(--ink-5);background:transparent;text-align:center;padding:0}
 .counters .bond-line .x{flex:none}
+/* 固定计数器：名字宽度由文本决定，后面留一点间隙再接输入框 */
+.counters .bond-line.fixed{gap:0}
+/* 输入框只有下边框，居中时文字偏高 1px，这里把名字下移同样的量抵掉 */
+.counters .bond-line .cnt-name{flex:none;margin-right:5px;font-size:12.5px;position:relative;top:1px}
 .counters-add{margin-bottom:8px}
 .xbtn{border:none;background:transparent;color:var(--line-3);cursor:pointer;font-size:13px;line-height:1;padding:2px 4px;border-radius:3px}
 .xbtn:hover{color:var(--danger);background:var(--danger-bg)}
@@ -264,6 +255,12 @@ input.mbox:disabled:hover{border-color:var(--ink-5)}
 .adv-tier{font-size:12.5px;color:var(--warn);font-weight:700;margin:8px 0 4px}
 .adv-tier.locked{opacity:.45}
 .adv-tier-note{font-size:11px;color:var(--ink-5);font-weight:400;margin:-2px 0 4px}
+/* 带勾选框的分组标题：勾选框 + 可编辑名 + 删除按钮排成一行 */
+.adv-tier.sel{display:flex;align-items:center;gap:6px}
+.adv-tier.sel input[type=text]{flex:1;min-width:0;border:none;border-bottom:1px dashed transparent;background:transparent;font:inherit;color:inherit}
+.adv-tier.sel input[type=text]:focus{border-bottom-color:var(--accent);outline:none}
+.adv-tier.sel .x{flex:none;border:none;background:transparent;color:var(--line-3);cursor:pointer;font-size:13px;padding:2px 4px;border-radius:3px;line-height:1}
+.adv-tier.sel .x:hover{color:var(--danger);background:var(--danger-bg)}
 .faint{color:var(--ink-5)}
 
 /* ===== 打印 ===== */
@@ -320,19 +317,18 @@ details.help pre{background:var(--panel2);padding:10px;border-radius:6px;overflo
   </div>
   <details class="help">
     <summary>规则 JSON 格式说明（导入规则 / 导入职业）</summary>
-    <p class="help-note">点「📥 导入规则」导入一份<b>规则 JSON</b>（`data.json` 或你自己的房规.json），导入后存进浏览器、刷新自动生效。「导入角色 / 导出角色」角色卡用 <b>JSON 文件</b>（兼容旧的 <code>window.DW_CARD = {…}</code> 格式）。改规则只需改<b>规则 JSON</b> 后重新导入一次；注意 <b>classes[].advancedMoves 的键</b>要与 <b>meta.advancedTiers 的 key</b> 一致。</p>
+    <p class="help-note">点「📥 导入规则」导入一份<b>规则 JSON</b>，导入后存进浏览器、刷新自动生效。「导入角色 / 导出角色」角色卡用 <b>JSON 文件</b>。下面是一份最小可用的示例。</p>
     <pre id="jsonSchema"></pre>
   </details>
 </div>
 
 <script>
-let DW_DATA = null, META = {}, STATS = [], STATS_MODE = "scores", ADV_TIERS = [], DEBILITIES = {}, LABELS = {}, SPELL_SECTIONS = {}, PREPARE_CAP_FORMULA = "", STAT_DISTRIBUTION = null, STAT_NOTE = "", REF_SECTIONS = [], STAT_MIN = null, STAT_MAX = null, DEBILITY_PENALTY = "on", COINS_ENABLED = true, CONDITIONS = null, CONDITION_STATES = ["clear","marked"], XP_TRACK_SIZE = null, ADVANCEMENT_TEXT = "", TREASURE_TIERS = [], RELATIONSHIP_DEPTH_MAX = 3, ORIGINS = null, SHOW_DAMAGE = true, SHOW_FORMULA = true, AREAS = {};
+let DW_DATA = null, META = {}, STATS = [], STATS_MODE = "scores", DEBILITIES = {}, LABELS = {}, STAT_DISTRIBUTION = null, STAT_NOTE = "", REF_SECTIONS = [], STAT_MIN = null, STAT_MAX = null, DEBILITY_PENALTY = "on", CONDITIONS = null, CONDITION_STATES = ["clear","marked"], XP_TRACK_SIZE = null, SHOW_DAMAGE = true, SHOW_FORMULA = true, AREAS = {}, AREA_LAYOUT = {left:[], right:[]};
 function applyData(data){
   DW_DATA = data || {};
   META = DW_DATA.meta || {};
   STATS = META.stats || [];
   STATS_MODE = META.statsMode || "scores";
-  ADV_TIERS = META.advancedTiers || [{key:"2-5", label:"进阶 · 2~5 级", minLevel:1}, {key:"6-10", label:"进阶 · 6~10 级", minLevel:6}];
   DEBILITIES = META.debilities || {力量:"虚弱",敏捷:"颤抖",体质:"患病",智力:"晕眩",睿知:"困惑",魅力:"疤痕"};
   LABELS = Object.assign({
     look:"外观", race:"种族动作", raceName:"种族", alignment:"阵营动作", alignmentNote:"动机 / Drive", alignmentName:"阵营",
@@ -340,27 +336,18 @@ function applyData(data){
     load:"负载上限", hpMax:"最大生命", hpCur:"当前生命", armor:"护甲", damage:"伤害", name:"姓名", level:"等级", xp:"XP",
     defaultFormula:"默认", blank:" ", casterLevel:"施法等级", prepareCap:"准备上限", statDist:"初始分配", coins:"金币"
   }, META.labels || {});
-  SPELL_SECTIONS = META.spellSections || {
-    spellbook: { title:"法术书", source:"法师法术", trigger:"法术书", spellClass:"wizard", groups:["戏法","等级 1","等级 3","等级 5","等级 7","等级 9"] },
-    cleric: { title:"牧师法术", source:"牧师法术", trigger:"通神", spellClass:"cleric", groups:["祷念","等级 1","等级 3","等级 5","等级 7","等级 9"] }
-  };
-  PREPARE_CAP_FORMULA = META.prepareCapFormula || "";
   STAT_DISTRIBUTION = META.statDistribution || null;
   STAT_NOTE = META.statNote || "";
   STAT_MIN = (META.statMin !== undefined) ? META.statMin : null;
   STAT_MAX = (META.statMax !== undefined) ? META.statMax : null;
   DEBILITY_PENALTY = META.debilityPenalty || "on";
-  COINS_ENABLED = META.coins !== "off";
   CONDITIONS = META.conditions || null;
   CONDITION_STATES = META.conditionStates || ["clear","marked"];
   XP_TRACK_SIZE = META.xpTrackSize || null;
-  ADVANCEMENT_TEXT = (META.advancement && typeof META.advancement === "string") ? META.advancement : (META.advancement ? (META.advancement.map(s => (s && s.text) || (typeof s === "string" ? s : "")).join("\n\n")) : "");
-  TREASURE_TIERS = META.treasureTiers || [];
-  RELATIONSHIP_DEPTH_MAX = META.relationshipDepthMax || 3;
-  ORIGINS = META.origins || null;
   SHOW_DAMAGE = META.showDamage !== false;
   SHOW_FORMULA = META.showFormula !== false;
   AREAS = META.areas || {};
+  AREA_LAYOUT = resolveAreaLayout(META.areaLayout);
   REF_SECTIONS = META.refSections || [
     {id:"moves", title:"通用动作", type:"groups", groups:[
       {key:"basicMoves", label:"基本动作"},
@@ -376,44 +363,103 @@ function applyData(data){
   buildTagMap();
 }
 
+// areaLayout 只声明「顺序和栏位」，区域清单始终以 META.areas 为准。
+// 上层规则（房规）只想插一个区域时不必重抄整份布局：没被提到的区域
+// 按 areas 的声明顺序补到左栏，不会因为漏写而消失。
+// 反向早已容忍：布局里列了但 areas 里没有的 key（如 DW 预留的 heritage）直接跳过。
+function resolveAreaLayout(layout){
+  const keys = Object.keys(AREAS);
+  const declared = layout || {};
+  const pick = side => (declared[side] || []).filter(k => AREAS[k]);
+  const left = pick("left");
+  const right = pick("right").filter(k => !left.includes(k));
+  const placed = new Set([...left, ...right]);
+  return { left: left.concat(keys.filter(k => !placed.has(k))), right };
+}
+
 /* ============ 规则合并（分层） ============ */
 function isObj(v){ return v && typeof v === "object" && !Array.isArray(v); }
 function entryField(e){
-  if(isObj(e)){ if(e.id !== undefined) return "id"; if(e.name !== undefined) return "name"; }
+  if(isObj(e)){
+    if(e.id !== undefined) return "id";
+    if(e.name !== undefined) return "name";
+    if(e.key !== undefined) return "key";
+  }
   return null;
 }
 function deepMerge(base, patch){
+  // undefined 表示「无改动」，保留 base；null 才是显式删除
+  if(patch === undefined) return base;
+  if(Array.isArray(patch)) return mergeArray(Array.isArray(base) ? base : [], patch);
   if(!isObj(patch)) return patch;
   const out = isObj(base) ? {...base} : {};
   for(const k of Object.keys(patch)){
     const pv = patch[k];
     if(pv === null){ delete out[k]; continue; }
     const bv = out[k];
-    if(Array.isArray(pv)){ out[k] = mergeArray(Array.isArray(bv) ? bv : [], pv); }
+    if(k === "areaLayout" && isObj(pv)){ out[k] = mergeLayout(bv, pv); }
+    else if(Array.isArray(pv)){ out[k] = mergeArray(Array.isArray(bv) ? bv : [], pv); }
     else if(isObj(pv) && isObj(bv)){ out[k] = deepMerge(bv, pv); }
     else { out[k] = pv; }
   }
   return out;
 }
-function mergeArray(baseArr, patchArr){
-  const out = baseArr.map(x => isObj(x) ? {...x} : x);
-  for(const pe of patchArr){
-    if(isObj(pe) && pe.$delete === true){
-      const field = entryField(pe);
-      if(field){ const val = pe[field]; const idx = out.findIndex(x => isObj(x) && x[field] === val); if(idx !== -1) out.splice(idx, 1); }
-      continue;
-    }
-    const field = entryField(pe);
-    if(field){
-      const val = pe[field];
-      const idx = out.findIndex(x => isObj(x) && x[field] === val);
-      if(idx !== -1) out[idx] = deepMerge(out[idx], pe);
-      else out.push(isObj(pe) ? {...pe} : pe);
-    } else {
-      out.push(pe);
-    }
+// areaLayout.left/right 是「顺序声明」，条目指向别处定义的区域 key，
+// 和 stats 那种值列表不同：上层只想插一个区域时，整体覆盖会连带丢掉下层的顺序。
+// 所以按序列合并——保留下层顺序，只把上层新增的 key 插进去。
+function mergeLayout(base, patch){
+  const out = isObj(base) ? {...base} : {};
+  for(const side of Object.keys(patch)){
+    const pv = patch[side];
+    if(pv === null){ delete out[side]; continue; }
+    if(!Array.isArray(pv)){ out[side] = pv; continue; }
+    out[side] = mergeSequence(Array.isArray(out[side]) ? out[side] : [], pv);
   }
   return out;
+}
+// 下层顺序为骨架，上层的新 key 插在「它后面第一个两边都有的 key」之前，
+// 没有这种锚点就接到末尾。上层想彻底重排时，先用 null 删掉该侧再重写。
+function mergeSequence(baseArr, patchArr){
+  const out = baseArr.slice();
+  patchArr.forEach((key, i) => {
+    if(out.includes(key)) return;
+    let at = out.length;
+    for(let j = i + 1; j < patchArr.length; j++){
+      const idx = out.indexOf(patchArr[j]);
+      if(idx !== -1){ at = idx; break; }
+    }
+    out.splice(at, 0, key);
+  });
+  return out;
+}
+// 数组能否按键合并：要求 patch 的每一项都能取到 id/name/key
+// 取不到键的项（字符串、数字、嵌套数组、无键对象）没有「同一项」的概念，
+// 只能整体覆盖——否则上层每叠一次就追加一遍，buttons 这类会翻倍
+// （areaLayout 是顺序声明，不走这里，见 mergeLayout）
+function keyedArray(patchArr){
+  return patchArr.every(pe => entryField(pe) !== null);
+}
+function mergeArray(baseArr, patchArr){
+  // 整体覆盖：深拷贝，避免合并结果与规则 JSON 共享引用
+  if(!keyedArray(patchArr)) return patchArr.map(cloneDeep);
+  const out = baseArr.map(x => isObj(x) ? {...x} : x);
+  for(const pe of patchArr){
+    const field = entryField(pe);
+    const val = pe[field];
+    const idx = out.findIndex(x => isObj(x) && x[field] === val);
+    if(pe.$delete === true){
+      if(idx !== -1) out.splice(idx, 1);
+      continue;
+    }
+    if(idx !== -1) out[idx] = deepMerge(out[idx], pe);
+    else out.push({...pe});
+  }
+  return out;
+}
+function cloneDeep(v){
+  if(Array.isArray(v)) return v.map(cloneDeep);
+  if(isObj(v)){ const o = {}; for(const k of Object.keys(v)) o[k] = cloneDeep(v[k]); return o; }
+  return v;
 }
 
 /* ============ 状态 ============ */
@@ -423,7 +469,7 @@ let searchKw = "";
 let lastSearchItems = [];
 let boxReg = {};
 let ruleStack = [];
-let customData = {classes:[], extraMoves:{}, extraRacialMoves:{}, extraAlignments:{}};
+let customData = {classes:[], moveListMoves:{}, moveListGroups:{}};
 let char = defaultChar();
 let TAG_COLOR_MAP = {};
 
@@ -432,13 +478,11 @@ function defaultChar(){
   const stats = {};
   if(STATS_MODE==="modifiers"){ STATS.forEach(s=>stats[s]=0); }
   else { STATS.forEach(s=>stats[s]=10); }
-  const spells = {};
-  Object.keys(SPELL_SECTIONS).forEach(k => spells[k] = {effectiveLevel:1, levelCap:2, list:[]});
-  return {name:"",classId:"",races:[],alignments:[],level:1,xp:0,
+  return {name:"",classId:"",level:1,xp:0,
     stats,
-    look:[], lookNotes:"", hpMax:0, load:0, hpCur:0, armor:0, damage:"",
-    gear:"", bonds:[], advancedMoves:[], startingChoices:[], coins:0, notes:"", moveEdits:{}, debilities:[], counters:[],
-    spells, manualSpells:[], conditions:{}, relationships:[], treasure:0, struggle:null, origins:{ancestry:"",community:"",background:""}};
+    hpMax:0, load:0, hpCur:0, armor:0, damage:"",
+    debilities:[], conditions:{},
+    areaData:{}, plainAreas:{}, moveListSelections:{}, moveListGroupNames:{}, moveListNames:{}, moveListTexts:{}};
 }
 function mod(score){
   const table = META.modTable || {"1-3":-3, "4-5":-2, "6-8":-1, "9-12":0, "13-15":1, "16-17":2, "18":3};
@@ -516,7 +560,6 @@ function markdownToHtml(md){
   flushList(); flushPara();
   return out.join("");
 }
-function moveBoxKey(kind, mv){ return mv._custom ? ("custom::"+(mv.id||"")) : editKey(kind, mv.name); }
 function applyBoxes(html, key){
   let idx = 0;
   return String(html||"").replace(/\[([ xX])\]/g, (m, c)=>{
@@ -524,28 +567,6 @@ function applyBoxes(html, key){
     idx++;
     return box;
   });
-}
-function getMoveMarkdown(kind, mv){
-  if(mv._custom) return mv.text || "";
-  const d = moveDisplay(kind, mv);
-  return d.text !== null ? d.text : mv.text;
-}
-function setMoveMarkdown(kind, mv, newText){
-  if(mv._custom){
-    const cid = char.classId;
-    const am = (customData.extraMoves[cid]||[]).find(x=>x.id===mv.id);
-    if(am){ am.text = newText; return; }
-    for(const g of (customData.extraRacialMoves[cid]||[])){
-      const mm = (g.moves||[]).find(x=>x.id===mv.id);
-      if(mm){ mm.text = newText; return; }
-    }
-    const al = (customData.extraAlignments[cid]||[]).find(x=>x.id===mv.id);
-    if(al){ al.text = newText; return; }
-    return;
-  }
-  const key = editKey(kind, mv.name);
-  if(!char.moveEdits[key]) char.moveEdits[key] = {};
-  char.moveEdits[key].text = newText;
 }
 function toggleTextBox(md, index){
   let i = 0;
@@ -562,50 +583,9 @@ function renderFieldMarkdown(md, key, get, set){
 
 function mergedClasses(){ return (DW_DATA.classes||[]).concat(customData.classes||[]); }
 function getClass(id){ return mergedClasses().find(c=>c.id===id); }
-function mergeRacialGroups(builtin, extra){
-  const map={};
-  (builtin||[]).forEach(g=>{
-    if(!map[g.race]) map[g.race]={race:g.race, moves:[], _custom:false, _id:null};
-    map[g.race].moves=map[g.race].moves.concat((g.moves||[]).map(mm=>({...mm,_custom:false,_gid:null})));
-  });
-  (extra||[]).forEach(g=>{
-    const key = g.race || ("_custom_"+g.id);
-    if(!map[key]) map[key]={race:g.race, moves:[], _custom:true, _id:g.id||null};
-    else if(g.race) map[key]._custom=true;
-    map[key].moves=map[key].moves.concat((g.moves||[]).map(mm=>({...mm,_custom:true,_gid:g.id||null})));
-  });
-  return Object.values(map);
-}
-function tiersFor(cls){ return (cls && cls.advancedTiers && cls.advancedTiers.length) ? cls.advancedTiers : ADV_TIERS; }
-function classMoves(cls){
-  const racialGroups = mergeRacialGroups(cls.racialMoves||[], customData.extraRacialMoves[cls.id]||[]);
-  const races = racialGroups.filter(g=>g.race).map(g=>g.race);
-  const alignments = (cls.alignment||[]).map(a=>({...a,_custom:false})).concat((customData.extraAlignments[cls.id]||[]).map(a=>({...a,_custom:true})));
-  const starting = cls.startingMoves||[];
-  const advTiers = tiersFor(cls).map(t => ({...t, moves:(cls.advancedMoves[t.key]||[]).map(m=>({...m,_custom:false}))}));
-  const customMoves=(customData.extraMoves[cls.id]||[]).map(m=>({...m,_custom:true}));
-  return {racialGroups, races, alignments, starting, advTiers, customMoves};
-}
-function allAdvancedMoves(m){ return m.advTiers.reduce((a,t)=>a.concat(t.moves),[]).concat(m.customMoves); }
 function reqList(mv){ return mv.requires ? (Array.isArray(mv.requires) ? mv.requires : [mv.requires]) : []; }
 function repList(mv){ return mv.replaces ? (Array.isArray(mv.replaces) ? mv.replaces : [mv.replaces]) : []; }
-function hasSpellTrigger(key){
-  const cls = getClass(char.classId);
-  if(!cls) return false;
-  const m = classMoves(cls);
-  const trigger = SPELL_SECTIONS[key].trigger;
-  if(m.starting.some(mv => mv.name === trigger)) return true;
-  const checked = allAdvancedMoves(m).filter(mv => (char.advancedMoves||[]).includes(mv.name));
-  return checked.some(mv => mv.name === trigger);
-}
-function spellSectionActive(key){ return hasSpellTrigger(key) || (char.manualSpells||[]).includes(key); }
-function spellFind(key, id){ const sec=char.spells&&char.spells[key]; return sec ? (sec.list||[]).find(s=>s.id===id) : null; }
-function editKey(kind, name){ return char.classId+"::"+kind+"::"+name; }
-function moveDisplay(kind, mv){
-  const key=editKey(kind, mv.name);
-  const ed=char.moveEdits[key];
-  return {name:(ed&&ed.name!==undefined)?ed.name:mv.name, text:(ed&&ed.text!==undefined)?ed.text:null, key, templateText:mv.text};
-}
+
 function evalFormula(formula, ctx){
   const terms = String(formula||"").split("+").map(t=>t.trim()).filter(t=>t!=="");
   if(!terms.length) return null;
@@ -613,22 +593,31 @@ function evalFormula(formula, ctx){
   for(const t of terms){
     if(/^-?\d+$/.test(t)){ sum += parseInt(t,10); continue; }
     if(STATS.includes(t)){ sum += (char.stats[t]||0); continue; }
-    if(t === LABELS.casterLevel){ sum += ((ctx && ctx.effectiveLevel)||0); continue; }
     if(t === "等级" || t === "level"){ sum += (char.level||0); continue; }
+    // 引用其他 rightStat：按 label 反查它的当前值
+    const v = statValueByLabel(t);
+    if(v !== null){ sum += v; continue; }
     return null;
   }
   return sum;
+}
+// 按 label 在所有区域的 rightStats 里反查当前值
+function statValueByLabel(label){
+  const cls = getClass(char.classId);
+  for(const areaKey of Object.keys(AREAS)){
+    const stats = getAreaHeader(areaKey, cls).rightStats || [];
+    const def = stats.find(s => s.label === label);
+    if(!def) continue;
+    const cur = char[def.key];
+    return cur !== undefined && cur !== "" ? (parseInt(cur, 10) || 0) : 0;
+  }
+  return null;
 }
 function defaultHP(cls){ const b=(parseInt((cls.hp||"0").split("+")[0])||0); return STATS_MODE==="modifiers" ? b : (evalFormula(cls.hp) ?? b); }
 function applyFormula(target){
   const cls=getClass(char.classId);
   if(!cls) return;
   if(target==="hpMax"){ const v=evalFormula(cls.hp); if(v!=null) char.hpMax=v; }
-  else if(target.indexOf("prepareCap:")===0){
-    const k=target.slice("prepareCap:".length);
-    const sec=char.spells && char.spells[k];
-    if(sec){ const v=evalFormula(PREPARE_CAP_FORMULA, {effectiveLevel:sec.effectiveLevel}); if(v!=null) sec.levelCap=v; }
-  }
   else {
     // 通用 rightStat 处理：查找定义并应用公式
     const def = statDefByKey(target, cls);
@@ -649,38 +638,23 @@ function loadRules(){
     try{ const arr = JSON.parse(s); if(Array.isArray(arr)) ruleStack = arr; }catch(e){}
     return;
   }
-  // 旧版本首次迁移：没有规则栈键时，读一次旧的单份 dw-rules
-  try{ const old = lsGet("dw-rules"); if(old){ const data = JSON.parse(old); if(data) ruleStack = [{name:"规则", data}]; } }catch(e){}
 }
 function normalizeCustomData(){
   customData.classes = customData.classes || [];
-  customData.extraMoves = customData.extraMoves || {};
-  customData.extraRacialMoves = customData.extraRacialMoves || {};
-  customData.extraAlignments = customData.extraAlignments || {};
-}
-function ensureSpellData(){
-  char.spells = char.spells || {};
-  Object.keys(SPELL_SECTIONS).forEach(k=>{
-    char.spells[k] = char.spells[k] || {effectiveLevel:1, levelCap:2, list:[]};
-    char.spells[k].list = char.spells[k].list || [];
-    char.spells[k].list.forEach(s=>{ if(!s.id)s.id=uid(); if(s.available===undefined)s.available=false; });
-  });
-  char.manualSpells = char.manualSpells || [];
+  customData.moveListMoves = customData.moveListMoves || {};
+  customData.moveListGroups = customData.moveListGroups || {};
+  // 补全缺失的 id
+  Object.values(customData.moveListMoves).forEach(byArea => Object.values(byArea||{}).forEach(arr => (arr||[]).forEach(m => { if(!m.id) m.id = uid(); })));
+  Object.values(customData.moveListGroups).forEach(byArea => Object.values(byArea||{}).forEach(arr => (arr||[]).forEach(g => { if(!g.key) g.key = uid(); })));
 }
 function normalizeChar(){
-  // 旧存档迁移：单值 race/alignment → 数组 races/alignments；look 元素 → 数组
-  if(char.race!==undefined && !Array.isArray(char.race)){ char.races = char.race ? [char.race] : []; delete char.race; }
-  if(char.alignment!==undefined && !Array.isArray(char.alignment)){ char.alignments = char.alignment ? [char.alignment] : []; delete char.alignment; }
-  char.races = char.races || [];
-  char.alignments = char.alignments || [];
-  char.startingChoices = char.startingChoices || [];
-  char.look = (char.look || []).map(x => Array.isArray(x) ? x : (x ? [x] : []));
-  char.counters = char.counters || [];
   char.conditions = char.conditions || {};
-  char.relationships = char.relationships || [];
-  char.origins = char.origins || {ancestry:"",community:"",background:""};
-  char.treasure = char.treasure || 0;
-  if(char.struggle === undefined) char.struggle = null;
+  char.areaData = char.areaData || {};
+  char.plainAreas = char.plainAreas || {};
+  char.moveListSelections = char.moveListSelections || {};
+  char.moveListGroupNames = char.moveListGroupNames || {};
+  char.moveListNames = char.moveListNames || {};
+  char.moveListTexts = char.moveListTexts || {};
 }
 function load(){
   try{
@@ -690,10 +664,6 @@ function load(){
   }catch(e){}
   normalizeCustomData();
   normalizeChar();
-  ensureSpellData();
-  Object.values(customData.extraMoves||{}).forEach(arr=>arr.forEach(m=>{ if(!m.id)m.id=uid(); }));
-  Object.values(customData.extraRacialMoves||{}).forEach(arr=>arr.forEach(g=>{ if(!g.id)g.id=uid(); (g.moves||[]).forEach(m=>{ if(!m.id)m.id=uid(); }); }));
-  Object.values(customData.extraAlignments||{}).forEach(arr=>arr.forEach(a=>{ if(!a.id)a.id=uid(); }));
 }
 
 /* ============ 渲染 ============ */
@@ -725,42 +695,405 @@ function defaultStatValue(statKey, cls){
 
 function getAreaHeader(areaKey, cls) {
   const base = AREAS[areaKey];
-  if (!base) return {title: "", note: null, rightStats: []};
+  if (!base) return {title: "", note: null, body: null, rightStats: []};
 
   const override = (cls && cls.areas && cls.areas[areaKey]) || {};
-
-  // rightStats：按 key 逐项浅合并（职业项覆盖同 key 的通用项，新 key 追加）
-  let rightStats = (base.rightStats || []).map(s => ({...s}));
-  (override.rightStats || []).forEach(os => {
-    const idx = rightStats.findIndex(s => s.key === os.key);
-    if (idx !== -1) rightStats[idx] = {...rightStats[idx], ...os};
-    else rightStats.push({...os});
-  });
 
   return {
     title: override.title !== undefined ? override.title : base.title,
     note: override.note !== undefined ? override.note : base.note,
-    rightStats
+    body: deepMerge(base.body, override.body),
+    rightStats: deepMerge(base.rightStats, override.rightStats) || []
   };
 }
 
-function renderAreaHeader(areaKey, cls) {
+function renderAreaHeader(areaKey, cls, extraRight) {
   const header = getAreaHeader(areaKey, cls);
   if (!header.title) return "";
 
   let leftSide = esc(header.title);
   if (header.note) leftSide += ` <small>${esc(header.note)}</small>`;
 
-  let rightSide = "";
-  if (header.rightStats.length) {
-    rightSide = `<span class="h3r">${header.rightStats.map(s => renderRightStat(s, cls)).join(" ")}</span>`;
-  }
+  const right = header.rightStats.map(s => renderRightStat(s, cls));
+  if (extraRight) right.push(extraRight);
+  const rightSide = right.length ? `<span class="h3r">${right.join(" ")}</span>` : "";
 
   return `<h3><span>${leftSide}</span>${rightSide}</h3>`;
 }
 
+/* ============ Plain 区域模板 ============ */
+function plainGet(areaKey, key, dflt){
+  const a = char.plainAreas && char.plainAreas[areaKey];
+  const v = a ? a[key] : undefined;
+  return v === undefined ? dflt : v;
+}
+function plainSet(areaKey, key, val){
+  if(!char.plainAreas) char.plainAreas = {};
+  if(!char.plainAreas[areaKey]) char.plainAreas[areaKey] = {};
+  char.plainAreas[areaKey][key] = val;
+}
+// 查看模式下该元素是否仍可交互（唯一判定入口）
+function plainIsEditable(el){
+  if(mode === "edit") return true;
+  return el.view === "editable";
+}
+
+function plainText(areaKey, el){
+  // 文本本体来自规则数据，勾选状态存入角色数据（key 为 el.key，缺省用元素序号）
+  const stateKey = el.key || ("_text" + el._idx);
+  const boxKey = "plain::" + areaKey + "::" + stateKey;
+  return renderFieldMarkdown(
+    plainGet(areaKey, stateKey, el.value || ""),
+    boxKey,
+    () => plainGet(areaKey, stateKey, el.value || ""),
+    t => plainSet(areaKey, stateKey, t)
+  );
+}
+function plainHint(areaKey, el){
+  if(mode === "view") return "";
+  return `<div class="hint">${markdownToHtml(el.value || "")}</div>`;
+}
+function plainChoices(areaKey, el){
+  const selected = plainGet(areaKey, el.key, []);
+  const options = el.value || [];
+  const editable = plainIsEditable(el);
+
+  let visible = options;
+  if(!editable){
+    visible = options.filter(o => selected.includes(o));
+    if(!visible.length) return "";
+  }
+
+  const boxes = visible.map(o => {
+    const checked = selected.includes(o) ? " checked" : "";
+    const dis = editable ? "" : " disabled";
+    return `<div class="opt"><label class="optt"><input type="checkbox" class="chk" value="${esc(o)}" data-plain="choice:${areaKey}:${el.key}"${checked}${dis}> ${esc(o)}</label></div>`;
+  }).join("");
+
+  return el.layout === "line" ? `<div class="addrow">${boxes}</div>` : boxes;
+}
+function plainInput(areaKey, el){
+  const value = plainGet(areaKey, el.key, el.prefix || "");
+  const editable = plainIsEditable(el);
+
+  if(!editable){
+    if(!value) return "";
+    const lab = el.label ? `<b>${esc(el.label)}</b>：` : "";
+    return `<div class="origin-line">${lab}${esc(value)}</div>`;
+  }
+
+  const lab = el.label ? `<b>${esc(el.label)}</b>：` : "";
+  const hintHtml = el.hint ? `<div class="origin-hint">${esc(el.hint)}</div>` : "";
+  return `<div class="origin-line"><div class="origin-row">${lab}<input data-plain="input:${areaKey}:${el.key}" value="${esc(value)}" placeholder="${esc(el.tip || "")}"></div>${hintHtml}</div>`;
+}
+function plainTrack(areaKey, el){
+  const value = plainGet(areaKey, el.key, 0);
+  const dis = plainIsEditable(el) ? "" : " disabled";
+
+  // 计算当前在哪个段落（累加 slots 找到 value 落在哪个 label）
+  let gi = 0, currentLabel = null, acc = 0;
+  for(const item of (el.value || [])){
+    if(item.label !== undefined){
+      if(value >= acc) currentLabel = item.label;
+    } else if(item.slots !== undefined){
+      acc += item.slots;
+    }
+  }
+
+  // 渲染
+  gi = 0;
+  let html = "";
+  for(const item of (el.value || [])){
+    if(item.label !== undefined){
+      const on = item.label === currentLabel ? " on" : "";
+      html += `<span class="trl${on}">${esc(item.label)}</span>`;
+    } else if(item.slots !== undefined){
+      for(let i = 0; i < item.slots; i++){
+        html += `<button type="button" class="trc${gi < value ? " on" : ""}" data-plain="track:${areaKey}:${el.key}:${gi}"${dis}></button>`;
+        gi++;
+      }
+    }
+  }
+  return `<div class="track">${html}</div>`;
+}
+
+const PLAIN_RENDERERS = { text: plainText, hint: plainHint, choices: plainChoices, input: plainInput, track: plainTrack };
+
+function renderPlainArea(areaKey, cls){
+  const body = getAreaHeader(areaKey, cls).body;
+  if(!body || body.type !== "plain") return "";
+  const inner = (body.elements || []).map((el, i) => {
+    el._idx = i;
+    const fn = PLAIN_RENDERERS[el.type];
+    return fn ? fn(areaKey, el) : "";
+  }).join("");
+  if(!inner) return "";
+  return `<div class="pb-sec">${renderAreaHeader(areaKey, cls)}${inner}</div>`;
+}
+
+/* ============ moveList 区域模板 ============ */
+function renderMoveListArea(areaKey, cls){
+  const body = getAreaHeader(areaKey, cls).body;
+  if(!body || body.type !== "moveList") return "";
+  // boundMove：绑定动作未取得时整个区域不出现
+  if(!boundMoveTaken(body)) return "";
+
+  const customMoves = moveListCustomMoves(areaKey);
+  const withCustom = g => ({...g, moves: (g.moves || []).concat(customMoves.filter(m => m.group === g.key))});
+  let inner = "";
+
+  // 模板 groups + 自定义 groups
+  const groups = (body.groups || []).concat(moveListCustomGroups(areaKey));
+  groups.forEach(g => { inner += renderMoveGroup(areaKey, withCustom(g), body); });
+
+  // 无 group 的动作（模板 + 自定义）。所属分组已不存在的动作也归到这里，避免丢失
+  const groupKeys = groups.map(g => g.key);
+  let noGroup = (body.moves || []).concat(customMoves.filter(m => !m.group || !groupKeys.includes(m.group)));
+  // 无分组：没有分组勾选框代表它们，covered 恒为 false
+  if(mode === "view") noGroup = noGroup.filter(mv => moveVisibleInView(areaKey, mv, body, false));
+  inner += noGroup.map(mv => renderMoveCard(areaKey, mv, body, false, false)).join("");
+
+  // 全局按钮
+  const globalButtons = (body.buttons || []).filter(btn => btn.position === "global");
+  if(globalButtons.length && mode === "edit"){
+    inner += `<div class="addrow">${globalButtons.map(btn => renderMoveButton(areaKey, btn)).join(" ")}</div>`;
+  }
+
+  if(!inner) return "";
+  return `<div class="pb-sec">${renderAreaHeader(areaKey, cls)}${inner}</div>`;
+}
+
+function renderMoveGroup(areaKey, group, body){
+  const moves = group.moves || [];
+  const locked = groupLocked(group);
+  const gSel = groupSelectable(group, body);
+  const groupChecked = isMoveGroupSelected(areaKey, group);
+
+  // 可见性：带勾选框的条目需已勾选，默认获得的常显
+  let visible = moves;
+  if(mode === "view"){
+    if(gSel && !groupChecked) return "";
+    visible = moves.filter(mv => moveVisibleInView(areaKey, mv, body, gSel));
+  }
+  // 空分组不显示（除非分组自己带勾选行，或编辑模式下有分组内按钮）
+  const inGroupBtns = (body.buttons || []).filter(b => b.position === "inGroup" && (!b.targetGroup || b.targetGroup === group.key));
+  if(!visible.length && !gSel && !(mode === "edit" && inGroupBtns.length)) return "";
+
+  let html = "";
+
+  // 分组标题：统一用 .adv-tier；带勾选框时多一个勾选框与可编辑名
+  if(gSel){
+    const name = esc(getMoveGroupName(areaKey, group));
+    if(mode === "edit"){
+      const delBtn = isCustomGroup(areaKey, group.key)
+        ? `<button class="x" data-movelist-group-del="${areaKey}:${esc(group.key)}" title="删除">✕</button>` : "";
+      html += `<div class="adv-tier sel${locked?" locked":""}"><input type="checkbox" class="chk" data-movelist-group="${areaKey}:${esc(group.key)}"${groupChecked?" checked":""}><input type="text" data-movelist-group-name="${areaKey}:${esc(group.key)}" value="${name}" placeholder="${esc(group.label||"")}">${delBtn}</div>`;
+    } else {
+      html += `<div class="adv-tier sel"><span class="ck-mark on"></span><span>${name}</span></div>`;
+    }
+  } else if(group.label){
+    html += `<div class="adv-tier${locked?" locked":""}">${esc(group.label)}</div>`;
+  }
+  if(group.note) html += `<div class="adv-tier-note">${esc(group.note)}</div>`;
+
+  // gSel 为真时分组勾选框已代表组内动作，组内动作不再各自出勾选框
+  html += visible.map(mv => renderMoveCard(areaKey, mv, body, locked, gSel)).join("");
+
+  if(inGroupBtns.length && mode === "edit"){
+    html += `<div class="mv-add">${inGroupBtns.map(b => renderMoveButton(areaKey, b, group.key)).join(" ")}</div>`;
+  }
+
+  return html;
+}
+
+// 分组是否带勾选框：分组自身声明优先，否则取区域的 selectGroups
+function groupSelectable(group, body){
+  if(group.selectable !== undefined) return !!group.selectable;
+  return !!(body.features && body.features.selectGroups);
+}
+// 动作是否带勾选框：动作自身声明优先，带 replaces/requires 的动作本身即为选择项，
+// 否则取区域的 selectMoves / viewSelect。
+// covered 表示该动作已被所在分组的勾选框代表（选分组即选它），此时自己不再出勾选框；
+// 反之——无分组、或分组不带勾选框——即使区域只开了 selectGroups 也得自己出一个，
+// 否则这个动作既选不上也排不掉，等于绕过了选择机制。
+function moveSelectable(move, body, covered){
+  if(move.selectable !== undefined) return !!move.selectable;
+  if(reqList(move).length || repList(move).length) return true;
+  const f = body.features || {};
+  if(f.selectMoves || f.viewSelect) return true;
+  return !!f.selectGroups && !covered;
+}
+// viewSelect：勾选框在查看模式下也可用，且未勾选的条目置灰而非隐藏
+function viewSelectable(body){
+  return !!(body.features && body.features.viewSelect);
+}
+// 单个动作是否算「已取得」：自己有勾选框就看自己，被分组勾选框代表就看分组，
+// 两者都没有即默认获得
+function moveTaken(areaKey, body, move, covered, group){
+  if(moveSelectable(move, body, covered)) return isMoveSelected(areaKey, move);
+  if(covered) return isMoveGroupSelected(areaKey, group);
+  return true;
+}
+// 某区域里有没有已取得的同名动作（需要分组上下文，不能用展平后的列表）
+function areaMoveTaken(areaKey, body, name){
+  const custom = moveListCustomMoves(areaKey);
+  const groups = (body.groups || []).concat(moveListCustomGroups(areaKey));
+  for(const g of groups){
+    const gSel = groupSelectable(g, body);
+    const moves = (g.moves || []).concat(custom.filter(m => m.group === g.key));
+    for(const mv of moves){
+      if(mv.name === name && moveTaken(areaKey, body, mv, gSel, g)) return true;
+    }
+  }
+  const groupKeys = groups.map(g => g.key);
+  const noGroup = (body.moves || []).concat(custom.filter(m => !m.group || !groupKeys.includes(m.group)));
+  for(const mv of noGroup){
+    if(mv.name === name && moveTaken(areaKey, body, mv, false, null)) return true;
+  }
+  return false;
+}
+// boundMove：该区域绑定的动作是否已在任何 moveList 区域里取得
+function boundMoveTaken(body){
+  const name = body.features && body.features.boundMove;
+  if(!name) return true;
+  const cls = getClass(char.classId);
+  if(!cls) return false;
+  for(const areaKey of Object.keys(AREAS)){
+    const b = getAreaHeader(areaKey, cls).body;
+    if(!b || b.type !== "moveList") continue;
+    if(areaMoveTaken(areaKey, b, name)) return true;
+  }
+  return false;
+}
+
+function groupLocked(group){
+  if(group.minLevel === undefined && group.maxLevel === undefined) return false;
+  const lvl = char.level || 1;
+  if(group.minLevel !== undefined && lvl < group.minLevel) return true;
+  if(group.maxLevel !== undefined && lvl > group.maxLevel) return true;
+  return false;
+}
+
+// 查看模式下该动作是否出现：viewSelect 区域一律显示（未勾选置灰），
+// 其余区域里带勾选框的需已勾选
+function moveVisibleInView(areaKey, move, body, covered){
+  if(viewSelectable(body)) return true;
+  return !moveSelectable(move, body, covered) || isMoveSelected(areaKey, move);
+}
+
+function renderMoveCard(areaKey, move, body, locked, covered){
+  return mode === "edit"
+    ? mvCard(areaKey, move, body, locked, covered)
+    : mvViewCard(areaKey, move, body, covered);
+}
+
+function mvCard(areaKey, move, body, locked, covered){
+  const key = moveKey(areaKey, move);
+  const selectable = moveSelectable(move, body, covered);
+  const checked = isMoveSelected(areaKey, move);
+  // requires 未满足或所在分层锁定时禁用（requires 按动作名引用）
+  const chosenNames = selectedMoveNames(areaKey);
+  const unmet = reqList(move).some(r => !chosenNames.includes(r));
+  const disabled = locked || unmet;
+
+  const req = reqList(move).map(r => `<span class="req">需:${esc(r)}</span>`).join("");
+  const rep = repList(move).map(r => `<span class="req">替:${esc(r)}</span>`).join("");
+
+  const box = selectable
+    ? `<input type="checkbox" class="chk" data-movelist-toggle="${areaKey}:${esc(moveSelKey(move))}"${checked?" checked":""}${disabled?" disabled":""}>`
+    : "";
+  const delBtn = move.id ? `<button class="del" data-movelist-del="${esc(key)}" title="删除">✕</button>` : "";
+  // viewSelect 区域里未勾选的条目置灰
+  const off = (selectable && viewSelectable(body) && !checked) ? " spell-off" : "";
+
+  const header = `<div class="mv-h">${box}<div class="mv-n"><input data-movelist-name="${esc(key)}" value="${esc(moveName(areaKey, move))}">${req}${rep}</div>${delBtn}</div>`;
+  const textHtml = `<div class="mv-t"><textarea data-movelist-text="${esc(key)}">${esc(moveText(areaKey, move))}</textarea></div>`;
+
+  return `<div class="mv ${move.id?"mv-custom":""}${disabled?" disabled":""}${off}"${move.id?"":mvBarStyle(areaKey)}>${header}${textHtml}</div>`;
+}
+
+function mvViewCard(areaKey, move, body, covered){
+  const selectable = moveSelectable(move, body, covered);
+  const checked = isMoveSelected(areaKey, move);
+  // viewSelect：查看模式仍给出可点的勾选框，未勾选的置灰
+  if(selectable && viewSelectable(body)){
+    const off = checked ? "" : " spell-off";
+    return `<div class="mv${off}"${mvBarStyle(areaKey)}><div class="mv-h"><input type="checkbox" class="chk" data-movelist-toggle="${areaKey}:${esc(moveSelKey(move))}"${checked?" checked":""}><div class="mv-n">${esc(moveName(areaKey, move))}</div></div><div class="mv-t">${renderMoveText(areaKey, move)}</div></div>`;
+  }
+  // 不带勾选框的动作不显示勾选标记
+  const markHtml = selectable ? `<span class="ck-mark on"></span>` : "";
+  return `<div class="mv"${mvBarStyle(areaKey)}><div class="mv-h">${markHtml}<div class="mv-n">${esc(moveName(areaKey, move))}</div></div><div class="mv-t">${renderMoveText(areaKey, move)}</div></div>`;
+}
+
+// 名称与正文：内置条目也可编辑，覆盖值按 区域::id或原名 存入角色数据
+function moveEditKey(areaKey, move){ return `${areaKey}::${move.id || move.name}`; }
+function moveName(areaKey, move){
+  const k = moveEditKey(areaKey, move);
+  const v = char.moveListNames && char.moveListNames[k];
+  return v !== undefined ? v : (move.name || "");
+}
+function moveText(areaKey, move){
+  const k = moveEditKey(areaKey, move);
+  const v = char.moveListTexts && char.moveListTexts[k];
+  return v !== undefined ? v : (move.text || "");
+}
+// 查看模式正文：支持 [ ] 勾选框
+function renderMoveText(areaKey, move){
+  const k = moveEditKey(areaKey, move);
+  return renderFieldMarkdown(moveText(areaKey, move), "movelist::"+k,
+    () => moveText(areaKey, move),
+    t => { if(!char.moveListTexts) char.moveListTexts = {}; char.moveListTexts[k] = t; });
+}
+
+function renderMoveButton(areaKey, btn, groupKey){
+  const action = `${areaKey}:${btn.action}:${btn.targetGroup || groupKey || ""}`;
+  return `<button data-movelist-action="${esc(action)}">＋ ${esc(btn.label)}</button>`;
+}
+
+// moveList 辅助函数
+function moveKey(areaKey, move){
+  if(move.id) return `${areaKey}:${move.id}`;
+  return `${areaKey}:${move.name}`;
+}
+
+function isCustomGroup(areaKey, groupKey){
+  return moveListCustomGroups(areaKey).some(g => g.key === groupKey);
+}
+
+// moveList 选中状态：统一存储在 char.moveListSelections[areaKey]
+function moveListSelections(areaKey){
+  if(!char.moveListSelections) char.moveListSelections = {};
+  if(!char.moveListSelections[areaKey]) char.moveListSelections[areaKey] = [];
+  return char.moveListSelections[areaKey];
+}
+
+// 选中状态的键：自定义动作用它自带的 id（天然唯一），内置动作用动作名
+// （replaces / requires 都按动作名引用，内置动作必须保持名字作键）
+function moveSelKey(move){ return move.id || move.name; }
+
+function isMoveSelected(areaKey, move){
+  return moveListSelections(areaKey).includes(moveSelKey(move));
+}
+
+// 某区域已勾选动作的名字（requires / replaces / boundMove 都按名字引用）
+function selectedMoveNames(areaKey){
+  const sel = moveListSelections(areaKey);
+  return collectMovesInArea(areaKey).filter(m => sel.includes(moveSelKey(m))).map(m => m.name);
+}
+
+function isMoveGroupSelected(areaKey, group){
+  return moveListSelections(areaKey).includes(group.key);
+}
+
+function getMoveGroupName(areaKey, group){
+  if(!char.moveListGroupNames) char.moveListGroupNames = {};
+  const key = `${areaKey}::${group.key}`;
+  return char.moveListGroupNames[key] !== undefined ? char.moveListGroupNames[key] : (group.label || "");
+}
+
+
 function renderRightStat(stat, cls) {
-  // 与旧 gearHtml 完全一致：char 值优先，0/空则回退到公式默认值
+  // char 值优先，0/空则回退到公式默认值
   const cur = char[stat.key];
   const val = cur || defaultStatValue(stat.key, cls);
 
@@ -798,15 +1131,29 @@ function renderPlaybook(){
   btnMode.textContent = mode==="edit" ? "👁 查看模式" : "✏️ 编辑模式";
   btnMode.classList.toggle("view", mode==="view");
   if(!cls){ root.innerHTML='<div class="empty">↑ 在左上角选择一个职业开始车卡</div>'; return; }
-  const m=classMoves(cls);
+  const col = keys => keys.map(k => renderArea(k, cls)).join("");
   root.innerHTML =
     headHtml(cls) + statsHtml(cls) +
     `<div class="pb-cols">
-      <div class="pb-left">${lookHtml(cls)}${originsHtml()}${raceHtml(cls,m)}${alignHtml(cls,m)}${heritageHtml()}${gearHtml(cls)}${treasureHtml()}${bondsHtml(cls)}${struggleHtml()}${notesHtml(cls)}${spellSectionsHtml()}${addSpellSectionHtml()}</div>
-      <div class="pb-right">${startingHtml(cls,m)}${advHtml(cls,m)}${advancementHtml()}</div>
+      <div class="pb-left">${col(AREA_LAYOUT.left)}</div>
+      <div class="pb-right">${col(AREA_LAYOUT.right)}</div>
     </div>`;
   autosizeAll();
 }
+
+// 区域路由：有模板 body 的走模板，其余走各自的旧渲染函数
+function renderArea(areaKey, cls){
+  const body = getAreaHeader(areaKey, cls).body;
+  const fn = body && AREA_RENDERERS[body.type];
+  return fn ? fn(areaKey, cls) : "";
+}
+const AREA_RENDERERS = {
+  plain: renderPlainArea,
+  moveList: renderMoveListArea,
+  fillbox: renderFillboxArea,
+  bonds: renderBondsArea,
+  heritage: renderHeritageArea,
+};
 
 function headHtml(cls){
   const info = mode==="edit" ?
@@ -821,8 +1168,7 @@ function headHtml(cls){
       <div class="it"><span class="k">${esc(LABELS.xp)}</span>${XP_TRACK_SIZE?xpHtml():`<input type="number" data-bind="xp" value="${char.xp||0}" min="0">`}</div>
     </div>`;
   return `<div class="pb-head">
-    <div><div class="pb-class">${esc(cls.name)}</div>
-      <div class="pb-sub">${esc(char.races.length ? char.races.join("、") : ("未选"+LABELS.raceName))} · ${esc(char.alignments.length ? char.alignments.join("、") : ("未选"+LABELS.alignmentName))}</div></div>
+    <div class="pb-class">${esc(cls.name)}</div>
     ${info}
   </div>`;
 }
@@ -873,305 +1219,113 @@ function statsHtml(cls){
   return `<div class="pb-stats">${distHint(cls)}<div class="pb-statgrid">${statCells}</div><div class="pb-nums">${curHp}${maxHp}${armor}${dmg}</div></div>`;
 }
 
-function lookHtml(cls){
-  const opts=(cls.look||[]);
-  if(!opts.length && mode==="edit") return "";
-  if(!char.look.length && opts.length) char.look=opts.map(()=>[]);
-  if(mode==="view"){
-    const inner=char.look.map((sel,i)=>{
-      if(!sel||!sel.length) return "";
-      const list=opts[i]||[];
-      return sel.map(s=>{
-        if(list.includes(s)) return `<div class="opt"><span class="ck-mark on"></span><span>${esc(s)}</span></div>`;
-        return `<div class="opt"><span class="ck-mark on"></span><span class="md">${renderFieldMarkdown(s, "lookcustom::"+i, ()=>char.look[i].filter(x=>!list.includes(x))[0]||"", t=>{ char.look[i]=char.look[i].filter(x=>list.includes(x)); if(t.trim()) char.look[i].push(t.trim()); })}</span></div>`;
-      }).join("");
-    }).join("");
-    const note=char.lookNotes?`<div class="gear-line md">${renderFieldMarkdown(char.lookNotes, "lookNotes", ()=>char.lookNotes||"", t=>{char.lookNotes=t;})}</div>`:"";
-    return `<div class="pb-sec">${renderAreaHeader("look", cls)}${inner||""}${note||(!inner?'<div class="hint">未选择</div>':"")}</div>`;
-  }
-  const inner = opts.map((list,i)=>{
-    const sel=char.look[i]||[];
-    const boxes = list.map(o=>`<div class="opt"><label class="optt"><input type="checkbox" class="chk" value="${esc(o)}" data-look="${i}" ${sel.includes(o)?"checked":""}> ${esc(o)}</label></div>`).join("");
-    const customVal = sel.filter(x=>!list.includes(x))[0] || "";
-    return `<div class="mv">${boxes}
-      <div class="opt gap"><label class="optt"><input class="cust" data-lookcustom="${i}" value="${esc(customVal)}" placeholder="自定义"></label></div></div>`;
-  }).join("");
-  const note=`<div class="opt gap"><label class="optt"><input class="cust" data-bind="lookNotes" value="${esc(char.lookNotes||"")}"></label></div>`;
-  return `<div class="pb-sec">${renderAreaHeader("look", cls)}${inner}${note}</div>`;
-}
-
-function raceHtml(cls, m){
-  if(!m.racialGroups.length) return "";
-  const customGroups = m.racialGroups.filter(g=>g._custom);
-  const templateGroups = m.racialGroups.filter(g=>!g._custom);
-  if(mode==="view"){
-    const chosen = m.racialGroups.filter(g=>g.race && char.races.includes(g.race));
-    const inner = chosen.map(grp => `<div class="opt"><span class="ck-mark on"></span><span><b>${esc(grp.race)}</b></span></div>`+grp.moves.map(mv=>mvViewCard("racial",mv)).join("")).join("") || `<div class="hint">未选择${esc(LABELS.raceName)}</div>`;
-    return `<div class="pb-sec">${renderAreaHeader("race", cls)}${inner}</div>`;
-  }
-  const tmp = templateGroups.map(g=>{
-    const checked = char.races.includes(g.race);
-    const raceName = (char.moveEdits[editKey("race",g.race)]||{}).name || g.race;
-    const moves = g.moves.map(mv=>mvCard("racial", mv)).join("");
-    return `<div class="mv mv-race"><div class="mv-h"><input type="checkbox" class="chk" value="${esc(g.race)}" data-race="${esc(g.race)}" ${checked?"checked":""}><div class="mv-n"><input data-key="${esc(editKey("race",g.race))}" data-field="name" value="${esc(raceName)}"></div></div>${moves}</div>`;
-  }).join("");
-  const cust = customGroups.map(g=>{
-    const checked = char.races.includes(g.race);
-    const moves = g.moves.map(mv=>mvCardCustomRace(g._id, mv)).join("");
-    return `<div class="mv mv-custom"><div class="mv-h"><input type="checkbox" class="chk" data-race-id="${esc(g._id)}" ${checked?"checked":""}><div class="mv-n"><input data-crace-name="${esc(g._id)}" value="${esc(g.race)}" placeholder="${esc(LABELS.raceName)}"></div><button class="del" data-crace-del="${esc(g._id)}" title="删除该${esc(LABELS.raceName)}">✕</button></div>${moves}<div class="mv-add"><button data-add-race-move="${esc(g._id)}">＋ 添加动作</button></div></div>`;
-  }).join("");
-  return `<div class="pb-sec">${renderAreaHeader("race", cls)}${tmp}${cust}<div class="addrow"><button data-add-race>＋ 新建${esc(LABELS.raceName)}</button></div></div>`;
-}
-
-function alignHtml(cls, m){
-  if(!m.alignments.length) return "";
-  if(mode==="view"){
-    const chosen = m.alignments.filter(x=>char.alignments.includes(x.name));
-    const inner = chosen.map(a=>mvViewCard("alignment",a)).join("");
-    return `<div class="pb-sec">${renderAreaHeader("alignment", cls)}${inner||`<div class="hint">未选择${esc(LABELS.alignmentName)}</div>`}</div>`;
-  }
-  const inner = m.alignments.map(a=>{
-    if(a._custom){
-      return `<div class="mv mv-custom"><button class="del" data-calign-del="${esc(a.id)}" title="删除">✕</button><div class="mv-h"><input type="checkbox" class="chk" data-align-id="${esc(a.id)}" ${char.alignments.includes(a.name)?"checked":""}><div class="mv-n"><input data-calign-name="${esc(a.id)}" value="${esc(a.name)}" placeholder="${esc(LABELS.alignmentName)}"></div></div><div class="mv-t"><textarea data-calign-text="${esc(a.id)}">${esc(a.text)}</textarea></div></div>`;
-    }
-    const d=moveDisplay("alignment",{name:a.name,text:a.text});
-    const text=d.text!==null?d.text:a.text;
-    return `<div class="mv mv-align"><div class="mv-h"><input type="checkbox" class="chk" value="${esc(a.name)}" data-align="${esc(a.name)}" ${char.alignments.includes(a.name)?"checked":""}><div class="mv-n"><input data-key="${esc(d.key)}" data-field="name" value="${esc(d.name)}"></div></div>
-      <div class="mv-t"><textarea data-key="${esc(d.key)}" data-field="text">${esc(text)}</textarea></div></div>`;
-  }).join("");
-  return `<div class="pb-sec">${renderAreaHeader("alignment", cls)}${inner}<div class="addrow"><button data-add-align>＋ 添加${esc(LABELS.alignment)}</button></div></div>`;
-}
-
-function coinsHtml(){
-  if(!COINS_ENABLED) return "";
-  if(mode==="view"){
-    return char.coins?`<div class="hint">${esc(LABELS.coins)} ${esc(char.coins)}</div>`:"";
-  }
-  return `<div class="gear-group"><div class="gear-prompt">${esc(LABELS.coins)}</div></div><input data-bind="coins" type="number" value="${char.coins||0}" min="0" class="coins-input">`;
-}
-function gearHtml(cls){
-  const groups=(cls.gear&&cls.gear.groups)||[];
-  if(mode==="view"){
-    return `<div class="pb-sec">${renderAreaHeader("gear", cls)}
-      <textarea class="fillbox" data-bind="gear">${esc(char.gear)}</textarea>
-      ${coinsHtml()}</div>`;
-  }
-  return `<div class="pb-sec">${renderAreaHeader("gear", cls)}
-    <textarea class="fillbox" data-bind="gear">${esc(char.gear)}</textarea>
-    ${groups.length?groups.map(g=>`<div class="gear-group"><div class="gear-prompt md">${markdownToHtml(g.prompt)}</div>`+g.options.map(o=>`<div class="opt"><button class="gear-add" data-gearopt="${esc(stripTags(o))}" title="加入装备">＋</button> <span>${esc(stripTags(o))}</span></div>`).join("")+`</div>`).join(""):""}
-    ${coinsHtml()}</div>`;
-}
-
-function trackHtml(tiers, value, key){
-  let gi = 0;
-  let currentKey = null, acc = 0;
-  for(const t of tiers){ if(value >= acc) currentKey = t.key; acc += (t.slots||0); }
-  let html = "";
-  for(const t of tiers){
-    const slots = t.slots || 0;
-    html += `<span class="trl${t.key===currentKey?" on":""}">${esc(t.label)}</span>`;
-    for(let i=0;i<slots;i++){
-      const on = gi < value;
-      html += `<button type="button" class="trc${on?" on":""}" data-track="${key}:${gi}"></button>`;
-      gi++;
-    }
-  }
-  return `<div class="track">${html}</div>`;
-}
-function treasureHtml(){
-  if(!TREASURE_TIERS || !TREASURE_TIERS.length) return "";
-  return `<div class="pb-sec"><h3>${esc(LABELS.treasure||"财富")}</h3>${trackHtml(TREASURE_TIERS, char.treasure||0, "treasure")}</div>`;
-}
 function xpHtml(){
   if(!XP_TRACK_SIZE) return "";
   const cells = Array.from({length:XP_TRACK_SIZE},(_,gi)=>`<button type="button" class="trc${gi<(char.xp||0)?" on":""}" data-track="xp:${gi}"></button>`).join("");
   return `<div class="track">${cells}</div>`;
 }
-function bondsHtml(cls){
-  const templates=cls.bonds||[];
-  if(!char.bonds.length && templates.length) char.bonds=templates.slice();
-  const relDepth = RELATIONSHIP_DEPTH_MAX || 3;
-  const relHtml = mode==="edit"
-    ? (char.relationships||[]).map((r,i)=>`<div class="bond-line rel">
-        <input data-rel-target="${i}" value="${esc(r.target||"")}" placeholder="关系目标">
-        <input data-rel-desc="${i}" value="${esc(r.description||"")}" placeholder="关系描述">
-        <span class="rel-depth">${Array.from({length:relDepth},(_,d)=>`<button type="button" class="trc${d<(r.depth||0)?" on":""}" data-track="rel_${i}:${d}"></button>`).join("")}</span>
-        <button class="x" data-rel-del="${i}" title="删除">✕</button></div>`).join("")
-    : (char.relationships||[]).filter(r=>r.target).map(r=>`<div class="bond-line"><b>${esc(r.target)}</b>${r.description?` <span class="faint">${esc(r.description)}</span>`:""} <span class="rel-depth-v">${Array.from({length:relDepth},(_,d)=>(r.depth||0)>d?"●":"○").join("")}</span></div>`).join("");
-  if(mode==="view"){
-    const lines = char.bonds.map((b,i)=>b?`<div class="bond-line md">${renderFieldMarkdown(b, "bond::"+i, ()=>char.bonds[i]||"", t=>{char.bonds[i]=t;})}</div>`:"").join("");
-    return `<div class="pb-sec">${renderAreaHeader("bonds", cls)}${relHtml}${lines||`<div class="hint">无${esc(LABELS.bonds)}</div>`}</div>`;
-  }
-  return `<div class="pb-sec">${renderAreaHeader("bonds", cls)}${relHtml}${char.bonds.map((b,i)=>`<div class="bond-line"><input data-bond="${i}" value="${esc(b)}" placeholder="${esc(LABELS.bonds)}"><button class="x" data-bond-del="${i}" title="删除">✕</button></div>`).join("")}<div class="addrow"><button data-add-bond>＋ 添加${esc(LABELS.bonds)}</button><button data-add-rel>＋ 添加关系</button></div></div>`;
+
+/* ============ fillbox / bonds / heritage 区域模板 ============ */
+// 这三类区域的角色数据统一按 areaKey 存放，于是同一 type 可以有任意多个区域
+function areaData(areaKey, init){
+  if(!char.areaData) char.areaData = {};
+  if(!char.areaData[areaKey]) char.areaData[areaKey] = init;
+  return char.areaData[areaKey];
 }
 
-function heritageHtml(){
-  const cfg = META.heritage;
-  if(!cfg) return "";
-  const h = char.heritage = char.heritage || {boxes:[false,false,false], moves:["","",""], third:false, hidden:false};
-  const title = cfg.title || "血统";
-  const toggleBtn = `<button type="button" class="h-toggle" data-heritage-toggle title="显示 / 隐藏">${h.hidden ? "显示" : "隐藏"}</button>`;
-  const hdr = `<h3>${esc(title)} <span class="h3r">${toggleBtn}</span></h3>`;
-  if(h.hidden){
-    return `<div class="pb-sec">${hdr}</div>`;
-  }
-  const n = h.third ? 3 : 2;
-  const boxes = h.boxes.map((b,i)=>{
-    if(i>=n) return "";
-    return `<label class="heritage-box"><input type="checkbox" class="chk" data-heritage-box="${i}" ${b?"checked":""}></label>`;
-  }).join("");
-  const lines = h.moves.map((m,i)=>{
-    if(i>=n) return "";
-    if(mode==="edit"){
-      return `<div class="bond-line"><input data-heritage-move="${i}" value="${esc(m||"")}" placeholder="血统动作"></div>`;
-    }
-    return `<div class="bond-line md">${renderFieldMarkdown(m||"", "heritage::"+i, ()=>char.heritage.moves[i]||"", t=>{char.heritage.moves[i]=t;})}</div>`;
-  }).join("");
-  const body = [];
-  if(cfg.note) body.push(markdownToHtml(cfg.note));
-  if(cfg.upgradePrompt) body.push(markdownToHtml(cfg.upgradePrompt));
-  if(cfg.upgradeEffect){
-    body.push(`<p class="heritage-up"><input type="checkbox" class="chk" data-heritage-third ${h.third?"checked":""}${mode==="view"?" disabled":""}>${inlineMarkdown(cfg.upgradeEffect)}</p>`);
-  }
-  const card = body.length ? `<div class="mv mv-heritage"><div class="mv-t">${body.join("")}</div></div>` : "";
-  return `<div class="pb-sec">${hdr}<div class="heritage-boxes">${boxes}</div>${lines}${card}</div>`;
-}
-
-function startingHtml(cls, m){
-  const isChoice = mv => (mv.replaces || mv.requires);
-  if(mode==="edit"){
-    const inner = m.starting.map(mv=> isChoice(mv) ? startingChoiceCard(mv) : mvCard("starting", mv)).join("");
-    return `<div class="pb-sec">${renderAreaHeader("starting", cls)}${inner||'<div class="hint">无</div>'}</div>`;
-  }
-  const inner = m.starting.filter(mv=> !isChoice(mv) || (char.startingChoices||[]).includes(mv.name)).map(mv=>mvViewCard("starting",mv)).join("");
-  return `<div class="pb-sec">${renderAreaHeader("starting", cls)}${inner}</div>`;
-}
-function startingChoiceCard(mv){
-  const d=moveDisplay("starting", mv);
-  const text=d.text!==null?d.text:mv.text;
-  const chosen=(char.startingChoices||[]).includes(mv.name);
-  const req=reqList(mv).map(r=>`<span class="req">需:${esc(r)}</span>`).join("");
-  const rep=repList(mv).map(r=>`<span class="req">互斥:${esc(r)}</span>`).join("");
-  return `<div class="mv mv-start"><div class="mv-h"><input type="checkbox" class="chk" data-sadv="${esc(mv.name)}" ${chosen?"checked":""}><div class="mv-n"><input data-key="${esc(d.key)}" data-field="name" value="${esc(d.name)}">${req}${rep}</div></div>
-    <div class="mv-t"><textarea data-key="${esc(d.key)}" data-field="text">${esc(text)}</textarea></div></div>`;
-}
-
-function advHtml(cls, m){
-  const lvl=char.level||1;
-  const chosen=char.advancedMoves||[];
-  if(mode==="view"){
-    const checked=allAdvancedMoves(m).filter(x=>chosen.includes(x.name));
-    return `<div class="pb-sec">${renderAreaHeader("advanced", cls)}${checked.map(mv=>mvViewCard("adv",mv)).join("")||'<div class="hint">未选择</div>'}</div>`;
-  }
-  const tier=(t, locked)=>`<div class="adv-tier${locked?" locked":""}">${esc(t.label)}</div>${t.note?`<div class="adv-tier-note">${esc(t.note)}</div>`:""}`+t.moves.map(mv=>{
-    if(mv._custom) return mvCardCustomAdv(mv);
-    const d=moveDisplay("adv",mv);
-    const text=d.text!==null?d.text:mv.text;
-    const reqs=reqList(mv);
-    const reps=repList(mv);
-    const disabled=locked || reqs.some(r=>!chosen.includes(r));
-    const req=reqs.map(r=>`<span class="req">需:${esc(r)}</span>`).join("");
-    const rep=reps.map(r=>`<span class="req">替:${esc(r)}</span>`).join("");
-    return `<div class="mv mv-adv ${disabled?"disabled":""}"><div class="mv-h">
-      <input type="checkbox" class="chk" data-adv="${esc(mv.name)}" ${chosen.includes(mv.name)?"checked":""} ${disabled?"disabled":""}>
-      <div class="mv-n"><input data-key="${esc(d.key)}" data-field="name" value="${esc(d.name)}">${req}${rep}</div></div>
-      <div class="mv-t"><textarea data-key="${esc(d.key)}" data-field="text">${esc(text)}</textarea></div></div>`;
-  }).join("");
-  let html = "";
-  m.advTiers.forEach(t=>{
-    if(!t.moves.length) return;
-    const min = t.minLevel || 1;
-    const locked = lvl < min || (t.maxLevel != null && lvl > t.maxLevel);
-    html += tier(t, locked);
+// 计数器行：declared 为数据声明的固定项（名字只读），extra 为玩家自行添加的（名字可改）
+// 计数器在两种模式下都保持可编辑——查看模式才是实际用它计数的场合
+function renderCounters(areaKey, declared, data){
+  const rows = (declared || []).map(c => {
+    const v = (data.counters[c.key] !== undefined) ? data.counters[c.key] : (c.value || 0);
+    return `<div class="bond-line fixed"><span class="cnt-name">${esc(c.label || c.key)}</span><input type="number" class="coins-input" data-area="cnt:${areaKey}:${esc(c.key)}" value="${v}" min="0"></div>`;
   });
-  if(m.customMoves.length) html += tier({label:LABELS.customAdvanced, moves:m.customMoves});
-  return `<div class="pb-sec">${renderAreaHeader("advanced", cls)}${html}<div class="addrow"><button data-add-adv>＋ 添加${esc(LABELS.advanced)}</button></div></div>`;
+  (data.extra || []).forEach((c, i) => {
+    rows.push(`<div class="bond-line"><input data-area="xname:${areaKey}:${i}" value="${esc(c.name||"")}" placeholder="计数器名"><input type="number" class="coins-input" data-area="xval:${areaKey}:${i}" value="${c.value||0}" min="0"><button class="x" data-area="xdel:${areaKey}:${i}" title="删除">✕</button></div>`);
+  });
+  return rows.length ? `<div class="counters">${rows.join("")}</div>` : "";
 }
 
-function advancementHtml(){
-  if(!ADVANCEMENT_TEXT) return "";
-  if(char.advancementText === undefined) char.advancementText = ADVANCEMENT_TEXT;
-  return `<div class="pb-sec"><h3>${esc(LABELS.advancement||"升级")}</h3><div class="mv mv-start"><div class="mv-h"><div class="mv-n">升级</div></div><div class="mv-t">${renderFieldMarkdown(char.advancementText, "advancement", ()=>char.advancementText, t=>{ char.advancementText = t; })}</div></div></div>`;
+// fillbox：一个大文本框，可挂选项组（点 ＋ 追加进文本框）、计数器、提示句
+function renderFillboxArea(areaKey, cls){
+  const body = getAreaHeader(areaKey, cls).body;
+  if(!body || body.type !== "fillbox") return "";
+  const data = areaData(areaKey, {text:"", counters:{}, extra:[]});
+  if(!data.counters) data.counters = {};
+
+  const counters = renderCounters(areaKey, body.counters, data);
+  // 「＋ 计数器」两种模式都给出，与计数器本身一致
+  const addCounter = body.addCounter
+    ? `<div class="addrow counters-add"><button data-area="xadd:${areaKey}">＋ 计数器</button></div>` : "";
+
+  const opts = (mode === "edit" ? (body.options || []) : []).map(g =>
+    `<div class="gear-group"><div class="gear-prompt md">${markdownToHtml(g.prompt||"")}</div>` +
+    (g.options||[]).map(o => {
+      const txt = stripTags(o);
+      return `<div class="opt"><button class="gear-add" data-area="opt:${areaKey}:${esc(txt)}" title="加入">＋</button> <span>${esc(txt)}</span></div>`;
+    }).join("") + `</div>`).join("");
+
+  const hints = (body.hints || []).map(h => `<div class="question-hint">${markdownToHtml(h)}</div>`).join("");
+
+  return `<div class="pb-sec">${renderAreaHeader(areaKey, cls)}${counters}${addCounter}<textarea class="fillbox" data-area="text:${areaKey}">${esc(data.text||"")}</textarea>${opts}${hints}</div>`;
 }
 
-function struggleHtml(){
-  if(!char.struggle) return "";
-  const s = char.struggle;
-  if(mode==="view"){
-    return `<div class="pb-sec"><h3>${esc(LABELS.struggle||"心结")}</h3><div class="mv mv-custom"><div class="mv-h"><span class="ck-mark on"></span><div class="mv-n">${esc(s.name)}</div></div><div class="mv-t">${markdownToHtml(s.text)}</div></div></div>`;
+// bonds：若干可增删的文本行，可挂「关系」（目标 + 描述 + 深度轨道）
+function renderBondsArea(areaKey, cls){
+  const body = getAreaHeader(areaKey, cls).body;
+  if(!body || body.type !== "bonds") return "";
+  const data = areaData(areaKey, {lines:(body.lines||[]).slice(), relations:[]});
+  if(!data.lines) data.lines = [];
+  if(!data.relations) data.relations = [];
+
+  const label = getAreaHeader(areaKey, cls).title || "";
+  const depth = body.relationDepth || 3;
+  const rels = body.relations ? (mode === "edit"
+    ? data.relations.map((r,i)=>`<div class="bond-line rel">
+        <input data-area="rtarget:${areaKey}:${i}" value="${esc(r.target||"")}" placeholder="关系目标">
+        <input data-area="rdesc:${areaKey}:${i}" value="${esc(r.description||"")}" placeholder="关系描述">
+        <span class="rel-depth">${Array.from({length:depth},(_,d)=>`<button type="button" class="trc${d<(r.depth||0)?" on":""}" data-area="rdepth:${areaKey}:${i}:${d}"></button>`).join("")}</span>
+        <button class="x" data-area="rdel:${areaKey}:${i}" title="删除">✕</button></div>`).join("")
+    : data.relations.filter(r=>r.target).map(r=>`<div class="bond-line"><b>${esc(r.target)}</b>${r.description?` <span class="faint">${esc(r.description)}</span>`:""} <span class="rel-depth-v">${Array.from({length:depth},(_,d)=>(r.depth||0)>d?"●":"○").join("")}</span></div>`).join("")
+  ) : "";
+
+  if(mode === "view"){
+    const lines = data.lines.map((b,i)=>b?`<div class="bond-line md">${renderFieldMarkdown(b, "bond::"+areaKey+"::"+i, ()=>data.lines[i]||"", t=>{data.lines[i]=t;})}</div>`:"").join("");
+    return `<div class="pb-sec">${renderAreaHeader(areaKey, cls)}${rels}${lines||`<div class="hint">无${esc(label)}</div>`}</div>`;
   }
-  return `<div class="pb-sec"><h3>${esc(LABELS.struggle||"心结")} <span class="h3r"><button type="button" class="xbtn" data-struggle-resolve title="解决（移除）">✕ 解决</button></span></h3><div class="mv mv-custom"><div class="mv-h"><div class="mv-n"><input data-struggle-name value="${esc(s.name)}"></div></div><div class="mv-t"><textarea data-struggle-text>${esc(s.text)}</textarea></div></div></div>`;
+  const lines = data.lines.map((b,i)=>`<div class="bond-line"><input data-area="bond:${areaKey}:${i}" value="${esc(b)}" placeholder="${esc(label)}"><button class="x" data-area="bdel:${areaKey}:${i}" title="删除">✕</button></div>`).join("");
+  const btns = [`<button data-area="badd:${areaKey}">＋ ${esc(label)}</button>`];
+  if(body.relations) btns.push(`<button data-area="radd:${areaKey}">＋ 关系</button>`);
+  return `<div class="pb-sec">${renderAreaHeader(areaKey, cls)}${rels}${lines}<div class="addrow">${btns.join("")}</div></div>`;
 }
 
-function originsHtml(){
-  const fields = ORIGINS;
-  if(!fields || !fields.length) return "";
-  const o = char.origins || {};
-  if(mode==="view"){
-    const lines = fields.filter(f=>o[f.key]).map(f=>`<div class="origin-line"><b>${esc(f.label)}</b>：${esc(o[f.key])}</div>`).join("");
-    if(!lines) return "";
-    return `<div class="pb-sec"><h3>${esc(LABELS.origins||"起源")}</h3>${lines}</div>`;
+// heritage：一组格子 + 等量的文本行 + 一张说明卡，可整区折叠
+function renderHeritageArea(areaKey, cls){
+  const body = getAreaHeader(areaKey, cls).body;
+  if(!body || body.type !== "heritage") return "";
+  const data = areaData(areaKey, {boxes:[], moves:[], upgraded:false, hidden:false});
+  if(!data.boxes) data.boxes = [];
+  if(!data.moves) data.moves = [];
+
+  const toggle = `<button type="button" class="h-toggle" data-area="hide:${areaKey}" title="显示 / 隐藏">${data.hidden ? "显示" : "隐藏"}</button>`;
+  const hdr = renderAreaHeader(areaKey, cls, toggle);
+  if(data.hidden) return `<div class="pb-sec">${hdr}</div>`;
+
+  const n = data.upgraded ? (body.boxesUpgraded || body.boxes || 0) : (body.boxes || 0);
+  const boxes = Array.from({length:n}, (_,i) =>
+    `<label class="heritage-box"><input type="checkbox" class="chk" data-area="hbox:${areaKey}:${i}"${data.boxes[i]?" checked":""}></label>`).join("");
+  const lines = Array.from({length:n}, (_,i) => mode === "edit"
+    ? `<div class="bond-line"><input data-area="hmove:${areaKey}:${i}" value="${esc(data.moves[i]||"")}" placeholder="${esc(body.movePlaceholder||"")}"></div>`
+    : `<div class="bond-line md">${renderFieldMarkdown(data.moves[i]||"", "heritage::"+areaKey+"::"+i, ()=>data.moves[i]||"", t=>{data.moves[i]=t;})}</div>`).join("");
+
+  const card = [];
+  if(body.note) card.push(markdownToHtml(body.note));
+  if(body.upgradePrompt) card.push(markdownToHtml(body.upgradePrompt));
+  if(body.upgradeEffect){
+    card.push(`<p class="heritage-up"><input type="checkbox" class="chk" data-area="hup:${areaKey}"${data.upgraded?" checked":""}${mode==="view"?" disabled":""}>${inlineMarkdown(body.upgradeEffect)}</p>`);
   }
-  const inputs = fields.map(f=>{
-    const val = (o[f.key] !== undefined && o[f.key] !== "") ? o[f.key] : (f.prefix || "");
-    return `<div class="origin-line"><div class="origin-row"><b>${esc(f.label)}</b>：<input data-origin="${f.key}" value="${esc(val)}"></div>${f.hint?`<div class="origin-hint">${esc(f.hint)}</div>`:""}</div>`;
-  }).join("");
-  return `<div class="pb-sec"><h3>${esc(LABELS.origins||"起源")}</h3>${inputs}</div>`;
-}
-
-function countersHtml(){
-  const list = (char.counters||[]).map((c,i)=>`
-    <div class="bond-line"><input data-counter-name="${i}" value="${esc(c.name||"")}" placeholder="计数器名"><input type="number" class="coins-input" data-counter-val="${i}" value="${c.value||0}">${mode==="edit"?`<button class="x" data-counter-del="${i}" title="删除">✕</button>`:""}</div>`).join("");
-  const add = mode==="edit" ? `<div class="addrow counters-add"><button data-add-counter>＋ 添加计数器</button></div>` : "";
-  return `${list?`<div class="counters">${list}</div>`:""}${add}`;
-}
-function notesHtml(cls){
-  const questions = (cls && cls.questions) || [];
-  const qHtml = questions.map(q=>`<div class="question-hint">${markdownToHtml(q)}</div>`).join("");
-  return `<div class="pb-sec">${renderAreaHeader("notes", cls)}${countersHtml()}<textarea class="fillbox" data-bind="notes">${esc(char.notes||"")}</textarea>${qHtml}</div>`;
-}
-
-function spellSectionsHtml(){
-  const active = Object.keys(SPELL_SECTIONS).filter(spellSectionActive);
-  return active.map(spellSectionHtml).join("");
-}
-function spellSectionHtml(key){
-  const cfg = SPELL_SECTIONS[key];
-  const data = char.spells[key] || {effectiveLevel:1, levelCap:2, list:[]};
-  const lvl = data.effectiveLevel||0, cap = data.levelCap||0;
-  const del = (char.manualSpells||[]).includes(key) && !hasSpellTrigger(key) ? `<button class="xbtn" data-del-spell-section="${key}" title="移除该板块">✕</button>` : "";
-  const prepHint = PREPARE_CAP_FORMULA ? formulaHint(PREPARE_CAP_FORMULA, "prepareCap:"+key, true) : "";
-  const h3r = mode==="edit"
-    ? `<span class="h3r">${esc(LABELS.casterLevel)} <input type="number" data-spell-lvl="${key}" value="${lvl}" min="0"> ${esc(LABELS.prepareCap)} <input type="number" data-spell-cap="${key}" value="${cap}" min="0">${prepHint}${del}</span>`
-    : `<span class="h3r">${esc(LABELS.casterLevel)} <b>${lvl}</b> ${esc(LABELS.prepareCap)} <b>${cap}</b>${prepHint}${del}</span>`;
-  const groups = cfg.groups.map(g=>{
-    const spells = (data.list||[]).filter(s=>s.group===g);
-    if(mode==="view" && !spells.length) return "";
-    const cards = spells.map(s=>spellCard(key, s)).join("");
-    const add = mode==="edit" ? `<div class="mv-add"><button data-add-spell="${key}:${esc(g)}">＋ 添加法术</button></div>` : "";
-    return `<div class="spell-group"><div class="spell-group-h">${esc(g)}</div>${cards}${add}</div>`;
-  }).join("");
-  return `<div class="pb-sec"><h3>${esc(cfg.title)} ${h3r}</h3>${groups}</div>`;
-}
-function spellBarStyle(key){
-  const color = SPELL_SECTIONS[key] && SPELL_SECTIONS[key].color;
-  return color ? `--bar:${color}` : "";
-}
-function spellCard(key, s){
-  const avail = s.available !== false;
-  const bar = spellBarStyle(key);
-  if(mode==="edit"){
-    return `<div class="mv mv-spell ${avail?"":"spell-off"}" style="${bar}"><button class="del" data-spell-del="${key}:${esc(s.id)}" title="删除">✕</button>
-      <div class="mv-h"><input type="checkbox" class="chk" data-spell-avail="${key}:${esc(s.id)}" ${avail?"checked":""} title="可用/不可用"><div class="mv-n"><input data-spell-name="${key}:${esc(s.id)}" value="${esc(s.name)}" placeholder="法术名"></div></div>
-      <div class="mv-t"><textarea data-spell-text="${key}:${esc(s.id)}">${esc(s.text||"")}</textarea></div></div>`;
-  }
-  return `<div class="mv mv-spell ${avail?"":"spell-off"}" style="${bar}"><div class="mv-h"><input type="checkbox" class="chk" data-spell-avail="${key}:${esc(s.id)}" ${avail?"checked":""} title="可用/不可用"><div class="mv-n">${esc(s.name||"未命名法术")}</div></div><div class="mv-t">${markdownToHtml(s.text||"")}</div></div>`;
-}
-function addSpellSectionHtml(){
-  if(mode!=="edit") return "";
-  const missing = Object.keys(SPELL_SECTIONS).filter(k=>!spellSectionActive(k));
-  if(!missing.length) return "";
-  return `<div class="addrow">${missing.map(k=>`<button data-add-spell-section="${k}">＋ ${esc(SPELL_SECTIONS[k].title)}板块</button>`).join(" ")}</div>`;
+  const cardHtml = card.length ? `<div class="mv"${mvBarStyle(areaKey)}><div class="mv-t">${card.join("")}</div></div>` : "";
+  return `<div class="pb-sec">${hdr}<div class="heritage-boxes">${boxes}</div>${lines}${cardHtml}</div>`;
 }
 
 /* ============ 参考资料边栏 ============ */
@@ -1191,12 +1345,8 @@ function renderRef(){
     return;
   }
   const sec = REF_SECTIONS.find(s => s.id === refTab);
-  if(!sec) body.innerHTML = renderRefSearch(searchKw);
-  else if(sec.type === "groups") body.innerHTML = renderRefGroups(sec);
-  else if(sec.type === "extension") body.innerHTML = renderRefExtension(sec);
-  else if(sec.type === "tags") body.innerHTML = renderRefTags();
-  else if(sec.type === "spells") body.innerHTML = renderRefSpells();
-  else body.innerHTML = renderRefSearch(searchKw);
+  const fn = sec && REF_RENDERERS[sec.type];
+  body.innerHTML = fn ? fn(sec) : renderRefSearch(searchKw);
 }
 function refDetailsState(){
   const body = document.getElementById("refBody");
@@ -1207,40 +1357,67 @@ function restoreRefDetails(state){
   if(!body) return;
   [...body.querySelectorAll("details")].forEach((d, i) => { if(i < state.length) d.open = state[i]; });
 }
-function rmvCardHtml(item, idx){
-  const src = item.source ? `<span class="src">${esc(item.source)}</span>` : "";
-  const btn = (item.importable && mode==="edit") ? `<div class="rmv-foot"><button class="rmv-b" data-imp="${idx}">＋ 导入</button></div>` : "";
-  return `<details class="rmv"><summary>${esc(item.name)}${src}</summary><div class="rmv-t">${markdownToHtml(item.html)}</div>${btn}</details>`;
+// kind 即目标区域的 areaKey。能导入的唯一条件：该区域存在且是动作区
+function importTarget(kind){
+  const area = kind && AREAS[kind];
+  return (area && area.body && area.body.type === "moveList") ? area : null;
 }
-function groupsHtml(sec){
+// 登记可导入条目并返回卡片 HTML（idx 与 lastSearchItems 一一对应，-1 表示只展示）
+function refCard(item){
+  const idx = importTarget(item.kind) ? lastSearchItems.push(item) - 1 : -1;
+  const src = item.source ? `<span class="src">${esc(item.source)}</span>` : "";
+  const btn = (idx >= 0 && mode === "edit")
+    ? `<div class="rmv-foot"><button class="rmv-b" data-imp="${idx}">＋ 导入</button></div>` : "";
+  return `<details class="rmv"><summary>${esc(item.name || "")}${src}</summary><div class="rmv-t">${markdownToHtml(item.html)}</div>${btn}</details>`;
+}
+// 按点分路径取规则数据，便于把嵌套数据（如 spells.wizard）声明成一个 group
+function refData(key){
+  return String(key||"").split(".").reduce((o,k) => (o && o[k] !== undefined) ? o[k] : undefined, DW_DATA);
+}
+// group.kind 由数据声明；是否可导入交给 refCard 按 importTarget 判断
+function refItem(g, sec, m){
+  return {
+    kind: g.kind, name: m.name, html: m.text, source: g.label || sec.title,
+    group: m.group
+  };
+}
+function movesHtml(sec){
   let html = "";
   for(const g of (sec.groups||[])){
-    const moves = DW_DATA[g.key] || [];
-    if(!moves.length) continue;
-    const src = g.label || sec.title;
-    const cards = moves.map(m => {
-      if(g.importable){
-        const kind = g.kind || "move";
-        const idx = lastSearchItems.push({kind, name:m.name, html:m.text, source:src, importable:true}) - 1;
-        return rmvCardHtml({name:m.name, html:m.text, source:src, importable:true}, idx);
-      }
-      return rmvCardHtml({name:m.name, html:m.text, source:src, importable:false}, -1);
-    }).join("");
+    const items = refData(g.key) || [];
+    if(!items.length) continue;
     if(g.label) html += `<div class="ref-sec">${esc(g.label)}</div>`;
-    html += cards;
+    // 条目自带 group 时按它分小节（法术环位即走这条）
+    const subs = [...new Set(items.map(m => m.group).filter(x => x))];
+    html += items.filter(m => !m.group).map(m => refCard(refItem(g, sec, m))).join("");
+    for(const sub of subs){
+      html += `<div class="ref-subsec">${esc(sub)}</div>`;
+      html += items.filter(m => m.group === sub).map(m => refCard(refItem(g, sec, m))).join("");
+    }
   }
   return html;
 }
-function renderRefGroups(sec){
-  return groupsHtml(sec) || '<div class="ref-empty">暂无内容。</div>';
+function renderRefMoves(sec){
+  return movesHtml(sec) || '<div class="ref-empty">暂无内容。</div>';
 }
+// 文章块 → 条目。importGroup 声明导入后落进目标区域的哪个分组，
+// 块级优先、文章级兜底：同一篇里的 move 块通常同属一组，写在文章上即可。
+// 只对 kind 指向 moveList 区域的块有意义，text / bonds 块上写了会被忽略。
+function articleItem(it, b){
+  return {
+    kind: b.kind, name: b.name || it.title, html: b.text, source: it.title,
+    group: b.importGroup || it.importGroup || null
+  };
+}
+// 文章块的 kind 同样是目标区域的 areaKey；渲染形态由那个区域的 type 反推
 function renderArticle(it){
   const body = (it.blocks||[]).map(b => {
-    if(b.kind === "move"){
-      const idx = lastSearchItems.push({kind:"move", name:b.name, html:b.text, source:it.title, importable:true}) - 1;
-      return rmvCardHtml({name:b.name, html:b.text, source:it.title, importable:true}, idx);
+    if(importTarget(b.kind)){
+      return refCard(articleItem(it, b));
     }
-    if(b.kind === "bond"){
+    const area = b.kind && AREAS[b.kind];
+    const type = area && area.body && area.body.type;
+    if(type === "bonds"){
       return `<div class="bond-line md">${markdownToHtml(b.text)}</div>`;
     }
     return `<div class="md">${markdownToHtml(b.text)}</div>`;
@@ -1248,97 +1425,124 @@ function renderArticle(it){
   return `<details class="rmv" open><summary>${esc(it.title)}</summary><div class="rmv-t">${body}</div></details>`;
 }
 function renderRefExtension(sec){
-  let html = groupsHtml(sec);
-  const items = DW_DATA[sec.articles] || [];
+  let html = movesHtml(sec);
+  const items = refData(sec.articles) || [];
   html += items.map(it => renderArticle(it)).join("");
   return html || '<div class="ref-empty">暂无内容。</div>';
+}
+function tagItemHtml(tag){
+  const desc = tag.description ? ` ${inlineMarkdown(tag.description)}` : '';
+  return `<div class="tag-item">${inlineMarkdown(`{${tag.name}}`)}${desc}</div>`;
 }
 function renderRefTags() {
   const tags = DW_DATA.tags || {};
   if (!Object.keys(tags).length) {
     return '<div class="ref-empty">未定义标签</div>';
   }
-  
   let html = '';
   for (const [category, tagList] of Object.entries(tags)) {
-    const items = tagList.map(tag => {
-      const desc = tag.description ? ` ${inlineMarkdown(tag.description)}` : '';
-      return `<div class="tag-item">${inlineMarkdown(`{${tag.name}}`)}${desc}</div>`;
-    }).join('');
+    const items = tagList.map(tagItemHtml).join('');
     html += `<details class="rmv"><summary>${esc(category)}</summary><div class="rmv-t">${items}</div></details>`;
   }
-  
   return html;
 }
-function spellSectionKeyForClass(ck){ return Object.keys(SPELL_SECTIONS).find(k => SPELL_SECTIONS[k].spellClass === ck) || Object.keys(SPELL_SECTIONS)[0]; }
-function spellSourceLabel(ck){
-  const sec = SPELL_SECTIONS[spellSectionKeyForClass(ck)];
-  return (sec && (sec.source || sec.title)) || ck;
-}
-function renderRefSpells(){
-  const ckeys = Object.keys(DW_DATA.spells||{});
-  if(!ckeys.length) return '<div class="ref-empty">暂无法术数据。</div>';
-  return ckeys.map(ck => {
-    const spells = DW_DATA.spells[ck] || [];
-    const groups = [...new Set(spells.map(s=>s.group))];
-    const src = spellSourceLabel(ck);
-    const cards = groups.map(g => {
-      const gs = spells.filter(s=>s.group===g);
-      return `<div class="ref-spell-group">${esc(g)}</div>` + gs.map(s => {
-        const item = {kind:"spell", name:s.name, html:s.text, source:src, spellClass:ck, group:g, importable:true};
-        const idx = lastSearchItems.push(item) - 1;
-        return rmvCardHtml(item, idx);
-      }).join("");
-    }).join("");
-    return `<details class="ref-spell-list" open><summary>${esc(src)}</summary><div class="ref-spell-inner">${cards}</div></details>`;
-  }).join("");
-}
 function renderRefSearch(kw){
-  return `<input class="ref-search" id="refSearch" placeholder="搜索动作、职业、${esc(LABELS.raceName)}、法术…" value="${esc(kw||"")}"><div id="refSearchResults">${searchResultsHtml(kw||"")}</div>`;
+  return `<input class="ref-search" id="refSearch" placeholder="搜索动作、职业、分组、法术…" value="${esc(kw||"")}"><div id="refSearchResults">${searchResultsHtml(kw||"")}</div>`;
 }
-function collectRaces(){
-  const set = new Set();
-  (DW_DATA.classes||[]).forEach(c => (c.racialMoves||[]).forEach(g => { if(g.race) set.add(g.race); }));
-  return [...set];
+// refSection 的 type → 渲染器。加新类型只需加一行
+const REF_RENDERERS = {
+  moves:     renderRefMoves,
+  extension: renderRefExtension,
+  tags:      renderRefTags,
+  search:    sec => renderRefSearch(searchKw),
+};
+// 取某职业某区域合并后的 body（不依赖角色状态）
+function areaBodyFor(cls, areaKey){
+  const base = AREAS[areaKey];
+  if(!base) return null;
+  const override = (cls && cls.areas && cls.areas[areaKey]) || {};
+  return deepMerge(base.body, override.body);
+}
+// 列出所有 moveList 区域的 key
+function moveListAreaKeys(cls){
+  return Object.keys(AREAS).filter(k => { const b = areaBodyFor(cls, k); return b && b.type === "moveList"; });
+}
+// 所有 moveList 区域里的分组 → {label, key, areaKey}
+// key 要一起带出来：条目上存的 group 是 key，而匹配用的是 label，两者常常不等
+function collectGroupLabels(){
+  const out = [];
+  const seen = new Set();
+  (DW_DATA.classes||[]).forEach(c => {
+    moveListAreaKeys(c).forEach(areaKey => {
+      const b = areaBodyFor(c, areaKey);
+      (b.groups || []).forEach(g => {
+        if(!g.label) return;
+        const k = areaKey + "::" + g.key + "::" + g.label;
+        if(seen.has(k)) return;
+        seen.add(k);
+        out.push({label:g.label, key:g.key, areaKey});
+      });
+    });
+  });
+  return out;
 }
 function classMovesFlat(c){
   const items = [];
-  (c.startingMoves||[]).forEach(m => items.push({kind:"move", name:m.name, html:m.text, source:c.name, classId:c.id, importable:true}));
-  for(const t of tiersFor(c)) (c.advancedMoves[t.key]||[]).forEach(m => items.push({kind:"move", name:m.name, html:m.text, source:c.name, classId:c.id, importable:true}));
-  (c.racialMoves||[]).forEach(g => (g.moves||[]).forEach(m => items.push({kind:"racial", name:m.name, html:m.text, source:c.name, race:g.race, classId:c.id, importable:true})));
-  (c.alignment||[]).forEach(a => items.push({kind:"alignment", name:a.name, html:a.text, source:c.name, classId:c.id, importable:true}));
+  moveListAreaKeys(c).forEach(areaKey => {
+    const b = areaBodyFor(c, areaKey);
+    (b.groups || []).forEach(g => (g.moves || []).forEach(m => items.push({kind:areaKey, name:m.name, html:m.text, source:c.name, group:g.key, classId:c.id})));
+    (b.moves || []).forEach(m => items.push({kind:areaKey, name:m.name, html:m.text, source:c.name, classId:c.id}));
+  });
   return items;
 }
+// 一个 refSection 里的全部可搜条目：组条目 + 文章块（含纯文本块）
+// 不区分能否导入，能导入的由 refCard 自己长出按钮
+function sectionSearchItems(sec){
+  const items = [];
+  (sec.groups || []).forEach(g => {
+    (refData(g.key) || []).forEach(m => items.push(refItem(g, sec, m)));
+  });
+  (refData(sec.articles) || []).forEach(it => {
+    (it.blocks || []).forEach(b => items.push(articleItem(it, b)));
+  });
+  return items;
+}
+// 可搜范围 = 职业动作 + 所有 refSection 的内容。标签另有形态，见 searchResultsHtml
 function collectSearchable(){
   const items = [];
-  (DW_DATA.basicMoves||[]).forEach(m => items.push({kind:"basic", name:m.name, html:m.text, source:"基本动作", importable:false}));
-  (DW_DATA.specialMoves||[]).forEach(m => items.push({kind:"special", name:m.name, html:m.text, source:"特殊动作", importable:false}));
   (DW_DATA.classes||[]).forEach(c => items.push(...classMovesFlat(c)));
-  Object.keys(DW_DATA.spells||{}).forEach(ck => {
-    const src = spellSourceLabel(ck);
-    (DW_DATA.spells[ck]||[]).forEach(s => items.push({kind:"spell", name:s.name, html:s.text, source:src, spellClass:ck, group:s.group, importable:true}));
-  });
+  REF_SECTIONS.forEach(sec => items.push(...sectionSearchItems(sec)));
   return items;
 }
 function searchResultsHtml(kw){
   kw = (kw||"").trim();
   lastSearchItems = [];
-  if(!kw) return `<div class="ref-empty">输入关键词，可搜动作名/正文、职业名、${esc(LABELS.raceName)}名、法术。</div>`;
+  if(!kw) return `<div class="ref-empty">输入关键词，可搜动作名/正文、职业名、分组名、法术。</div>`;
   const parts = [];
   // 1. 职业
   const classMatches = (DW_DATA.classes||[]).filter(c => c.name.includes(kw));
   classMatches.forEach(c => {
     const intro = c.intro ? `<div class="ref-intro">${markdownToHtml(c.intro)}</div>` : "";
-    const cards = classMovesFlat(c).map(item => { const idx = lastSearchItems.push(item)-1; return rmvCardHtml(item, idx); }).join("");
+    const cards = classMovesFlat(c).map(refCard).join("");
     parts.push(`<div class="ref-sec">职业：${esc(c.name)}</div>${intro}${cards}`);
   });
-  // 2. 种族
-  const matchedRaces = collectRaces().filter(r => r.includes(kw));
-  if(matchedRaces.length){
-    const raceItems = [];
-    (DW_DATA.classes||[]).forEach(c => (c.racialMoves||[]).forEach(g => { if(matchedRaces.includes(g.race)) (g.moves||[]).forEach(m => raceItems.push({kind:"racial", name:m.name, html:m.text, source:c.name, race:g.race, classId:c.id, importable:true})); }));
-    const cards = raceItems.map(item => { const idx = lastSearchItems.push(item)-1; return rmvCardHtml(item, idx); }).join("");
-    parts.push(`<div class="ref-sec">${esc(LABELS.raceName)}：${esc(matchedRaces.join("、"))}</div>${cards}`);
+  // 2. 分组名（种族 / 背景 / 法术环位等）
+  const searchable = collectSearchable();
+  const matchedGroups = collectGroupLabels().filter(g => g.label.includes(kw));
+  // 条目上存的 group 是 key，所以按「区域::key」匹配，不能拿 label 比
+  const matchedGroupKeys = new Set(matchedGroups.map(g => g.areaKey + "::" + g.key));
+  const inMatchedGroup = it => !!it.group && matchedGroupKeys.has(it.kind + "::" + it.group);
+  if(matchedGroups.length){
+    // 按区域归类展示
+    const byArea = {};
+    matchedGroups.forEach(g => { (byArea[g.areaKey] = byArea[g.areaKey] || []).push(g.label); });
+    for(const areaKey of Object.keys(byArea)){
+      const items = searchable.filter(it => it.kind === areaKey && inMatchedGroup(it));
+      if(!items.length) continue;
+      const cards = items.map(refCard).join("");
+      const title = (AREAS[areaKey] && AREAS[areaKey].title) || areaKey;
+      parts.push(`<div class="ref-sec">${esc(title)}：${esc(byArea[areaKey].join("、"))}</div>${cards}`);
+    }
   }
   // 3. 标签
   const tagMatches = [];
@@ -1352,24 +1556,18 @@ function searchResultsHtml(kw){
     });
   }
   if(tagMatches.length){
-    let tagHtml = '<div class="ref-sec">标签</div>';
-    tagMatches.forEach(tag => {
-      const desc = tag.description ? ` ${inlineMarkdown(tag.description)}` : '';
-      tagHtml += `<div class="tag-item">${inlineMarkdown(`{${tag.name}}`)}${desc}</div>`;
-    });
-    parts.push(tagHtml);
+    parts.push('<div class="ref-sec">标签</div>' + tagMatches.map(tagItemHtml).join(""));
   }
   // 4. 关键词 (去重)
   const matchedClassIds = new Set(classMatches.map(c=>c.id));
-  const matchedRaceSet = new Set(matchedRaces);
-  const kwItems = collectSearchable().filter(it => {
-    if(!(it.name.includes(kw) || stripTags(it.html).includes(kw))) return false;
+  const kwItems = searchable.filter(it => {
+    if(!((it.name||"").includes(kw) || stripTags(it.html).includes(kw))) return false;
     if(it.classId && matchedClassIds.has(it.classId)) return false;
-    if(it.race && matchedRaceSet.has(it.race)) return false;
+    if(inMatchedGroup(it)) return false;
     return true;
   });
   if(kwItems.length){
-    const cards = kwItems.map(item => { const idx = lastSearchItems.push(item)-1; return rmvCardHtml(item, idx); }).join("");
+    const cards = kwItems.map(refCard).join("");
     parts.push(`<div class="ref-sec">关键词匹配</div>${cards}`);
   }
   if(!parts.length) return `<div class="ref-empty">没有找到匹配「${esc(kw)}」的内容。</div>`;
@@ -1378,60 +1576,34 @@ function searchResultsHtml(kw){
 function importSearchItem(idx){
   const item = lastSearchItems[idx];
   if(!item) return;
-  if(item.kind === "spell"){
-    const secKey = spellSectionKeyForClass(item.spellClass);
-    if(!spellSectionActive(secKey)){ if(!char.manualSpells.includes(secKey)) char.manualSpells.push(secKey); }
-    ensureSpellData();
-    char.spells[secKey].list.push({id:uid(), group:item.group, name:item.name, text:item.html, available:false});
-  } else if(item.kind === "racial"){
-    if(!customData.extraRacialMoves[char.classId]) customData.extraRacialMoves[char.classId]=[];
-    let grp = customData.extraRacialMoves[char.classId].find(g=>g.race===item.race);
-    if(!grp){ grp={id:uid(), race:item.race, moves:[]}; customData.extraRacialMoves[char.classId].push(grp); }
-    grp.moves.push({id:uid(), name:item.name, text:item.html});
-  } else if(item.kind === "alignment"){
-    if(!customData.extraAlignments[char.classId]) customData.extraAlignments[char.classId]=[];
-    customData.extraAlignments[char.classId].push({id:uid(), name:item.name, text:item.html});
-  } else if(item.kind === "move"){
-    if(!customData.extraMoves[char.classId]) customData.extraMoves[char.classId]=[];
-    customData.extraMoves[char.classId].push({id:uid(), name:item.name, text:item.html, tier:"2-5", requires:null, replaces:null});
-  } else if(item.kind === "struggle"){
-    char.struggle = {name:item.name, text:item.html};
+  const cls = getClass(char.classId);
+  const areaKey = item.kind;
+  const body = cls ? areaBodyFor(cls, areaKey) : null;
+
+  if(!body || body.type !== "moveList"){
+    // 导入目标不存在或不是动作区，与其静默失败不如说清楚
+    alert(areaKey ? `当前规则里没有可接收的「${areaKey}」动作区域。` : "该条目没有声明导入目标。");
+    return;
   }
+  // boundMove 未取得时该区域整个不渲染，导进去会看不见，所以挡在这里
+  // （勾选动作只触发 renderPlaybook，边栏按钮来不及更新，只能在导入时判）
+  if(!boundMoveTaken(body)){
+    const need = body.features.boundMove;
+    const title = (AREAS[areaKey] && AREAS[areaKey].title) || areaKey;
+    alert(`「${title}」要先取得「${need}」才会出现，现在导入会看不到。`);
+    return;
+  }
+  // 目标 group：沿用来源 group，本职业没有该 group 时自动建一个
+  const groupKey = ensureMoveListGroup(areaKey, item.group || null);
+  moveListCustomMoves(areaKey).push({id:uid(), name:item.name, text:item.html, group:groupKey || null});
   renderPlaybook(); save();
 }
 
-function mvKindClass(kind){
-  const m = {racial:"mv-race", alignment:"mv-align", starting:"mv-start", adv:"mv-adv"};
-  return m[kind] || "";
+// 动作卡左侧色条：由区域在数据里声明 color，未声明则不显示
+function mvBarStyle(areaKey){
+  const c = AREAS[areaKey] && AREAS[areaKey].color;
+  return c ? ` style="--bar:${esc(c)}"` : "";
 }
-function mvCard(kind, mv){
-  const d=moveDisplay(kind, mv);
-  const text=d.text!==null?d.text:mv.text;
-  return `<div class="mv ${mvKindClass(kind)}"><div class="mv-h"><div class="mv-n"><input data-key="${esc(d.key)}" data-field="name" value="${esc(d.name)}"></div></div>
-    <div class="mv-t"><textarea data-key="${esc(d.key)}" data-field="text">${esc(text)}</textarea></div></div>`;
-}
-function mvViewCard(kind, mv){
-  const key = moveBoxKey(kind, mv);
-  boxReg[key] = { get: () => getMoveMarkdown(kind, mv), set: (t) => setMoveMarkdown(kind, mv, t) };
-  if(mv._custom){
-    return `<div class="mv mv-custom"><div class="mv-h"><span class="ck-mark on"></span><div class="mv-n">${esc(mv.name)}</div></div><div class="mv-t">${applyBoxes(markdownToHtml(mv.text), key)}</div></div>`;
-  }
-  const d=moveDisplay(kind, mv);
-  const txt = d.text!==null ? markdownToHtml(d.text) : markdownToHtml(mv.text);
-  return `<div class="mv ${mvKindClass(kind)}"><div class="mv-h"><span class="ck-mark on"></span><div class="mv-n">${esc(d.name)}</div></div><div class="mv-t">${applyBoxes(txt, key)}</div></div>`;
-}
-function mvCardCustomAdv(mv){
-  return `<div class="mv mv-custom"><button class="del" data-cadv-del="${esc(mv.id)}" title="删除">✕</button>
-    <div class="mv-h"><input type="checkbox" class="chk" data-adv="${esc(mv.name)}" ${(char.advancedMoves||[]).includes(mv.name)?"checked":""}>
-      <div class="mv-n"><input data-cadv-name="${esc(mv.id)}" value="${esc(mv.name)}" placeholder="动作名"></div></div>
-    <div class="mv-t"><textarea data-cadv-text="${esc(mv.id)}" placeholder="动作内容">${esc(mv.text)}</textarea></div></div>`;
-}
-function mvCardCustomRace(gid, mv){
-  return `<div class="mv mv-custom"><button class="del" data-crmove-del="${esc(gid)}:${esc(mv.id)}" title="删除">✕</button>
-    <div class="mv-h"><div class="mv-n"><input data-crmove-name="${esc(gid)}:${esc(mv.id)}" value="${esc(mv.name)}" placeholder="动作名"></div></div>
-    <div class="mv-t"><textarea data-crmove-text="${esc(gid)}:${esc(mv.id)}" placeholder="动作内容">${esc(mv.text)}</textarea></div></div>`;
-}
-
 function autosize(ta){ ta.style.height="auto"; ta.style.height=(ta.scrollHeight+2)+"px"; }
 function autosizeAll(){ document.querySelectorAll("textarea").forEach(autosize); }
 
@@ -1440,15 +1612,18 @@ function onClassChange(){
   const newId=document.getElementById("classSelect").value;
   if(newId!==char.classId){
     char.classId=newId;
-    char.races=[]; char.alignments=[]; char.look=[]; char.lookNotes=""; char.advancedMoves=[]; char.startingChoices=[];
-    char.gear=""; char.bonds=[]; char.damage=""; char.hpCur=0;
-    char.hpMax=0; char.load=0;
+    char.plainAreas={}; char.moveListSelections={}; char.moveListGroupNames={}; char.moveListNames={}; char.moveListTexts={};
+    // 内容来自职业的区域（body 里声明 resetOnClassChange）换职业时清空，其余保留
+    const cls=getClass(newId);
+    Object.keys(char.areaData||{}).forEach(k => {
+      const b = cls ? (getAreaHeader(k, cls).body || {}) : {};
+      if(b.resetOnClassChange) delete char.areaData[k];
+    });
+    char.damage=""; char.hpCur=0; char.hpMax=0; char.load=0;
   }
   const cls=getClass(char.classId);
   if(!cls){ renderPlaybook(); return; }
-  const m=classMoves(cls);
   if(!char.damage) char.damage=cls.damage||"";
-  if(!char.look.length && cls.look) char.look=cls.look.map(()=>[]);
   if(!char.hpMax) char.hpMax=defaultHP(cls);
   if(!char.load) char.load=defaultStatValue("load", cls);
   renderPlaybook(); save();
@@ -1457,18 +1632,6 @@ function onClassChange(){
 document.addEventListener("input", e=>{
   const t=e.target, d=t.dataset||{};
   if(t.id==="refSearch"){ searchKw=t.value; const r=document.getElementById("refSearchResults"); if(r) r.innerHTML=searchResultsHtml(searchKw); return; }
-  if(d.key && d.field){ if(!char.moveEdits[d.key]) char.moveEdits[d.key]={}; char.moveEdits[d.key][d.field]=t.value; autosize(t); save(); return; }
-  if(d.cadvName){ const m=(customData.extraMoves[char.classId]||[]).find(x=>x.id===d.cadvName); if(m){ const old=m.name; m.name=t.value; const i=char.advancedMoves.indexOf(old); if(i!==-1) char.advancedMoves[i]=t.value; save(); } return; }
-  if(d.cadvText){ const m=(customData.extraMoves[char.classId]||[]).find(x=>x.id===d.cadvText); if(m){ m.text=t.value; autosize(t); save(); } return; }
-  if(d.calignName){ const a=(customData.extraAlignments[char.classId]||[]).find(x=>x.id===d.calignName); if(a){ const old=a.name; a.name=t.value; const i=char.alignments.indexOf(old); if(i!==-1) char.alignments[i]=t.value; save(); } return; }
-  if(d.calignText){ const a=(customData.extraAlignments[char.classId]||[]).find(x=>x.id===d.calignText); if(a){ a.text=t.value; autosize(t); save(); } return; }
-  if(d.craceName){ const g=(customData.extraRacialMoves[char.classId]||[]).find(x=>x.id===d.craceName); if(g){ const old=g.race; g.race=t.value; const i=char.races.indexOf(old); if(i!==-1) char.races[i]=t.value; save(); } return; }
-  if(d.crmoveName){ const [gid,mid]=d.crmoveName.split(":"); const g=(customData.extraRacialMoves[char.classId]||[]).find(x=>x.id===gid); const m=g&&g.moves.find(x=>x.id===mid); if(m){ m.name=t.value; save(); } return; }
-  if(d.crmoveText){ const [gid,mid]=d.crmoveText.split(":"); const g=(customData.extraRacialMoves[char.classId]||[]).find(x=>x.id===gid); const m=g&&g.moves.find(x=>x.id===mid); if(m){ m.text=t.value; autosize(t); save(); } return; }
-  if(d.spellLvl){ const s=char.spells[d.spellLvl]; if(s){ s.effectiveLevel=parseInt(t.value)||0; save(); } return; }
-  if(d.spellCap){ const s=char.spells[d.spellCap]; if(s){ s.levelCap=parseInt(t.value)||0; save(); } return; }
-  if(d.spellName){ const [k,id]=d.spellName.split(":"); const s=spellFind(k,id); if(s){ s.name=t.value; save(); } return; }
-  if(d.spellText){ const [k,id]=d.spellText.split(":"); const s=spellFind(k,id); if(s){ s.text=t.value; autosize(t); save(); } return; }
   if(d.bind){
     if(t.type === "number") char[d.bind] = parseInt(t.value)||0;
     else char[d.bind] = t.value;
@@ -1480,22 +1643,46 @@ document.addEventListener("input", e=>{
     if(modEl) modEl.textContent=fmtMod(effMod(char.stats[d.stat], d.stat));
     save(); return;
   }
-  if(d.bond!==undefined){ char.bonds[+d.bond]=t.value; save(); return; }
-  if(d.relTarget!==undefined){ const r=char.relationships[+d.relTarget]=char.relationships[+d.relTarget]||{target:"",description:"",depth:0}; r.target=t.value; save(); return; }
-  if(d.relDesc!==undefined){ const r=char.relationships[+d.relDesc]=char.relationships[+d.relDesc]||{target:"",description:"",depth:0}; r.description=t.value; save(); return; }
-  if(d.struggleName!==undefined){ if(char.struggle) char.struggle.name=t.value; save(); return; }
-  if(d.struggleText!==undefined){ if(char.struggle) char.struggle.text=t.value; autosize(t); save(); return; }
-  if(d.origin!==undefined){ char.origins[d.origin]=t.value; save(); return; }
-  if(d.counterName!==undefined){ const c=(char.counters||[])[+d.counterName]; if(c) c.name=t.value; save(); return; }
-  if(d.counterVal!==undefined){ const c=(char.counters||[])[+d.counterVal]; if(c) c.value=parseInt(t.value)||0; save(); return; }
-  if(d.heritageMove!==undefined){ const h=char.heritage=char.heritage||{boxes:[false,false,false],moves:["","",""],third:false}; h.moves[+d.heritageMove]=t.value; save(); return; }
-  if(d.lookcustom!==undefined){
-    const i=+d.lookcustom;
-    const cls=getClass(char.classId);
-    const list=(cls&&cls.look[i])||[];
-    let sel=(char.look[i]||[]).filter(x=>list.includes(x));
-    if(t.value.trim()) sel.push(t.value.trim());
-    char.look[i]=sel;
+  if(d.area!==undefined){
+    const parts = d.area.split(":");
+    const op = parts[0], areaKey = parts[1];
+    // 计数器 key 可能含冒号，整段取回
+    const i = op === "cnt" ? parts.slice(2).join(":") : parts[2];
+    const data = char.areaData && char.areaData[areaKey];
+    if(!data) return;
+    const num = () => parseInt(t.value)||0;
+    if(op === "text"){ data.text = t.value; autosize(t); }
+    else if(op === "cnt"){ data.counters[i] = num(); }
+    else if(op === "xname"){ data.extra[+i].name = t.value; }
+    else if(op === "xval"){ data.extra[+i].value = num(); }
+    else if(op === "bond"){ data.lines[+i] = t.value; }
+    else if(op === "rtarget"){ data.relations[+i].target = t.value; }
+    else if(op === "rdesc"){ data.relations[+i].description = t.value; }
+    else if(op === "hmove"){ data.moves[+i] = t.value; }
+    else return;
+    save(); return;
+  }
+
+  // moveList input 事件
+  if(d.movelistName!==undefined){
+    const [areaKey, id] = d.movelistName.split(":");
+    updateMoveListField(areaKey, id, "name", t.value);
+    save(); return;
+  }
+  if(d.movelistText!==undefined){
+    const [areaKey, id] = d.movelistText.split(":");
+    updateMoveListField(areaKey, id, "text", t.value);
+    autosize(t); save(); return;
+  }
+  if(d.movelistGroupName!==undefined){
+    const [areaKey, groupKey] = d.movelistGroupName.split(":");
+    updateMoveListGroupName(areaKey, groupKey, t.value);
+    save(); return;
+  }
+  
+  if(d.plain && d.plain.startsWith("input:")){
+    const [, areaKey, key] = d.plain.split(":");
+    plainSet(areaKey, key, t.value);
     save(); return;
   }
 });
@@ -1504,11 +1691,14 @@ document.addEventListener("change", e=>{
   const t=e.target, d=t.dataset||{};
   if(t.id==="classSelect"){ onClassChange(); return; }
   if(d.bind==="level"){ renderPlaybook(); return; }
-  if(d.race!==undefined){ if(t.checked){ if(!char.races.includes(d.race)) char.races.push(d.race); } else { char.races=char.races.filter(x=>x!==d.race); } renderPlaybook(); save(); return; }
-  if(d.raceId!==undefined){ const g=(customData.extraRacialMoves[char.classId]||[]).find(x=>x.id===d.raceId); if(g){ if(t.checked){ if(!char.races.includes(g.race)) char.races.push(g.race); } else { char.races=char.races.filter(x=>x!==g.race); } renderPlaybook(); save(); } return; }
-  if(d.align!==undefined){ if(t.checked){ if(!char.alignments.includes(d.align)) char.alignments.push(d.align); } else { char.alignments=char.alignments.filter(x=>x!==d.align); } renderPlaybook(); save(); return; }
-  if(d.alignId!==undefined){ const a=(customData.extraAlignments[char.classId]||[]).find(x=>x.id===d.alignId); if(a){ if(t.checked){ if(!char.alignments.includes(a.name)) char.alignments.push(a.name); } else { char.alignments=char.alignments.filter(x=>x!==a.name); } renderPlaybook(); save(); } return; }
-  if(d.look!==undefined){ const i=+d.look; if(!Array.isArray(char.look[i])) char.look[i]=[]; if(t.checked){ if(!char.look[i].includes(t.value)) char.look[i].push(t.value); } else { char.look[i]=char.look[i].filter(x=>x!==t.value); } renderPlaybook(); save(); return; }
+  if(d.plain && d.plain.startsWith("choice:")){
+    const [, areaKey, key] = d.plain.split(":");
+    let arr = plainGet(areaKey, key, []);
+    if(t.checked){ if(!arr.includes(t.value)) arr.push(t.value); }
+    else { arr = arr.filter(x => x !== t.value); }
+    plainSet(areaKey, key, arr);
+    save(); return;
+  }
   if(d.deb!==undefined){
     const st=d.deb;
     if(t.checked){ if(!char.debilities.includes(st)) char.debilities.push(st); }
@@ -1517,11 +1707,27 @@ document.addEventListener("change", e=>{
     if(modEl) modEl.textContent=fmtMod(effMod(char.stats[st]||(STATS_MODE==="modifiers"?0:10), st));
     save(); return;
   }
-  if(d.heritageBox!==undefined){ const h=char.heritage=char.heritage||{boxes:[false,false,false],moves:["","",""],third:false}; h.boxes[+d.heritageBox]=t.checked; renderPlaybook(); save(); return; }
-  if(d.heritageThird!==undefined){ const h=char.heritage=char.heritage||{boxes:[false,false,false],moves:["","",""],third:false}; h.third=t.checked; renderPlaybook(); save(); return; }
-  if(d.adv!==undefined){ toggleAdv(d.adv, t.checked); return; }
-  if(d.sadv!==undefined){ toggleStarting(d.sadv, t.checked); return; }
-  if(d.spellAvail!==undefined){ const [k,id]=d.spellAvail.split(":"); const s=spellFind(k,id); if(s){ s.available=t.checked; renderPlaybook(); save(); } return; }
+  if(d.area!==undefined){
+    const [op, areaKey, i] = d.area.split(":");
+    const data = char.areaData && char.areaData[areaKey];
+    if(!data) return;
+    if(op === "hbox"){ data.boxes[+i] = t.checked; renderPlaybook(); save(); return; }
+    if(op === "hup"){ data.upgraded = t.checked; renderPlaybook(); save(); return; }
+    return;
+  }
+
+  // moveList toggle 事件
+  if(d.movelistToggle!==undefined){
+    const i = d.movelistToggle.indexOf(":");
+    toggleMoveListMove(d.movelistToggle.slice(0, i), d.movelistToggle.slice(i + 1), t.checked);
+    return;
+  }
+  if(d.movelistGroup!==undefined){
+    const [areaKey, groupKey] = d.movelistGroup.split(":");
+    toggleMoveListGroup(areaKey, groupKey, t.checked);
+    return;
+  }
+  
   if(d.movebox!==undefined){
     const key=d.movebox, idx=parseInt(d.box)||0;
     const ref=boxReg[key];
@@ -1540,93 +1746,203 @@ document.addEventListener("click", e=>{
   if(d.ruleReload!==undefined){ reloadRule(+d.ruleReload); return; }
   if(t.closest("[data-ref-tab]")){ refTab=t.closest("[data-ref-tab]").dataset.refTab; renderRef(); save(); return; }
   if(d.imp!==undefined){ importSearchItem(+d.imp); return; }
-  if(d.gearopt!==undefined){ char.gear=(char.gear?char.gear+"\n":"")+d.gearopt; const g=document.querySelector('[data-bind="gear"]'); if(g){ g.value=char.gear; autosize(g); } save(); return; }
   if(d.cond!==undefined){ const n=CONDITION_STATES.length; const cur=char.conditions[d.cond]||0; char.conditions[d.cond]=(cur+1)%n; renderPlaybook(); save(); return; }
-  if(d.track!==undefined){ const [key,idx]=d.track.split(":"); const k=parseInt(idx); const cur = key==="treasure"?(char.treasure||0):key==="xp"?(char.xp||0):(key.startsWith("rel_")?((char.relationships[parseInt(key.slice(4))]||{}).depth||0):0); const val=(k<cur)?k:(k+1); if(key==="treasure") char.treasure=val; else if(key==="xp") char.xp=val; else if(key.startsWith("rel_")){ const ri=parseInt(key.slice(4)); if(char.relationships[ri]) char.relationships[ri].depth=val; } renderPlaybook(); save(); return; }
-  if(t.closest("[data-add-adv]")){
-    if(!customData.extraMoves[char.classId]) customData.extraMoves[char.classId]=[];
-    customData.extraMoves[char.classId].push({id:uid(), name:"", text:"", tier:"2-5", requires:null, replaces:null});
+  if(d.track!==undefined){
+    const [key,idx]=d.track.split(":"); const k=parseInt(idx);
+    if(key==="xp"){ char.xp = (k < (char.xp||0)) ? k : (k+1); renderPlaybook(); save(); }
+    return;
+  }
+  if(d.plain && d.plain.startsWith("track:")){
+    const [, areaKey, key, idxStr] = d.plain.split(":");
+    const idx = parseInt(idxStr);
+    const cur = plainGet(areaKey, key, 0);
+    plainSet(areaKey, key, (idx < cur) ? idx : (idx + 1));
     renderPlaybook(); save(); return;
   }
-  if(t.closest("[data-add-race]")){
-    if(!customData.extraRacialMoves[char.classId]) customData.extraRacialMoves[char.classId]=[];
-    customData.extraRacialMoves[char.classId].push({id:uid(), race:"", moves:[{id:uid(), name:"", text:""}]});
+  if(d.area!==undefined){
+    const parts = d.area.split(":");
+    const op = parts[0], areaKey = parts[1], j = parts[3];
+    // 选项文本可能含冒号，整段取回
+    const i = op === "opt" ? parts.slice(2).join(":") : parts[2];
+    const data = char.areaData && char.areaData[areaKey];
+    if(!data) return;
+    if(op === "opt"){ data.text = (data.text ? data.text + "\n" : "") + i; }
+    else if(op === "xadd"){ (data.extra = data.extra || []).push({name:"", value:0}); }
+    else if(op === "xdel"){ data.extra.splice(+i, 1); }
+    else if(op === "badd"){ data.lines.push(""); }
+    else if(op === "bdel"){ data.lines.splice(+i, 1); }
+    else if(op === "radd"){ data.relations.push({target:"", description:"", depth:0}); }
+    else if(op === "rdel"){ data.relations.splice(+i, 1); }
+    else if(op === "rdepth"){ const r = data.relations[+i]; const k = +j; r.depth = (k < (r.depth||0)) ? k : (k+1); }
+    else if(op === "hide"){ data.hidden = !data.hidden; }
+    else return;
     renderPlaybook(); save(); return;
   }
-  if(t.closest("[data-add-race-move]")){
-    const gid=t.closest("[data-add-race-move]").dataset.addRaceMove;
-    const g=(customData.extraRacialMoves[char.classId]||[]).find(x=>x.id===gid);
-    if(g) g.moves.push({id:uid(), name:"", text:""});
+
+  // moveList 事件处理
+  if(d.movelistAction!==undefined){
+    const [areaKey, action, targetGroup] = d.movelistAction.split(":");
+    if(action === "addMove"){
+      addMoveToMoveList(areaKey, targetGroup || null);
+    } else if(action === "addGroup"){
+      addGroupToMoveList(areaKey);
+    }
     renderPlaybook(); save(); return;
   }
-  if(t.closest("[data-add-align]")){
-    if(!customData.extraAlignments[char.classId]) customData.extraAlignments[char.classId]=[];
-    customData.extraAlignments[char.classId].push({id:uid(), name:"", text:""});
+  if(d.movelistDel!==undefined){
+    deleteMoveFromMoveList(d.movelistDel);
     renderPlaybook(); save(); return;
   }
-  if(t.closest("[data-add-bond]")){ char.bonds.push(""); renderPlaybook(); save(); return; }
-  if(d.bondDel!==undefined){ char.bonds.splice(+d.bondDel,1); renderPlaybook(); save(); return; }
-  if(d.relDel!==undefined){ char.relationships.splice(+d.relDel,1); renderPlaybook(); save(); return; }
-  if(t.closest("[data-add-rel]")){ char.relationships.push({target:"",description:"",depth:0}); renderPlaybook(); save(); return; }
-  if(d.struggleResolve!==undefined){ char.struggle=null; renderPlaybook(); save(); return; }
-  if(d.addCounter!==undefined){ (char.counters=char.counters||[]).push({id:uid(), name:"", value:0}); renderPlaybook(); save(); return; }
-  if(d.counterDel!==undefined){ char.counters.splice(+d.counterDel,1); renderPlaybook(); save(); return; }
-  if(d.cadvDel){
-    const name=(customData.extraMoves[char.classId]||[]).find(x=>x.id===d.cadvDel)?.name;
-    customData.extraMoves[char.classId]=(customData.extraMoves[char.classId]||[]).filter(x=>x.id!==d.cadvDel);
-    if(name) char.advancedMoves=char.advancedMoves.filter(n=>n!==name);
+  if(d.movelistGroupDel!==undefined){
+    const [areaKey, groupKey] = d.movelistGroupDel.split(":");
+    deleteGroupFromMoveList(areaKey, groupKey);
     renderPlaybook(); save(); return;
   }
-  if(d.craceDel){
-    customData.extraRacialMoves[char.classId]=(customData.extraRacialMoves[char.classId]||[]).filter(x=>x.id!==d.craceDel);
-    renderPlaybook(); save(); return;
-  }
-  if(d.calignDel){
-    customData.extraAlignments[char.classId]=(customData.extraAlignments[char.classId]||[]).filter(x=>x.id!==d.calignDel);
-    renderPlaybook(); save(); return;
-  }
-  if(d.crmoveDel){
-    const [gid,mid]=d.crmoveDel.split(":");
-    const g=(customData.extraRacialMoves[char.classId]||[]).find(x=>x.id===gid);
-    if(g) g.moves=g.moves.filter(x=>x.id!==mid);
-    renderPlaybook(); save(); return;
-  }
-  if(t.closest("[data-add-spell-section]")){
-    const k=t.closest("[data-add-spell-section]").dataset.addSpellSection;
-    if(!(char.manualSpells||[]).includes(k)) char.manualSpells.push(k);
-    renderPlaybook(); save(); return;
-  }
-  if(d.delSpellSection!==undefined){ char.manualSpells=(char.manualSpells||[]).filter(x=>x!==d.delSpellSection); renderPlaybook(); save(); return; }
-  if(d.addSpell!==undefined){ const [k,g]=d.addSpell.split(":"); const s=char.spells[k]; if(s) s.list.push({id:uid(), group:g, name:"", text:"", available:false}); renderPlaybook(); save(); return; }
-  if(d.spellDel!==undefined){ const [k,id]=d.spellDel.split(":"); const s=char.spells[k]; if(s) s.list=s.list.filter(x=>x.id!==id); renderPlaybook(); save(); return; }
-  if(d.heritageToggle!==undefined){ const h=char.heritage=char.heritage||{boxes:[false,false,false],moves:["","",""],third:false}; h.hidden=!h.hidden; renderPlaybook(); save(); return; }
 });
 
-function toggleAdv(name, checked){
-  const cls=getClass(char.classId); const m=classMoves(cls);
-  const all=allAdvancedMoves(m);
-  const mv=all.find(x=>x.name===name);
-  if(!mv) return;
+// moveList 操作函数
+function customGroupStore(areaKey){
+  if(!customData.moveListGroups) customData.moveListGroups = {};
+  if(!customData.moveListGroups[char.classId]) customData.moveListGroups[char.classId] = {};
+  if(!customData.moveListGroups[char.classId][areaKey]) customData.moveListGroups[char.classId][areaKey] = [];
+  return customData.moveListGroups[char.classId][areaKey];
+}
+
+// 确保 targetGroup 存在：模板里没有、自定义里也没有时，就建一个同 key 的分组
+function ensureMoveListGroup(areaKey, groupKey, label){
+  if(!groupKey) return null;
+  const cls = getClass(char.classId);
+  const body = cls ? getAreaHeader(areaKey, cls).body : null;
+  const inTemplate = ((body && body.groups) || []).some(g => g.key === groupKey);
+  if(inTemplate) return groupKey;
+  const store = customGroupStore(areaKey);
+  if(!store.some(g => g.key === groupKey)) store.push({key:groupKey, label:(label !== undefined ? label : groupKey), moves:[]});
+  return groupKey;
+}
+
+function addMoveToMoveList(areaKey, targetGroup){
+  const groupKey = ensureMoveListGroup(areaKey, targetGroup);
+  moveListCustomMoves(areaKey).push({id:uid(), name:"", text:"", group:groupKey || null});
+}
+
+function addGroupToMoveList(areaKey){
+  customGroupStore(areaKey).push({key:uid(), label:"", moves:[]});
+}
+
+function deleteMoveFromMoveList(key){
+  const [areaKey, id] = key.split(":");
+  const custom = moveListCustomMoves(areaKey);
+  const i = custom.findIndex(m => m.id === id);
+  if(i === -1) return;
+  // 连带清掉它的勾选
+  const sel = moveListSelections(areaKey);
+  const si = sel.indexOf(moveSelKey(custom[i]));
+  if(si !== -1) sel.splice(si, 1);
+  custom.splice(i, 1);
+}
+
+function deleteGroupFromMoveList(areaKey, groupKey){
+  if(!customData.moveListGroups || !customData.moveListGroups[char.classId]) return;
+  const groups = customData.moveListGroups[char.classId][areaKey];
+  if(!groups) return;
+  const i = groups.findIndex(g => g.key === groupKey);
+  if(i === -1) return;
+  // 连带删掉该分组下的自定义动作，并清理勾选与分组名
+  const custom = moveListCustomMoves(areaKey);
+  const sel = moveListSelections(areaKey);
+  for(let j = custom.length - 1; j >= 0; j--){
+    if(custom[j].group !== groupKey) continue;
+    const si = sel.indexOf(moveSelKey(custom[j]));
+    if(si !== -1) sel.splice(si, 1);
+    custom.splice(j, 1);
+  }
+  (groups[i].moves || []).forEach(m => {
+    const si = sel.indexOf(moveSelKey(m));
+    if(si !== -1) sel.splice(si, 1);
+  });
+  groups.splice(i, 1);
+  const gi = sel.indexOf(groupKey);
+  if(gi !== -1) sel.splice(gi, 1);
+  if(char.moveListGroupNames) delete char.moveListGroupNames[`${areaKey}::${groupKey}`];
+}
+
+// 获取区域的自定义 groups
+function moveListCustomGroups(areaKey){
+  if(!customData.moveListGroups) return [];
+  if(!customData.moveListGroups[char.classId]) return [];
+  return customData.moveListGroups[char.classId][areaKey] || [];
+}
+
+function toggleMoveListMove(areaKey, selKey, checked){
+  const sel = moveListSelections(areaKey);
+  const all = collectMovesInArea(areaKey);
+  const move = all.find(m => moveSelKey(m) === selKey);
   if(checked){
-    if(!char.advancedMoves.includes(name)) char.advancedMoves.push(name);
-    repList(mv).forEach(r=>{ char.advancedMoves=char.advancedMoves.filter(n=>n!==r); });
+    if(!sel.includes(selKey)) sel.push(selKey);
+    // 处理 replaces：勾选时移除被替代的动作（按名字找出对应的勾选键）
+    if(move) repList(move).forEach(r => {
+      all.filter(m => m.name === r).forEach(m => {
+        const i = sel.indexOf(moveSelKey(m));
+        if(i !== -1) sel.splice(i, 1);
+      });
+    });
   } else {
-    char.advancedMoves=char.advancedMoves.filter(n=>n!==name);
-    char.advancedMoves=char.advancedMoves.filter(n=>{ const dep=all.find(x=>x.name===n); return !(dep&&reqList(dep).includes(name)); });
+    const i = sel.indexOf(selKey);
+    if(i !== -1) sel.splice(i, 1);
+    // 处理 requires：取消时移除依赖它的动作（requires 按动作名引用）
+    const name = move ? move.name : selKey;
+    for(let j = sel.length - 1; j >= 0; j--){
+      const dep = all.find(m => moveSelKey(m) === sel[j]);
+      if(dep && reqList(dep).includes(name)) sel.splice(j, 1);
+    }
   }
   renderPlaybook(); save();
 }
-function toggleStarting(name, checked){
-  const cls=getClass(char.classId); const m=classMoves(cls);
-  const mv=m.starting.find(x=>x.name===name);
-  if(!mv) return;
+
+function toggleMoveListGroup(areaKey, groupKey, checked){
+  const sel = moveListSelections(areaKey);
   if(checked){
-    if(!char.startingChoices.includes(name)) char.startingChoices.push(name);
-    repList(mv).forEach(r=>{ char.startingChoices=char.startingChoices.filter(n=>n!==r); });
+    if(!sel.includes(groupKey)) sel.push(groupKey);
   } else {
-    char.startingChoices=char.startingChoices.filter(n=>n!==name);
+    const i = sel.indexOf(groupKey);
+    if(i !== -1) sel.splice(i, 1);
   }
   renderPlaybook(); save();
+}
+
+// 编辑动作的名称/正文：自定义动作直接改自身，内置动作写入角色数据的覆盖表
+// 自定义动作的勾选以 id 为键，改名不影响勾选
+function updateMoveListField(areaKey, idOrName, field, value){
+  const mv = moveListCustomMoves(areaKey).find(m => m.id === idOrName);
+  if(mv){ mv[field] = value; return; }
+  const store = field === "name" ? "moveListNames" : "moveListTexts";
+  if(!char[store]) char[store] = {};
+  char[store][`${areaKey}::${idOrName}`] = value;
+}
+
+function updateMoveListGroupName(areaKey, groupKey, value){
+  if(!char.moveListGroupNames) char.moveListGroupNames = {};
+  char.moveListGroupNames[`${areaKey}::${groupKey}`] = value;
+}
+
+
+function collectMovesInArea(areaKey){
+  const cls = getClass(char.classId);
+  const body = getAreaHeader(areaKey, cls).body;
+  if(!body || body.type !== "moveList") return [];
+  let all = [];
+  (body.groups || []).forEach(g => { all = all.concat(g.moves || []); });
+  all = all.concat(body.moves || []);
+  all = all.concat(moveListCustomMoves(areaKey));
+  return all;
+}
+
+// 自定义动作统一存储在 customData.moveListMoves[classId][areaKey]
+function moveListCustomMoves(areaKey){
+  if(!customData.moveListMoves) customData.moveListMoves = {};
+  if(!customData.moveListMoves[char.classId]) customData.moveListMoves[char.classId] = {};
+  if(!customData.moveListMoves[char.classId][areaKey]) customData.moveListMoves[char.classId][areaKey] = [];
+  return customData.moveListMoves[char.classId][areaKey];
 }
 
 function bind(){
@@ -1641,7 +1957,7 @@ function bind(){
   document.getElementById("btnNew").addEventListener("click", ()=>{
     if(confirm("确定清空当前角色及所有自定义数据？")){
       char=defaultChar();
-      customData={classes:[], extraMoves:{}, extraRacialMoves:{}, extraAlignments:{}};
+      customData={classes:[], moveListMoves:{}, moveListGroups:{}};
       renderClassSelect(); renderPlaybook(); save();
     }
   });
@@ -1687,18 +2003,13 @@ function importJSON(e){
       if(data.character) char=Object.assign(defaultChar(),data.character);
       if(data.custom) customData=data.custom;
       alert("已导入角色与自定义数据。");
-    } else if(data.classes||data.extraMoves||data.extraRacialMoves||data.extraAlignments){
+    } else if(data.classes||data.moveListMoves||data.moveListGroups){
       customData={classes:(data.classes||[]).concat(customData.classes||[]),
-        extraMoves:Object.assign(customData.extraMoves||{},data.extraMoves||{}),
-        extraRacialMoves:Object.assign(customData.extraRacialMoves||{},data.extraRacialMoves||{}),
-        extraAlignments:Object.assign(customData.extraAlignments||{},data.extraAlignments||{})};
+        moveListMoves:Object.assign(customData.moveListMoves||{},data.moveListMoves||{}),
+        moveListGroups:Object.assign(customData.moveListGroups||{},data.moveListGroups||{})};
       alert("已导入自定义数据。");
     } else { alert("无法识别的数据。"); }
     normalizeCustomData();
-    ensureSpellData();
-    Object.values(customData.extraMoves||{}).forEach(arr=>arr.forEach(m=>{ if(!m.id)m.id=uid(); }));
-    Object.values(customData.extraRacialMoves||{}).forEach(arr=>arr.forEach(g=>{ if(!g.id)g.id=uid(); (g.moves||[]).forEach(m=>{ if(!m.id)m.id=uid(); }); }));
-    Object.values(customData.extraAlignments||{}).forEach(arr=>arr.forEach(a=>{ if(!a.id)a.id=uid(); }));
     renderClassSelect(); renderPlaybook(); save();
   };
   reader.readAsText(f);
@@ -1715,7 +2026,6 @@ function applyEffective(){
     save();
     return;
   }
-  ensureSpellData();
   renderClassSelect(); renderPlaybook(); renderRef(); save();
 }
 function checkAffected(after){
@@ -1725,19 +2035,29 @@ function checkAffected(after){
     if(char.classId) items.push("· 当前职业「"+char.classId+"」");
     return items;
   }
-  // 合并「移除后规则」+「自定义数据」，得到移除后仍有效的完整集合，避免误报自定义内容
-  const racialGroups = mergeRacialGroups(cls.racialMoves||[], customData.extraRacialMoves[char.classId]||[]);
-  const raceNames = racialGroups.filter(g=>g.race).map(g=>g.race);
-  const alignNames = (cls.alignment||[]).map(a=>a.name).concat((customData.extraAlignments[char.classId]||[]).map(a=>a.name));
-  const moveNames = [];
-  (cls.startingMoves||[]).forEach(m=>moveNames.push(m.name));
-  for(const t of tiersFor(cls)){ (cls.advancedMoves&&cls.advancedMoves[t.key]||[]).forEach(m=>moveNames.push(m.name)); }
-  (customData.extraMoves[char.classId]||[]).forEach(m=>moveNames.push(m.name));
+  // 逐个 moveList 区域比对：移除后规则 + 自定义数据里是否还存在该条目
+  const areas = (after.meta && after.meta.areas) || {};
+  for(const areaKey of Object.keys(char.moveListSelections || {})){
+    const sel = char.moveListSelections[areaKey] || [];
+    if(!sel.length) continue;
+    const base = areas[areaKey];
+    const override = (cls.areas && cls.areas[areaKey]) || {};
+    const body = deepMerge(base && base.body, override.body);
+    const title = (override.title !== undefined ? override.title : (base && base.title)) || areaKey;
+    const label = n => (char.moveListGroupNames && char.moveListGroupNames[`${areaKey}::${n}`]) || n;
 
-  for(const r of (char.races||[])){ if(!raceNames.includes(r)) items.push("· 种族「"+r+"」"); }
-  for(const a of (char.alignments||[])){ if(!alignNames.includes(a)) items.push("· 阵营「"+a+"」"); }
-  for(const m of (char.advancedMoves||[])){ if(!moveNames.includes(m)) items.push("· 进阶动作「"+m+"」"); }
-  for(const m of (char.startingChoices||[])){ if(!moveNames.includes(m)) items.push("· 起始动作「"+m+"」"); }
+    if(!body || body.type !== "moveList"){
+      sel.forEach(n => items.push("· "+title+"「"+label(n)+"」"));
+      continue;
+    }
+    // 有效的勾选键：分组用 key，动作用 moveSelKey
+    const keys = [];
+    (body.groups||[]).forEach(g => { keys.push(g.key); (g.moves||[]).forEach(m => keys.push(moveSelKey(m))); });
+    (body.moves||[]).forEach(m => keys.push(moveSelKey(m)));
+    moveListCustomGroups(areaKey).forEach(g => keys.push(g.key));
+    moveListCustomMoves(areaKey).forEach(m => keys.push(moveSelKey(m)));
+    sel.forEach(n => { if(!keys.includes(n)) items.push("· "+title+"「"+label(n)+"」"); });
+  }
   return items;
 }
 function confirmRuleChange(actionName, layerName, newStack){
@@ -1843,25 +2163,53 @@ function init(){
     }
     document.getElementById("jsonSchema").textContent = JSON.stringify({
       "meta": {
-        "stats": ["力量","敏捷","体质","智力","睿知","魅力"],
-        "statsMode": "scores",
-        "modTable": {"1-3":-3,"4-5":-2,"6-8":-1,"9-12":0,"13-15":1,"16-17":2,"18":3},
-        "debilities": {"力量":"虚弱","敏捷":"颤抖","体质":"患病","智力":"晕眩","睿知":"困惑","魅力":"疤痕"},
-        "labels": {"look":"外观","race":"种族动作","raceName":"种族","alignment":"阵营动作","alignmentNote":"动机 / Drive","starting":"起始动作","advanced":"进阶动作","customAdvanced":"自定义 / 导入动作","gear":"装备","bonds":"羁绊","notes":"笔记","load":"负载上限","hpMax":"最大生命","defaultFormula":"默认","blank":" ","casterLevel":"施法等级","prepareCap":"准备上限"},
-        "advancedTiers": [{"key":"2-5","label":"进阶 · 2~5 级","minLevel":1},{"key":"6-10","label":"进阶 · 6~10 级","minLevel":6}],
-        "spellSections": {"spellbook":{"title":"法术书","source":"法师法术","trigger":"法术书","spellClass":"wizard","groups":["戏法","等级 1","等级 3","等级 5","等级 7","等级 9"]}}
+        "stats": ["属性甲", "属性乙"],
+        "areaLayout": { "left": ["区域甲"], "right": ["区域乙"] },
+        "areas": {
+          "区域甲": {
+            "title": "区域甲",
+            "note": "标题后的小字",
+            "rightStats": [{ "key": "数值键", "label": "数值名", "type": "number" }],
+            "body": {
+              "type": "plain",
+              "elements": [
+                { "type": "text", "value": "正文，支持 **加粗** 与 [ ] 勾选框" },
+                { "type": "choices", "key": "选项键", "value": [] },
+                { "type": "input", "key": "输入键", "label": "标签", "tip": "占位提示" }
+              ]
+            }
+          },
+          "区域乙": {
+            "title": "区域乙",
+            "body": {
+              "type": "moveList",
+              "features": { "selectMoves": true },
+              "buttons": [{ "label": "条目", "position": "inGroup", "action": "addMove" }]
+            }
+          }
+        }
       },
-      "classes":[{"id":"自定义 id","name":"职业名","intro":"简介（可省略）","hp":"6+ 体质","damage":"d6","load":"9+ 力量",
-        "look":[["选项 A","选项 B"]],
-        "racialMoves":[{"race":"机关人","moves":[{"name":"钢铁存续","text":"说明"}]}],
-        "startingMoves":[{"name":"动作名","text":"说明"}],
-        "alignment":[{"name":"善良","text":"动机说明"}],
-        "gear":{"groups":[{"prompt":"选择：","options":["选项 1","选项 2"]}]},
-        "bonds":["___ 模板"],
-        "advancedMoves":{"2-5":[{"name":"动作","text":"...","requires":null,"replaces":null}],"6-10":[]}}],
-      "basicMoves":[{"name":"砍劈","text":"..."}],
-      "specialMoves":[{"name":"临死一息","text":"..."}],
-      "spells":{"wizard":[{"group":"戏法","name":"光亮术","text":"..."}]}
+      "classes": [{
+        "id": "职业id",
+        "name": "职业名",
+        "hp": "6+属性乙",
+        "areas": {
+          "区域甲": {
+            "rightStats": [{ "key": "数值键", "formula": "9+属性甲" }],
+            "body": { "elements": [{ "key": "选项键", "value": ["选项一", "选项二"] }] }
+          },
+          "区域乙": {
+            "body": {
+              "groups": [{
+                "key": "分组键",
+                "label": "分组名",
+                "minLevel": 2,
+                "moves": [{ "name": "条目名", "text": "条目正文" }]
+              }]
+            }
+          }
+        }
+      }]
     }, null, 2);
     load();
     renderClassSelect();
