@@ -1,0 +1,104 @@
+{
+  "meta": {
+    "source": "DW2 Beta v3 最小 demo（手写，覆盖全部新机制）",
+    "license": "demo",
+    "stats": ["STR", "DEX", "INT", "WIS", "CHA"],
+    "statsMode": "modifiers",
+    "conditions": [
+      {"key": "exhausted", "label": "力竭", "stat": "STR"},
+      {"key": "frightened", "label": "受惊", "stat": "DEX"},
+      {"key": "angry", "label": "愤怒", "stat": "INT"},
+      {"key": "distracted", "label": "分心", "stat": "WIS"},
+      {"key": "insecure", "label": "不安", "stat": "CHA"}
+    ],
+    "conditionStates": ["clear", "marked", "locked"],
+    "xpTrackSize": 5,
+    "showDamage": false,
+    "showFormula": false,
+    "relationshipDepthMax": 3,
+    "treasureTiers": [
+      {"key": "broke", "label": "破产", "slots": 4},
+      {"key": "poor", "label": "贫穷", "slots": 6},
+      {"key": "modest", "label": "适中", "slots": 8},
+      {"key": "comfortable", "label": "舒适", "slots": 10},
+      {"key": "rich", "label": "富有", "slots": 12},
+      {"key": "aristocratic", "label": "贵族", "slots": 0}
+    ],
+    "advancement": "当你升级时，HP +1（最多 +10），并选择以下一项：\n\n[ ] +1 任意属性（max +2）\n[ ] 获得一个 Path（含起始动作）\n[ ] 揭示一个 Struggle\n[ ] 获得一个 Path Move\n[ ] 转职\n\n从 5 级起，你还可以选择：\n[ ] +1 任意属性（max +2）\n[ ] Multiclass — 获得其他职业的 Path\n[ ] 获得一件魔法物品\n\n从 10 级起，你还可以选择：\n[ ] +1 任意属性（max +3）\n[ ] Multiclass\n[ ] 获得一件 Artifact",
+    "origins": [
+      {"key": "ancestry", "label": "血缘", "prefix": "我是", "hint": "如：矮人、精灵、人类、猫人、构装体……"},
+      {"key": "community", "label": "社群", "prefix": "我来自", "hint": "如：佣兵团、商队、学者团、部落……"},
+      {"key": "background", "label": "背景", "prefix": "我曾是", "hint": "如：铁匠、佣兵、学徒、流浪者……"}
+    ],
+    "labels": {
+      "statDist": "初始分配",
+      "treasure": "财富",
+      "struggle": "心结",
+      "origins": "起源",
+      "advancement": "升级"
+    },
+    "refSections": [
+      {"id": "moves", "title": "通用动作", "type": "groups", "groups": [
+        {"key": "basicMoves", "label": "基本动作"}
+      ]},
+      {"id": "struggles", "title": "心结", "type": "groups", "groups": [
+        {"key": "struggleHelp", "label": "怎么处理心结"},
+        {"key": "struggles", "label": "心结列表", "importable": true, "kind": "struggle"}
+      ]},
+      {"id": "search", "title": "资料速查", "type": "search"}
+    ]
+  },
+  "classes": [
+    {
+      "id": "fighter",
+      "name": "战士",
+      "hp": "12",
+      "damage": "d10",
+      "load": "10",
+      "statNote": "STR +2，选 WIS 或 CHA 也 +2，其余 0 / 0 / -1",
+      "look": [
+        ["冷酷的眼神", "锐利的目光", "疲惫的眼神"],
+        ["干净利落的短发", "狂野的长发", "光头"]
+      ],
+      "racialMoves": [],
+      "startingMoves": [
+        {"name": "弯栅破门", "text": "当你**使用蛮力破坏无生命的障碍物**时，掷 +力量。\n\n✴掷出 10+ 时，选择 3 项。\n\n✴掷出 7-9 时，选择 2 项。\n\n- 这不需要花太长时间\n- 你没有弄坏什么有价值的东西\n- 这没有产生巨大噪音"}
+      ],
+      "alignment": [],
+      "gear": {"groups": [
+        {"prompt": "选择你的武器：", "options": ["长剑", "战斧", "战锤"]},
+        {"prompt": "选择你的防具：", "options": ["链甲", "皮甲", "盾牌"]}
+      ]},
+      "bonds": ["____ 与我并肩作战，我欠他一条命。", "____ 曾是我的对手，如今是我的盟友。"],
+      "advancedTiers": [
+        {"key": "guardian", "label": "守护者 Path", "note": "以血肉之躯挡在同伴身前", "minLevel": 1},
+        {"key": "master", "label": "武器大师 Path", "note": "精通各种兵刃", "minLevel": 1},
+        {"key": "veteran", "label": "百战老兵 Path", "note": "身经百战，无所畏惧", "minLevel": 1}
+      ],
+      "advancedMoves": {
+        "guardian": [
+          {"name": "守护者", "text": "Path 起始：当你**保护同伴**时……", "requires": null},
+          {"name": "铁壁", "text": "Path Move：当你**以守护者姿态挡下攻击**时……", "requires": ["守护者"]}
+        ],
+        "master": [
+          {"name": "武器大师", "text": "Path 起始：当你**换上趁手的武器**时……", "requires": null},
+          {"name": "致命一击", "text": "Path Move：当你**用武器大师的武器致命一击**时……", "requires": ["武器大师"]}
+        ],
+        "veteran": [
+          {"name": "百战老兵", "text": "当你**面对曾经击败过的敌人**时……", "requires": null}
+        ]
+      }
+    }
+  ],
+  "basicMoves": [
+    {"name": "交易打击", "text": "当你**在近战中攻击敌人**时，掷 +力量。\n\n✴10+：造成伤害。\n\n✴7-9：造成伤害，但敌人回敬你。"}
+  ],
+  "struggles": [
+    {"name": "被背叛 BETRAYED", "text": "一个挚爱背叛了你，你再也没法信任别人。\n\n**Questions**：谁背叛了你？他们怎么背叛的？那道伤如何愈合？\n\n**DRIVEN (+)** — 你可用 1d4 DMG 换取下一次掷骰无视所有 Condition 惩罚。\n\n**WARY (-)** — 当你与其他 PC 获得 Depth 时，标记一个 Condition。"},
+    {"name": "失忆 AMNESIA", "text": "你对过去毫无记忆。\n\n**Questions**：你在哪里醒来？什么人或地方让你感到熟悉？\n\n**SHARDS (+/-)** — 每场一次，当你本该标记最后一个 Condition 时，改为标记 Memories 并触发一次闪回。"}
+  ],
+  "struggleHelp": [
+    {"name": "揭示 Reveal", "text": "升级、或带着 locked Condition 扎营时，你可以坦白一个可怕真相：揭示一个新 Struggle（或加深已揭示的细节），并清除一个 locked Condition。"},
+    {"name": "解决 Resolve", "text": "当叙事上满意时解决：**升级**（保留已标记 XP），抹掉 Struggle，失去其好处 (+) 与坏处 (-)。一次只能有一个已揭示的 Struggle。"}
+  ]
+}

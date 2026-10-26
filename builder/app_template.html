@@ -152,7 +152,7 @@ input[data-bind=coins]::-webkit-outer-spin-button,input[data-bind=coins]::-webki
 @media(max-width:680px){.pb-cols{grid-template-columns:1fr}}
 .pb-sec{margin-bottom:12px}
 .pb-sec h3{margin:0 0 6px;font-size:13px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;border-bottom:1px solid var(--ink);padding-bottom:3px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
-.pb-sec h3 small{font-weight:400;color:var(--ink-4);font-size:10px;text-transform:none;margin-left:4px}
+.pb-sec h3 small{font-weight:400;color:var(--ink-4);font-size:11px;text-transform:none;margin-left:4px}
 .pb-sec h3 .h3r{font-weight:400;font-size:11px;color:var(--ink-5);text-transform:none;letter-spacing:0;white-space:nowrap}
 .pb-sec h3 .h3r input{border:1px solid var(--line-5);border-radius:3px;padding:1px 3px;font-size:12px;background:var(--paper);color:var(--ink);width:52px;text-align:center}
 .pb-sec h3 .h3r b{color:var(--ink);font-weight:700}
@@ -326,7 +326,7 @@ details.help pre{background:var(--panel2);padding:10px;border-radius:6px;overflo
 </div>
 
 <script>
-let DW_DATA = null, META = {}, STATS = [], STATS_MODE = "scores", ADV_TIERS = [], DEBILITIES = {}, LABELS = {}, SPELL_SECTIONS = {}, PREPARE_CAP_FORMULA = "", STAT_DISTRIBUTION = null, STAT_NOTE = "", REF_SECTIONS = [], STAT_MIN = null, STAT_MAX = null, DEBILITY_PENALTY = "on", COINS_ENABLED = true, CONDITIONS = null, CONDITION_STATES = ["clear","marked"], XP_TRACK_SIZE = null, ADVANCEMENT_TEXT = "", TREASURE_TIERS = [], RELATIONSHIP_DEPTH_MAX = 3, ORIGINS = null, SHOW_DAMAGE = true, SHOW_FORMULA = true;
+let DW_DATA = null, META = {}, STATS = [], STATS_MODE = "scores", ADV_TIERS = [], DEBILITIES = {}, LABELS = {}, SPELL_SECTIONS = {}, PREPARE_CAP_FORMULA = "", STAT_DISTRIBUTION = null, STAT_NOTE = "", REF_SECTIONS = [], STAT_MIN = null, STAT_MAX = null, DEBILITY_PENALTY = "on", COINS_ENABLED = true, CONDITIONS = null, CONDITION_STATES = ["clear","marked"], XP_TRACK_SIZE = null, ADVANCEMENT_TEXT = "", TREASURE_TIERS = [], RELATIONSHIP_DEPTH_MAX = 3, ORIGINS = null, SHOW_DAMAGE = true, SHOW_FORMULA = true, AREAS = {};
 function applyData(data){
   DW_DATA = data || {};
   META = DW_DATA.meta || {};
@@ -360,6 +360,7 @@ function applyData(data){
   ORIGINS = META.origins || null;
   SHOW_DAMAGE = META.showDamage !== false;
   SHOW_FORMULA = META.showFormula !== false;
+  AREAS = META.areas || {};
   REF_SECTIONS = META.refSections || [
     {id:"moves", title:"通用动作", type:"groups", groups:[
       {key:"basicMoves", label:"基本动作"},
@@ -619,16 +620,19 @@ function evalFormula(formula, ctx){
   return sum;
 }
 function defaultHP(cls){ const b=(parseInt((cls.hp||"0").split("+")[0])||0); return STATS_MODE==="modifiers" ? b : (evalFormula(cls.hp) ?? b); }
-function defaultLoad(cls){ const b=(parseInt((cls.load||"0").split("+")[0])||0); return STATS_MODE==="modifiers" ? b : (evalFormula(cls.load) ?? b); }
 function applyFormula(target){
   const cls=getClass(char.classId);
   if(!cls) return;
   if(target==="hpMax"){ const v=evalFormula(cls.hp); if(v!=null) char.hpMax=v; }
-  else if(target==="load"){ const v=evalFormula(cls.load); if(v!=null) char.load=v; }
   else if(target.indexOf("prepareCap:")===0){
     const k=target.slice("prepareCap:".length);
     const sec=char.spells && char.spells[k];
     if(sec){ const v=evalFormula(PREPARE_CAP_FORMULA, {effectiveLevel:sec.effectiveLevel}); if(v!=null) sec.levelCap=v; }
+  }
+  else {
+    // 通用 rightStat 处理：查找定义并应用公式
+    const def = statDefByKey(target, cls);
+    if(def && def.formula){ const v=evalFormula(def.formula); if(v!=null) char[target]=v; }
   }
   renderPlaybook(); save();
 }
@@ -693,6 +697,92 @@ function load(){
 }
 
 /* ============ 渲染 ============ */
+/* ============ 区域标题渲染 ============ */
+// 从 areaHeaders + 职业覆盖中取出某个 rightStat 的定义
+function findRightStat(areaKey, statKey, cls) {
+  const h = getAreaHeader(areaKey, cls);
+  return (h.rightStats || []).find(s => s.key === statKey) || null;
+}
+// 按 key 反查定义（供 applyFormula / defaultStatValue 使用）
+function statDefByKey(statKey, cls){
+  for(const areaKey of Object.keys(AREAS)){
+    const d = findRightStat(areaKey, statKey, cls);
+    if(d) return d;
+  }
+  return null;
+}
+function statFormula(statKey, cls){
+  const d = statDefByKey(statKey, cls);
+  return d ? d.formula : undefined;
+}
+// 与旧 defaultLoad 等价，但公式来源改为 areaHeaders
+function defaultStatValue(statKey, cls){
+  const f = statFormula(statKey, cls);
+  if(!f) return 0;
+  const b = parseInt(String(f).split("+")[0]) || 0;
+  return STATS_MODE === "modifiers" ? b : (evalFormula(f) ?? b);
+}
+
+function getAreaHeader(areaKey, cls) {
+  const base = AREAS[areaKey];
+  if (!base) return {title: "", note: null, rightStats: []};
+
+  const override = (cls && cls.areas && cls.areas[areaKey]) || {};
+
+  // rightStats：按 key 逐项浅合并（职业项覆盖同 key 的通用项，新 key 追加）
+  let rightStats = (base.rightStats || []).map(s => ({...s}));
+  (override.rightStats || []).forEach(os => {
+    const idx = rightStats.findIndex(s => s.key === os.key);
+    if (idx !== -1) rightStats[idx] = {...rightStats[idx], ...os};
+    else rightStats.push({...os});
+  });
+
+  return {
+    title: override.title !== undefined ? override.title : base.title,
+    note: override.note !== undefined ? override.note : base.note,
+    rightStats
+  };
+}
+
+function renderAreaHeader(areaKey, cls) {
+  const header = getAreaHeader(areaKey, cls);
+  if (!header.title) return "";
+
+  let leftSide = esc(header.title);
+  if (header.note) leftSide += ` <small>${esc(header.note)}</small>`;
+
+  let rightSide = "";
+  if (header.rightStats.length) {
+    rightSide = `<span class="h3r">${header.rightStats.map(s => renderRightStat(s, cls)).join(" ")}</span>`;
+  }
+
+  return `<h3><span>${leftSide}</span>${rightSide}</h3>`;
+}
+
+function renderRightStat(stat, cls) {
+  // 与旧 gearHtml 完全一致：char 值优先，0/空则回退到公式默认值
+  const cur = char[stat.key];
+  const val = cur || defaultStatValue(stat.key, cls);
+
+  let html = `${esc(stat.label)} `;
+
+  if (stat.type === "display") {
+    html += `<b>${esc(val)}</b>`;
+  } else if (mode === "edit") {
+    const type = stat.type === "number" ? "number" : "text";
+    let attrs = "";
+    if (stat.min !== undefined) attrs += ` min="${stat.min}"`;
+    if (stat.max !== undefined) attrs += ` max="${stat.max}"`;
+    html += `<input type="${type}" data-bind="${esc(stat.key)}" value="${esc(val)}"${attrs}>`;
+  } else {
+    html += `<b>${esc(val)}</b>`;
+  }
+
+  if (stat.formula) html += ` <span class="faint">${formulaHint(stat.formula, stat.key)}</span>`;
+
+  return html;
+}
+
 function renderClassSelect(){
   const el=document.getElementById("classSelect");
   el.innerHTML = ['<option value="">—— 选择职业 ——</option>']
@@ -797,7 +887,7 @@ function lookHtml(cls){
       }).join("");
     }).join("");
     const note=char.lookNotes?`<div class="gear-line md">${renderFieldMarkdown(char.lookNotes, "lookNotes", ()=>char.lookNotes||"", t=>{char.lookNotes=t;})}</div>`:"";
-    return `<div class="pb-sec"><h3>${esc(LABELS.look)}</h3>${inner||""}${note||(!inner?'<div class="hint">未选择</div>':"")}</div>`;
+    return `<div class="pb-sec">${renderAreaHeader("look", cls)}${inner||""}${note||(!inner?'<div class="hint">未选择</div>':"")}</div>`;
   }
   const inner = opts.map((list,i)=>{
     const sel=char.look[i]||[];
@@ -807,7 +897,7 @@ function lookHtml(cls){
       <div class="opt gap"><label class="optt"><input class="cust" data-lookcustom="${i}" value="${esc(customVal)}" placeholder="自定义"></label></div></div>`;
   }).join("");
   const note=`<div class="opt gap"><label class="optt"><input class="cust" data-bind="lookNotes" value="${esc(char.lookNotes||"")}"></label></div>`;
-  return `<div class="pb-sec"><h3>${esc(LABELS.look)}</h3>${inner}${note}</div>`;
+  return `<div class="pb-sec">${renderAreaHeader("look", cls)}${inner}${note}</div>`;
 }
 
 function raceHtml(cls, m){
@@ -817,7 +907,7 @@ function raceHtml(cls, m){
   if(mode==="view"){
     const chosen = m.racialGroups.filter(g=>g.race && char.races.includes(g.race));
     const inner = chosen.map(grp => `<div class="opt"><span class="ck-mark on"></span><span><b>${esc(grp.race)}</b></span></div>`+grp.moves.map(mv=>mvViewCard("racial",mv)).join("")).join("") || `<div class="hint">未选择${esc(LABELS.raceName)}</div>`;
-    return `<div class="pb-sec"><h3>${esc(LABELS.race)}</h3>${inner}</div>`;
+    return `<div class="pb-sec">${renderAreaHeader("race", cls)}${inner}</div>`;
   }
   const tmp = templateGroups.map(g=>{
     const checked = char.races.includes(g.race);
@@ -830,7 +920,7 @@ function raceHtml(cls, m){
     const moves = g.moves.map(mv=>mvCardCustomRace(g._id, mv)).join("");
     return `<div class="mv mv-custom"><div class="mv-h"><input type="checkbox" class="chk" data-race-id="${esc(g._id)}" ${checked?"checked":""}><div class="mv-n"><input data-crace-name="${esc(g._id)}" value="${esc(g.race)}" placeholder="${esc(LABELS.raceName)}"></div><button class="del" data-crace-del="${esc(g._id)}" title="删除该${esc(LABELS.raceName)}">✕</button></div>${moves}<div class="mv-add"><button data-add-race-move="${esc(g._id)}">＋ 添加动作</button></div></div>`;
   }).join("");
-  return `<div class="pb-sec"><h3>${esc(LABELS.race)}</h3>${tmp}${cust}<div class="addrow"><button data-add-race>＋ 新建${esc(LABELS.raceName)}</button></div></div>`;
+  return `<div class="pb-sec">${renderAreaHeader("race", cls)}${tmp}${cust}<div class="addrow"><button data-add-race>＋ 新建${esc(LABELS.raceName)}</button></div></div>`;
 }
 
 function alignHtml(cls, m){
@@ -838,7 +928,7 @@ function alignHtml(cls, m){
   if(mode==="view"){
     const chosen = m.alignments.filter(x=>char.alignments.includes(x.name));
     const inner = chosen.map(a=>mvViewCard("alignment",a)).join("");
-    return `<div class="pb-sec"><h3>${esc(LABELS.alignment)} <small>${esc(LABELS.alignmentNote)}</small></h3>${inner||`<div class="hint">未选择${esc(LABELS.alignmentName)}</div>`}</div>`;
+    return `<div class="pb-sec">${renderAreaHeader("alignment", cls)}${inner||`<div class="hint">未选择${esc(LABELS.alignmentName)}</div>`}</div>`;
   }
   const inner = m.alignments.map(a=>{
     if(a._custom){
@@ -849,7 +939,7 @@ function alignHtml(cls, m){
     return `<div class="mv mv-align"><div class="mv-h"><input type="checkbox" class="chk" value="${esc(a.name)}" data-align="${esc(a.name)}" ${char.alignments.includes(a.name)?"checked":""}><div class="mv-n"><input data-key="${esc(d.key)}" data-field="name" value="${esc(d.name)}"></div></div>
       <div class="mv-t"><textarea data-key="${esc(d.key)}" data-field="text">${esc(text)}</textarea></div></div>`;
   }).join("");
-  return `<div class="pb-sec"><h3>${esc(LABELS.alignment)} <small>${esc(LABELS.alignmentNote)}</small></h3>${inner}<div class="addrow"><button data-add-align>＋ 添加${esc(LABELS.alignment)}</button></div></div>`;
+  return `<div class="pb-sec">${renderAreaHeader("alignment", cls)}${inner}<div class="addrow"><button data-add-align>＋ 添加${esc(LABELS.alignment)}</button></div></div>`;
 }
 
 function coinsHtml(){
@@ -861,16 +951,12 @@ function coinsHtml(){
 }
 function gearHtml(cls){
   const groups=(cls.gear&&cls.gear.groups)||[];
-  const load = char.load||defaultLoad(cls);
-  const loadHdr = mode==="edit" ?
-    `<span class="h3r">${esc(LABELS.load)} <input type="number" data-bind="load" value="${load}" min="0"> <span class="faint">${formulaHint(cls.load, "load")}</span></span>` :
-    `<span class="h3r">${esc(LABELS.load)} <b>${load}</b> <span class="faint">${formulaHint(cls.load, "load")}</span></span>`;
   if(mode==="view"){
-    return `<div class="pb-sec"><h3>${esc(LABELS.gear)} ${loadHdr}</h3>
+    return `<div class="pb-sec">${renderAreaHeader("gear", cls)}
       <textarea class="fillbox" data-bind="gear">${esc(char.gear)}</textarea>
       ${coinsHtml()}</div>`;
   }
-  return `<div class="pb-sec"><h3>${esc(LABELS.gear)} ${loadHdr}</h3>
+  return `<div class="pb-sec">${renderAreaHeader("gear", cls)}
     <textarea class="fillbox" data-bind="gear">${esc(char.gear)}</textarea>
     ${groups.length?groups.map(g=>`<div class="gear-group"><div class="gear-prompt md">${markdownToHtml(g.prompt)}</div>`+g.options.map(o=>`<div class="opt"><button class="gear-add" data-gearopt="${esc(stripTags(o))}" title="加入装备">＋</button> <span>${esc(stripTags(o))}</span></div>`).join("")+`</div>`).join(""):""}
     ${coinsHtml()}</div>`;
@@ -914,9 +1000,9 @@ function bondsHtml(cls){
     : (char.relationships||[]).filter(r=>r.target).map(r=>`<div class="bond-line"><b>${esc(r.target)}</b>${r.description?` <span class="faint">${esc(r.description)}</span>`:""} <span class="rel-depth-v">${Array.from({length:relDepth},(_,d)=>(r.depth||0)>d?"●":"○").join("")}</span></div>`).join("");
   if(mode==="view"){
     const lines = char.bonds.map((b,i)=>b?`<div class="bond-line md">${renderFieldMarkdown(b, "bond::"+i, ()=>char.bonds[i]||"", t=>{char.bonds[i]=t;})}</div>`:"").join("");
-    return `<div class="pb-sec"><h3>${esc(LABELS.bonds)}</h3>${relHtml}${lines||`<div class="hint">无${esc(LABELS.bonds)}</div>`}</div>`;
+    return `<div class="pb-sec">${renderAreaHeader("bonds", cls)}${relHtml}${lines||`<div class="hint">无${esc(LABELS.bonds)}</div>`}</div>`;
   }
-  return `<div class="pb-sec"><h3>${esc(LABELS.bonds)}</h3>${relHtml}${char.bonds.map((b,i)=>`<div class="bond-line"><input data-bond="${i}" value="${esc(b)}" placeholder="${esc(LABELS.bonds)}"><button class="x" data-bond-del="${i}" title="删除">✕</button></div>`).join("")}<div class="addrow"><button data-add-bond>＋ 添加${esc(LABELS.bonds)}</button><button data-add-rel>＋ 添加关系</button></div></div>`;
+  return `<div class="pb-sec">${renderAreaHeader("bonds", cls)}${relHtml}${char.bonds.map((b,i)=>`<div class="bond-line"><input data-bond="${i}" value="${esc(b)}" placeholder="${esc(LABELS.bonds)}"><button class="x" data-bond-del="${i}" title="删除">✕</button></div>`).join("")}<div class="addrow"><button data-add-bond>＋ 添加${esc(LABELS.bonds)}</button><button data-add-rel>＋ 添加关系</button></div></div>`;
 }
 
 function heritageHtml(){
@@ -955,10 +1041,10 @@ function startingHtml(cls, m){
   const isChoice = mv => (mv.replaces || mv.requires);
   if(mode==="edit"){
     const inner = m.starting.map(mv=> isChoice(mv) ? startingChoiceCard(mv) : mvCard("starting", mv)).join("");
-    return `<div class="pb-sec"><h3>${esc(LABELS.starting)}</h3>${inner||'<div class="hint">无</div>'}</div>`;
+    return `<div class="pb-sec">${renderAreaHeader("starting", cls)}${inner||'<div class="hint">无</div>'}</div>`;
   }
   const inner = m.starting.filter(mv=> !isChoice(mv) || (char.startingChoices||[]).includes(mv.name)).map(mv=>mvViewCard("starting",mv)).join("");
-  return `<div class="pb-sec"><h3>${esc(LABELS.starting)}</h3>${inner}</div>`;
+  return `<div class="pb-sec">${renderAreaHeader("starting", cls)}${inner}</div>`;
 }
 function startingChoiceCard(mv){
   const d=moveDisplay("starting", mv);
@@ -975,7 +1061,7 @@ function advHtml(cls, m){
   const chosen=char.advancedMoves||[];
   if(mode==="view"){
     const checked=allAdvancedMoves(m).filter(x=>chosen.includes(x.name));
-    return `<div class="pb-sec"><h3>${esc(LABELS.advanced)}</h3>${checked.map(mv=>mvViewCard("adv",mv)).join("")||'<div class="hint">未选择</div>'}</div>`;
+    return `<div class="pb-sec">${renderAreaHeader("advanced", cls)}${checked.map(mv=>mvViewCard("adv",mv)).join("")||'<div class="hint">未选择</div>'}</div>`;
   }
   const tier=(t, locked)=>`<div class="adv-tier${locked?" locked":""}">${esc(t.label)}</div>${t.note?`<div class="adv-tier-note">${esc(t.note)}</div>`:""}`+t.moves.map(mv=>{
     if(mv._custom) return mvCardCustomAdv(mv);
@@ -999,7 +1085,7 @@ function advHtml(cls, m){
     html += tier(t, locked);
   });
   if(m.customMoves.length) html += tier({label:LABELS.customAdvanced, moves:m.customMoves});
-  return `<div class="pb-sec"><h3>${esc(LABELS.advanced)}</h3>${html}<div class="addrow"><button data-add-adv>＋ 添加${esc(LABELS.advanced)}</button></div></div>`;
+  return `<div class="pb-sec">${renderAreaHeader("advanced", cls)}${html}<div class="addrow"><button data-add-adv>＋ 添加${esc(LABELS.advanced)}</button></div></div>`;
 }
 
 function advancementHtml(){
@@ -1042,7 +1128,7 @@ function countersHtml(){
 function notesHtml(cls){
   const questions = (cls && cls.questions) || [];
   const qHtml = questions.map(q=>`<div class="question-hint">${markdownToHtml(q)}</div>`).join("");
-  return `<div class="pb-sec"><h3>${esc(LABELS.notes)}</h3>${countersHtml()}<textarea class="fillbox" data-bind="notes">${esc(char.notes||"")}</textarea>${qHtml}</div>`;
+  return `<div class="pb-sec">${renderAreaHeader("notes", cls)}${countersHtml()}<textarea class="fillbox" data-bind="notes">${esc(char.notes||"")}</textarea>${qHtml}</div>`;
 }
 
 function spellSectionsHtml(){
@@ -1364,7 +1450,7 @@ function onClassChange(){
   if(!char.damage) char.damage=cls.damage||"";
   if(!char.look.length && cls.look) char.look=cls.look.map(()=>[]);
   if(!char.hpMax) char.hpMax=defaultHP(cls);
-  if(!char.load) char.load=defaultLoad(cls);
+  if(!char.load) char.load=defaultStatValue("load", cls);
   renderPlaybook(); save();
 }
 
@@ -1384,9 +1470,8 @@ document.addEventListener("input", e=>{
   if(d.spellName){ const [k,id]=d.spellName.split(":"); const s=spellFind(k,id); if(s){ s.name=t.value; save(); } return; }
   if(d.spellText){ const [k,id]=d.spellText.split(":"); const s=spellFind(k,id); if(s){ s.text=t.value; autosize(t); save(); } return; }
   if(d.bind){
-    const v=t.value;
-    if(["level","xp","coins","hpCur","armor","hpMax","load"].includes(d.bind)) char[d.bind]=parseInt(v)||0;
-    else char[d.bind]=v;
+    if(t.type === "number") char[d.bind] = parseInt(t.value)||0;
+    else char[d.bind] = t.value;
     autosize(t); save(); return;
   }
   if(d.stat!==undefined){
