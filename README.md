@@ -111,7 +111,7 @@ https://github.com/rfkeepers/dw-playbooks-tex
 ### 2. 继续去硬编码化
 
 - 现状：经过艰苦卓绝的重构，Playbook的下方areas已经实现了代码模板化，内容下放给数据json。
-- 然而，refSections的模板化不完全（见RULES_FORMAT.md的一堆TODO），属性与状态，各数值（血量、伤害、护甲），顶层数据（名字，等级，XP）干脆完全写死。当初写的时候谁知道会这样啊……
+- 然而，refSections的模板化不优雅（见RULES_FORMAT.md的一堆TODO），属性与状态，各数值（血量、伤害、护甲），顶层数据（名字，等级，XP）干脆完全写死。当初写的时候谁知道会这样啊……
 
 ### 3. 微调资料边栏样式
 
