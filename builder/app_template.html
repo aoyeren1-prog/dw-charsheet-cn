@@ -43,7 +43,7 @@ body{background:var(--bg);color:var(--text);font-family:"Segoe UI","Microsoft Ya
 .toolbar button.mode-btn{background:var(--accent2);color:var(--on-ink);border-color:var(--accent2);font-weight:600}
 
 /* ===== 规则栈面板 ===== */
-.rules-panel{background:var(--panel);border-bottom:1px solid var(--line);padding:10px 16px;display:flex;flex-direction:column;gap:8px}
+.rules-panel{background:var(--panel);border-bottom:1px solid var(--line);padding:10px 16px;display:flex;flex-direction:column;gap:8px;position:sticky;top:53px;z-index:99}
 .rules-panel.hidden{display:none}
 .rules-panel-head{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.5px}
 .rules-list{display:flex;flex-direction:column;gap:4px}
@@ -60,6 +60,8 @@ body{background:var(--bg);color:var(--text);font-family:"Segoe UI","Microsoft Ya
 .wrap{max-width:1440px;margin:0 auto;padding:18px 14px 60px}
 .main-cols{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:16px;align-items:start}
 @media(max-width:1120px){.main-cols{grid-template-columns:1fr}}
+/* 规则没声明 refSections：边栏整个不存在，角色卡独占整行 */
+.main-cols.no-ref{grid-template-columns:minmax(0,1fr)}
 .playbook{background:var(--paper);color:var(--ink);border-radius:6px;padding:20px 22px;min-height:600px;box-shadow:0 4px 24px rgba(0,0,0,.4)}
 
 /* ===== 参考资料边栏 (浅色) ===== */
@@ -263,12 +265,14 @@ input.mbox:disabled:hover{border-color:var(--ink-5)}
 .adv-tier.sel .x:hover{color:var(--danger);background:var(--danger-bg)}
 .faint{color:var(--ink-5)}
 
+/* plain 元素的 view 模式样式 */
+.grey{opacity:.5}
+
 /* ===== 打印 ===== */
 @media print{
   body{background:var(--paper)}
   .toolbar{display:none !important}
   .ref{display:none !important}
-  details.help{display:none !important}
   .main-cols{grid-template-columns:1fr}
   .wrap{max-width:none;padding:0;margin:0}
   .playbook{border:none;border-radius:0;padding:0;min-height:0;box-shadow:none}
@@ -277,10 +281,6 @@ input.mbox:disabled:hover{border-color:var(--ink-5)}
 }
 
 .hidden{display:none}
-details.help{font-size:12px;color:var(--muted);margin-top:10px}
-details.help summary{cursor:pointer;color:var(--accent2)}
-details.help .help-note{font-size:12px;color:var(--muted);line-height:1.7;margin:8px 0}
-details.help pre{background:var(--panel2);padding:10px;border-radius:6px;overflow:auto;font-size:11px;color:var(--text)}
 </style>
 </head>
 <body>
@@ -308,18 +308,13 @@ details.help pre{background:var(--panel2);padding:10px;border-radius:6px;overflo
 </div>
 
 <div class="wrap">
-  <div class="main-cols">
+  <div class="main-cols" id="mainCols">
     <div class="playbook" id="playbook"></div>
-    <aside class="ref">
+    <aside class="ref" id="refPanel">
       <div class="ref-tabs" id="refTabs"></div>
       <div class="ref-body" id="refBody"></div>
     </aside>
   </div>
-  <details class="help">
-    <summary>规则 JSON 格式说明（导入规则 / 导入职业）</summary>
-    <p class="help-note">点「📥 导入规则」导入一份<b>规则 JSON</b>，导入后存进浏览器、刷新自动生效。「导入角色 / 导出角色」角色卡用 <b>JSON 文件</b>。下面是一份最小可用的示例。</p>
-    <pre id="jsonSchema"></pre>
-  </details>
 </div>
 
 <script>
@@ -347,33 +342,23 @@ function applyData(data){
   SHOW_FORMULA = META.showFormula !== false;
   AREAS = META.areas || {};
   AREA_LAYOUT = resolveAreaLayout(META.areaLayout);
-  REF_SECTIONS = META.refSections || [
-    {id:"moves", title:"通用动作", type:"groups", groups:[
-      {key:"basicMoves", label:"基本动作"},
-      {key:"specialMoves", label:"特殊动作"}
-    ]},
-    {id:"spells", title:"法术列表", type:"spells"},
-    {id:"extension", title:"扩展", type:"extension", groups:[
-      {key:"customMoves", label:"自定义动作"}
-    ], articles:"compendium"},
-    {id:"search", title:"资料速查", type:"search"}
-  ];
-  if(!REF_SECTIONS.some(s => s.id === refTab)) refTab = REF_SECTIONS[0] ? REF_SECTIONS[0].id : "search";
+  // 边栏内容全由 refSections 声明；没声明就没有页签
+  REF_SECTIONS = META.refSections || [];
+  if(!REF_SECTIONS.some(s => s.id === refTab)) refTab = REF_SECTIONS[0] ? REF_SECTIONS[0].id : null;
   buildTagMap();
 }
 
-// areaLayout 只声明「顺序和栏位」，区域清单始终以 META.areas 为准。
-// 上层规则（房规）只想插一个区域时不必重抄整份布局：没被提到的区域
-// 按 areas 的声明顺序补到左栏，不会因为漏写而消失。
-// 反向早已容忍：布局里列了但 areas 里没有的 key（如 DW 预留的 heritage）直接跳过。
+// areaLayout 显式声明哪些区域渲染及其顺序和栏位。
+// 未定义 areaLayout 时，渲染所有 areas 中的区域（按声明顺序放到左栏）。
+// 定义了 areaLayout 后，未列入的区域不渲染（可用于房规隐藏某个区域）。
+// 布局里列了但 areas 里没有的 key 直接跳过。
 function resolveAreaLayout(layout){
   const keys = Object.keys(AREAS);
-  const declared = layout || {};
-  const pick = side => (declared[side] || []).filter(k => AREAS[k]);
+  if(!layout) return { left: keys, right: [] };
+  const pick = side => (layout[side] || []).filter(k => AREAS[k]);
   const left = pick("left");
   const right = pick("right").filter(k => !left.includes(k));
-  const placed = new Set([...left, ...right]);
-  return { left: left.concat(keys.filter(k => !placed.has(k))), right };
+  return { left, right };
 }
 
 /* ============ 规则合并（分层） ============ */
@@ -396,45 +381,15 @@ function deepMerge(base, patch){
     const pv = patch[k];
     if(pv === null){ delete out[k]; continue; }
     const bv = out[k];
-    if(k === "areaLayout" && isObj(pv)){ out[k] = mergeLayout(bv, pv); }
+    if(k === "areaLayout" && isObj(pv)){ out[k] = pv; }  // 显式覆盖：上层定义就完全覆盖下层
     else if(Array.isArray(pv)){ out[k] = mergeArray(Array.isArray(bv) ? bv : [], pv); }
     else if(isObj(pv) && isObj(bv)){ out[k] = deepMerge(bv, pv); }
     else { out[k] = pv; }
   }
   return out;
 }
-// areaLayout.left/right 是「顺序声明」，条目指向别处定义的区域 key，
-// 和 stats 那种值列表不同：上层只想插一个区域时，整体覆盖会连带丢掉下层的顺序。
-// 所以按序列合并——保留下层顺序，只把上层新增的 key 插进去。
-function mergeLayout(base, patch){
-  const out = isObj(base) ? {...base} : {};
-  for(const side of Object.keys(patch)){
-    const pv = patch[side];
-    if(pv === null){ delete out[side]; continue; }
-    if(!Array.isArray(pv)){ out[side] = pv; continue; }
-    out[side] = mergeSequence(Array.isArray(out[side]) ? out[side] : [], pv);
-  }
-  return out;
-}
-// 下层顺序为骨架，上层的新 key 插在「它后面第一个两边都有的 key」之前，
-// 没有这种锚点就接到末尾。上层想彻底重排时，先用 null 删掉该侧再重写。
-function mergeSequence(baseArr, patchArr){
-  const out = baseArr.slice();
-  patchArr.forEach((key, i) => {
-    if(out.includes(key)) return;
-    let at = out.length;
-    for(let j = i + 1; j < patchArr.length; j++){
-      const idx = out.indexOf(patchArr[j]);
-      if(idx !== -1){ at = idx; break; }
-    }
-    out.splice(at, 0, key);
-  });
-  return out;
-}
-// 数组能否按键合并：要求 patch 的每一项都能取到 id/name/key
 // 取不到键的项（字符串、数字、嵌套数组、无键对象）没有「同一项」的概念，
 // 只能整体覆盖——否则上层每叠一次就追加一遍，buttons 这类会翻倍
-// （areaLayout 是顺序声明，不走这里，见 mergeLayout）
 function keyedArray(patchArr){
   return patchArr.every(pe => entryField(pe) !== null);
 }
@@ -463,7 +418,7 @@ function cloneDeep(v){
 
 /* ============ 状态 ============ */
 let mode = "edit";
-let refTab = "moves";
+let refTab = null;   // 实际值由 refSections 的第一个页签决定
 let searchKw = "";
 let lastSearchItems = [];
 let boxReg = {};
@@ -502,20 +457,36 @@ function statBoundsAttr(isMod){
   }
   return isMod ? ' min="-4" max="4"' : ' min="1" max="18"';
 }
+// tags 页签的数据按它自己的 id 取：id 为 tags 的页签读顶层 tags。
+// 可以有多个 tags 页签，各读各的数据块。按页签声明顺序返回。
+function tagSectionData(){
+  return REF_SECTIONS.filter(s => s.type === "tags").map(s => refData(s.id) || {});
+}
+// 所有 tags 页签的标签，按分类并成一份（供搜索用）
+function allTagCategories(){
+  const out = {};
+  for(const tags of tagSectionData()){
+    for(const category in tags){
+      out[category] = (out[category] || []).concat(tags[category] || []);
+    }
+  }
+  return out;
+}
+// 颜色定义来自全部 tags 页签，与页签是否渲染无关。
+// 按「页签 → 分类 → 标签」的声明顺序写入，所以同名标签以后出现的页签为准。
 function buildTagMap() {
   TAG_COLOR_MAP = {};
-  const tags = DW_DATA.tags || {};
-  // tags 现在是 { "分类名": [{name, color, ...}, ...] } 结构
-  for (const category in tags) {
-    const tagList = tags[category] || [];
-    tagList.forEach(tag => {
-      if (tag.name && tag.color) {
-        TAG_COLOR_MAP[tag.name] = {
-          color: tag.color,
-          textColor: tag.textColor || null
-        };
-      }
-    });
+  for (const tags of tagSectionData()) {
+    for (const category in tags) {
+      (tags[category] || []).forEach(tag => {
+        if (tag.name && tag.color) {
+          TAG_COLOR_MAP[tag.name] = {
+            color: tag.color,
+            textColor: tag.textColor || null
+          };
+        }
+      });
+    }
   }
 }
 function getTagColor(tagName) {
@@ -694,26 +665,22 @@ function defaultStatValue(statKey, cls){
 
 function getAreaHeader(areaKey, cls) {
   const base = AREAS[areaKey];
-  if (!base) return {title: "", note: null, body: null, rightStats: []};
+  if (!base) return {title: "", note: null, type: null, rightStats: []};
 
   const override = (cls && cls.areas && cls.areas[areaKey]) || {};
 
-  return {
-    title: override.title !== undefined ? override.title : base.title,
-    note: override.note !== undefined ? override.note : base.note,
-    body: deepMerge(base.body, override.body),
-    rightStats: deepMerge(base.rightStats, override.rightStats) || []
-  };
+  // 直接深度合并整个区域对象
+  return deepMerge(base, override);
 }
 
 function renderAreaHeader(areaKey, cls, extraRight) {
-  const header = getAreaHeader(areaKey, cls);
-  if (!header.title) return "";
+  const area = getAreaHeader(areaKey, cls);
+  if (!area.title) return "";
 
-  let leftSide = esc(header.title);
-  if (header.note) leftSide += ` <small>${esc(header.note)}</small>`;
+  let leftSide = esc(area.title);
+  if (area.note) leftSide += ` <small>${esc(area.note)}</small>`;
 
-  const right = header.rightStats.map(s => renderRightStat(s, cls));
+  const right = (area.rightStats || []).map(s => renderRightStat(s, cls));
   if (extraRight) right.push(extraRight);
   const rightSide = right.length ? `<span class="h3r">${right.join(" ")}</span>` : "";
 
@@ -731,65 +698,98 @@ function plainSet(areaKey, key, val){
   if(!char.plainAreas[areaKey]) char.plainAreas[areaKey] = {};
   char.plainAreas[areaKey][key] = val;
 }
-// 查看模式下该元素是否仍可交互（唯一判定入口）
-function plainIsEditable(el){
-  if(mode === "edit") return true;
-  return el.view === "editable";
+// 获取元素的渲染策略（中心化判断）
+function getPlainRenderStrategy(el){
+  const viewMode = (mode === "edit") ? "editable" : (el.view || "readonly");
+  
+  return {
+    shouldRender: viewMode !== "hide",
+    isEditable: viewMode === "editable",
+    addGreyClass: viewMode === "grey",
+    hideUnselected: viewMode === "hideUnselect",
+    greyUnselected: viewMode === "greyUnselect"
+  };
 }
 
 function plainText(areaKey, el){
-  // 文本本体来自规则数据，勾选状态存入角色数据（key 为 el.key，缺省用元素序号）
+  const strategy = getPlainRenderStrategy(el);
+  if(!strategy.shouldRender) return "";
+  
   const stateKey = el.key || ("_text" + el._idx);
   const boxKey = "plain::" + areaKey + "::" + stateKey;
-  return renderFieldMarkdown(
+  const content = renderFieldMarkdown(
     plainGet(areaKey, stateKey, el.value || ""),
     boxKey,
     () => plainGet(areaKey, stateKey, el.value || ""),
     t => plainSet(areaKey, stateKey, t)
   );
+  
+  return strategy.addGreyClass ? `<div class="grey">${content}</div>` : content;
 }
+
 function plainHint(areaKey, el){
-  if(mode === "view") return "";
+  const strategy = getPlainRenderStrategy(el);
+  if(!strategy.isEditable) return "";
   return `<div class="hint">${markdownToHtml(el.value || "")}</div>`;
 }
+
 function plainChoices(areaKey, el){
+  const strategy = getPlainRenderStrategy(el);
+  if(!strategy.shouldRender) return "";
+  
   const selected = plainGet(areaKey, el.key, []);
   const options = el.value || [];
-  const editable = plainIsEditable(el);
-
+  
+  // 根据策略决定显示哪些选项
   let visible = options;
-  if(!editable){
+  if(!strategy.isEditable && strategy.hideUnselected){
+    // hideUnselect: 只显示已选中项
     visible = options.filter(o => selected.includes(o));
     if(!visible.length) return "";
   }
-
+  // 默认（readonly）、grey、greyUnselected: 显示所有选项
+  
   const boxes = visible.map(o => {
-    const checked = selected.includes(o) ? " checked" : "";
-    const dis = editable ? "" : " disabled";
-    return `<div class="opt"><label class="optt"><input type="checkbox" class="chk" value="${esc(o)}" data-plain="choice:${areaKey}:${el.key}"${checked}${dis}> ${esc(o)}</label></div>`;
+    const checked = selected.includes(o);
+    const dis = strategy.isEditable ? "" : " disabled";
+    const itemGrey = (strategy.greyUnselected && !checked) ? " grey" : "";
+    return `<div class="opt${itemGrey}"><label class="optt"><input type="checkbox" class="chk" value="${esc(o)}" data-plain="choice:${areaKey}:${el.key}"${checked ? " checked" : ""}${dis}> ${esc(o)}</label></div>`;
   }).join("");
-
-  return el.layout === "line" ? `<div class="addrow">${boxes}</div>` : boxes;
-}
-function plainInput(areaKey, el){
-  const value = plainGet(areaKey, el.key, el.prefix || "");
-  const editable = plainIsEditable(el);
-
-  if(!editable){
-    if(!value) return "";
-    const lab = el.label ? `<b>${esc(el.label)}</b>：` : "";
-    return `<div class="origin-line">${lab}${esc(value)}</div>`;
+  
+  const html = el.layout === "line" ? `<div class="addrow">${boxes}</div>` : boxes;
+  if(strategy.addGreyClass && el.layout === "line"){
+    return html.replace(/^<div/, '<div class="grey"');
+  } else if(strategy.addGreyClass){
+    return `<div class="grey">${html}</div>`;
   }
-
-  const lab = el.label ? `<b>${esc(el.label)}</b>：` : "";
-  const hintHtml = el.hint ? `<div class="origin-hint">${esc(el.hint)}</div>` : "";
-  return `<div class="origin-line"><div class="origin-row">${lab}<input data-plain="input:${areaKey}:${el.key}" value="${esc(value)}" placeholder="${esc(el.tip || "")}"></div>${hintHtml}</div>`;
+  return html;
 }
-function plainTrack(areaKey, el){
-  const value = plainGet(areaKey, el.key, 0);
-  const dis = plainIsEditable(el) ? "" : " disabled";
 
-  // 计算当前在哪个段落（累加 slots 找到 value 落在哪个 label）
+function plainInput(areaKey, el){
+  const strategy = getPlainRenderStrategy(el);
+  if(!strategy.shouldRender) return "";
+  
+  const value = plainGet(areaKey, el.key, el.prefix || "");
+  const lab = el.label ? `<b>${esc(el.label)}</b>：` : "";
+  
+  if(strategy.isEditable){
+    const hintHtml = el.hint ? `<div class="origin-hint">${esc(el.hint)}</div>` : "";
+    return `<div class="origin-line"><div class="origin-row">${lab}<input data-plain="input:${areaKey}:${el.key}" value="${esc(value)}" placeholder="${esc(el.tip || "")}"></div>${hintHtml}</div>`;
+  } else {
+    if(!value) return "";
+    const html = `<div class="origin-line">${lab}${esc(value)}</div>`;
+    return strategy.addGreyClass ? html.replace(/^<div/, '<div class="grey"') : html;
+  }
+}
+
+function plainTrack(areaKey, el){
+  const strategy = getPlainRenderStrategy(el);
+  if(!strategy.shouldRender) return "";
+  
+  const value = plainGet(areaKey, el.key, 0);
+  const dis = strategy.isEditable ? "" : " disabled";
+  
+  // 计算当前在哪个段落
   let gi = 0, currentLabel = null, acc = 0;
   for(const item of (el.value || [])){
     if(item.label !== undefined){
@@ -798,7 +798,7 @@ function plainTrack(areaKey, el){
       acc += item.slots;
     }
   }
-
+  
   // 渲染
   gi = 0;
   let html = "";
@@ -813,15 +813,17 @@ function plainTrack(areaKey, el){
       }
     }
   }
-  return `<div class="track">${html}</div>`;
+  
+  const content = `<div class="track">${html}</div>`;
+  return strategy.addGreyClass ? content.replace(/^<div/, '<div class="grey"') : content;
 }
 
 const PLAIN_RENDERERS = { text: plainText, hint: plainHint, choices: plainChoices, input: plainInput, track: plainTrack };
 
 function renderPlainArea(areaKey, cls){
-  const body = getAreaHeader(areaKey, cls).body;
-  if(!body || body.type !== "plain") return "";
-  const inner = (body.elements || []).map((el, i) => {
+  const area = getAreaHeader(areaKey, cls);
+  if(!area || area.type !== "plain") return "";
+  const inner = (area.elements || []).map((el, i) => {
     el._idx = i;
     const fn = PLAIN_RENDERERS[el.type];
     return fn ? fn(areaKey, el) : "";
@@ -832,28 +834,28 @@ function renderPlainArea(areaKey, cls){
 
 /* ============ moveList 区域模板 ============ */
 function renderMoveListArea(areaKey, cls){
-  const body = getAreaHeader(areaKey, cls).body;
-  if(!body || body.type !== "moveList") return "";
+  const area = getAreaHeader(areaKey, cls);
+  if(!area || area.type !== "moveList") return "";
   // boundMove：绑定动作未取得时整个区域不出现
-  if(!boundMoveTaken(body)) return "";
+  if(!boundMoveTaken(area)) return "";
 
   const customMoves = moveListCustomMoves(areaKey);
   const withCustom = g => ({...g, moves: (g.moves || []).concat(customMoves.filter(m => m.group === g.key))});
   let inner = "";
 
   // 模板 groups + 自定义 groups
-  const groups = (body.groups || []).concat(moveListCustomGroups(areaKey));
-  groups.forEach(g => { inner += renderMoveGroup(areaKey, withCustom(g), body); });
+  const groups = (area.groups || []).concat(moveListCustomGroups(areaKey));
+  groups.forEach(g => { inner += renderMoveGroup(areaKey, withCustom(g), area); });
 
   // 无 group 的动作（模板 + 自定义）。所属分组已不存在的动作也归到这里，避免丢失
   const groupKeys = groups.map(g => g.key);
-  let noGroup = (body.moves || []).concat(customMoves.filter(m => !m.group || !groupKeys.includes(m.group)));
+  let noGroup = (area.moves || []).concat(customMoves.filter(m => !m.group || !groupKeys.includes(m.group)));
   // 无分组：没有分组勾选框代表它们，covered 恒为 false
-  if(mode === "view") noGroup = noGroup.filter(mv => moveVisibleInView(areaKey, mv, body, false));
-  inner += noGroup.map(mv => renderMoveCard(areaKey, mv, body, false, false)).join("");
+  if(mode === "view") noGroup = noGroup.filter(mv => moveVisibleInView(areaKey, mv, area, false));
+  inner += noGroup.map(mv => renderMoveCard(areaKey, mv, area, false, false)).join("");
 
   // 全局按钮
-  const globalButtons = (body.buttons || []).filter(btn => btn.position === "global");
+  const globalButtons = (area.buttons || []).filter(btn => btn.position === "global");
   if(globalButtons.length && mode === "edit"){
     inner += `<div class="addrow">${globalButtons.map(btn => renderMoveButton(areaKey, btn)).join(" ")}</div>`;
   }
@@ -862,20 +864,20 @@ function renderMoveListArea(areaKey, cls){
   return `<div class="pb-sec">${renderAreaHeader(areaKey, cls)}${inner}</div>`;
 }
 
-function renderMoveGroup(areaKey, group, body){
+function renderMoveGroup(areaKey, group, area){
   const moves = group.moves || [];
   const locked = groupLocked(group);
-  const gSel = groupSelectable(group, body);
+  const gSel = groupSelectable(group, area);
   const groupChecked = isMoveGroupSelected(areaKey, group);
 
   // 可见性：带勾选框的条目需已勾选，默认获得的常显
   let visible = moves;
   if(mode === "view"){
     if(gSel && !groupChecked) return "";
-    visible = moves.filter(mv => moveVisibleInView(areaKey, mv, body, gSel));
+    visible = moves.filter(mv => moveVisibleInView(areaKey, mv, area, gSel));
   }
   // 空分组不显示（除非分组自己带勾选行，或编辑模式下有分组内按钮）
-  const inGroupBtns = (body.buttons || []).filter(b => b.position === "inGroup" && (!b.targetGroup || b.targetGroup === group.key));
+  const inGroupBtns = (area.buttons || []).filter(b => b.position === "inGroup" && (!b.targetGroup || b.targetGroup === group.key));
   if(!visible.length && !gSel && !(mode === "edit" && inGroupBtns.length)) return "";
 
   let html = "";
@@ -896,7 +898,7 @@ function renderMoveGroup(areaKey, group, body){
   if(group.note) html += `<div class="adv-tier-note">${esc(group.note)}</div>`;
 
   // gSel 为真时分组勾选框已代表组内动作，组内动作不再各自出勾选框
-  html += visible.map(mv => renderMoveCard(areaKey, mv, body, locked, gSel)).join("");
+  html += visible.map(mv => renderMoveCard(areaKey, mv, area, locked, gSel)).join("");
 
   if(inGroupBtns.length && mode === "edit"){
     html += `<div class="mv-add">${inGroupBtns.map(b => renderMoveButton(areaKey, b, group.key)).join(" ")}</div>`;
@@ -906,61 +908,60 @@ function renderMoveGroup(areaKey, group, body){
 }
 
 // 分组是否带勾选框：分组自身声明优先，否则取区域的 selectGroups
-function groupSelectable(group, body){
+function groupSelectable(group, area){
   if(group.selectable !== undefined) return !!group.selectable;
-  return !!(body.features && body.features.selectGroups);
+  return !!area.selectGroups;
 }
 // 动作是否带勾选框：动作自身声明优先，带 replaces/requires 的动作本身即为选择项，
 // 否则取区域的 selectMoves / viewSelect。
 // covered 表示该动作已被所在分组的勾选框代表（选分组即选它），此时自己不再出勾选框；
 // 反之——无分组、或分组不带勾选框——即使区域只开了 selectGroups 也得自己出一个，
 // 否则这个动作既选不上也排不掉，等于绕过了选择机制。
-function moveSelectable(move, body, covered){
+function moveSelectable(move, area, covered){
   if(move.selectable !== undefined) return !!move.selectable;
   if(reqList(move).length || repList(move).length) return true;
-  const f = body.features || {};
-  if(f.selectMoves || f.viewSelect) return true;
-  return !!f.selectGroups && !covered;
+  if(area.selectMoves || area.viewSelect) return true;
+  return !!area.selectGroups && !covered;
 }
 // viewSelect：勾选框在查看模式下也可用，且未勾选的条目置灰而非隐藏
-function viewSelectable(body){
-  return !!(body.features && body.features.viewSelect);
+function viewSelectable(area){
+  return !!area.viewSelect;
 }
 // 单个动作是否算「已取得」：自己有勾选框就看自己，被分组勾选框代表就看分组，
 // 两者都没有即默认获得
-function moveTaken(areaKey, body, move, covered, group){
-  if(moveSelectable(move, body, covered)) return isMoveSelected(areaKey, move);
+function moveTaken(areaKey, area, move, covered, group){
+  if(moveSelectable(move, area, covered)) return isMoveSelected(areaKey, move);
   if(covered) return isMoveGroupSelected(areaKey, group);
   return true;
 }
 // 某区域里有没有已取得的同名动作（需要分组上下文，不能用展平后的列表）
-function areaMoveTaken(areaKey, body, name){
+function areaMoveTaken(areaKey, area, name){
   const custom = moveListCustomMoves(areaKey);
-  const groups = (body.groups || []).concat(moveListCustomGroups(areaKey));
+  const groups = (area.groups || []).concat(moveListCustomGroups(areaKey));
   for(const g of groups){
-    const gSel = groupSelectable(g, body);
+    const gSel = groupSelectable(g, area);
     const moves = (g.moves || []).concat(custom.filter(m => m.group === g.key));
     for(const mv of moves){
-      if(mv.name === name && moveTaken(areaKey, body, mv, gSel, g)) return true;
+      if(mv.name === name && moveTaken(areaKey, area, mv, gSel, g)) return true;
     }
   }
   const groupKeys = groups.map(g => g.key);
-  const noGroup = (body.moves || []).concat(custom.filter(m => !m.group || !groupKeys.includes(m.group)));
+  const noGroup = (area.moves || []).concat(custom.filter(m => !m.group || !groupKeys.includes(m.group)));
   for(const mv of noGroup){
-    if(mv.name === name && moveTaken(areaKey, body, mv, false, null)) return true;
+    if(mv.name === name && moveTaken(areaKey, area, mv, false, null)) return true;
   }
   return false;
 }
 // boundMove：该区域绑定的动作是否已在任何 moveList 区域里取得
-function boundMoveTaken(body){
-  const name = body.features && body.features.boundMove;
+function boundMoveTaken(area){
+  const name = area.boundMove;
   if(!name) return true;
   const cls = getClass(char.classId);
   if(!cls) return false;
   for(const areaKey of Object.keys(AREAS)){
-    const b = getAreaHeader(areaKey, cls).body;
-    if(!b || b.type !== "moveList") continue;
-    if(areaMoveTaken(areaKey, b, name)) return true;
+    const a = getAreaHeader(areaKey, cls);
+    if(!a || a.type !== "moveList") continue;
+    if(areaMoveTaken(areaKey, a, name)) return true;
   }
   return false;
 }
@@ -975,20 +976,20 @@ function groupLocked(group){
 
 // 查看模式下该动作是否出现：viewSelect 区域一律显示（未勾选置灰），
 // 其余区域里带勾选框的需已勾选
-function moveVisibleInView(areaKey, move, body, covered){
-  if(viewSelectable(body)) return true;
-  return !moveSelectable(move, body, covered) || isMoveSelected(areaKey, move);
+function moveVisibleInView(areaKey, move, area, covered){
+  if(viewSelectable(area)) return true;
+  return !moveSelectable(move, area, covered) || isMoveSelected(areaKey, move);
 }
 
-function renderMoveCard(areaKey, move, body, locked, covered){
+function renderMoveCard(areaKey, move, area, locked, covered){
   return mode === "edit"
-    ? mvCard(areaKey, move, body, locked, covered)
-    : mvViewCard(areaKey, move, body, covered);
+    ? mvCard(areaKey, move, area, locked, covered)
+    : mvViewCard(areaKey, move, area, covered);
 }
 
-function mvCard(areaKey, move, body, locked, covered){
+function mvCard(areaKey, move, area, locked, covered){
   const key = moveKey(areaKey, move);
-  const selectable = moveSelectable(move, body, covered);
+  const selectable = moveSelectable(move, area, covered);
   const checked = isMoveSelected(areaKey, move);
   // requires 未满足或所在分层锁定时禁用（requires 按动作名引用）
   const chosenNames = selectedMoveNames(areaKey);
@@ -1003,7 +1004,7 @@ function mvCard(areaKey, move, body, locked, covered){
     : "";
   const delBtn = move.id ? `<button class="del" data-movelist-del="${esc(key)}" title="删除">✕</button>` : "";
   // viewSelect 区域里未勾选的条目置灰
-  const off = (selectable && viewSelectable(body) && !checked) ? " spell-off" : "";
+  const off = (selectable && viewSelectable(area) && !checked) ? " spell-off" : "";
 
   const header = `<div class="mv-h">${box}<div class="mv-n"><input data-movelist-name="${esc(key)}" value="${esc(moveName(areaKey, move))}">${req}${rep}</div>${delBtn}</div>`;
   const textHtml = `<div class="mv-t"><textarea data-movelist-text="${esc(key)}">${esc(moveText(areaKey, move))}</textarea></div>`;
@@ -1011,11 +1012,11 @@ function mvCard(areaKey, move, body, locked, covered){
   return `<div class="mv ${move.id?"mv-custom":""}${disabled?" disabled":""}${off}"${move.id?"":mvBarStyle(areaKey)}>${header}${textHtml}</div>`;
 }
 
-function mvViewCard(areaKey, move, body, covered){
-  const selectable = moveSelectable(move, body, covered);
+function mvViewCard(areaKey, move, area, covered){
+  const selectable = moveSelectable(move, area, covered);
   const checked = isMoveSelected(areaKey, move);
   // viewSelect：查看模式仍给出可点的勾选框，未勾选的置灰
-  if(selectable && viewSelectable(body)){
+  if(selectable && viewSelectable(area)){
     const off = checked ? "" : " spell-off";
     return `<div class="mv${off}"${mvBarStyle(areaKey)}><div class="mv-h"><input type="checkbox" class="chk" data-movelist-toggle="${areaKey}:${esc(moveSelKey(move))}"${checked?" checked":""}><div class="mv-n">${esc(moveName(areaKey, move))}</div></div><div class="mv-t">${renderMoveText(areaKey, move)}</div></div>`;
   }
@@ -1140,10 +1141,10 @@ function renderPlaybook(){
   autosizeAll();
 }
 
-// 区域路由：有模板 body 的走模板，其余走各自的旧渲染函数
+// 区域路由：根据 type 字段选择渲染器
 function renderArea(areaKey, cls){
-  const body = getAreaHeader(areaKey, cls).body;
-  const fn = body && AREA_RENDERERS[body.type];
+  const area = getAreaHeader(areaKey, cls);
+  const fn = area && AREA_RENDERERS[area.type];
   return fn ? fn(areaKey, cls) : "";
 }
 const AREA_RENDERERS = {
@@ -1245,39 +1246,39 @@ function renderCounters(areaKey, declared, data){
 
 // fillbox：一个大文本框，可挂选项组（点 ＋ 追加进文本框）、计数器、提示句
 function renderFillboxArea(areaKey, cls){
-  const body = getAreaHeader(areaKey, cls).body;
-  if(!body || body.type !== "fillbox") return "";
+  const area = getAreaHeader(areaKey, cls);
+  if(!area || area.type !== "fillbox") return "";
   const data = areaData(areaKey, {text:"", counters:{}, extra:[]});
   if(!data.counters) data.counters = {};
 
-  const counters = renderCounters(areaKey, body.counters, data);
+  const counters = renderCounters(areaKey, area.counters, data);
   // 「＋ 计数器」两种模式都给出，与计数器本身一致
-  const addCounter = body.addCounter
+  const addCounter = area.addCounter
     ? `<div class="addrow counters-add"><button data-area="xadd:${areaKey}">＋ 计数器</button></div>` : "";
 
-  const opts = (mode === "edit" ? (body.options || []) : []).map(g =>
+  const opts = (mode === "edit" ? (area.options || []) : []).map(g =>
     `<div class="gear-group"><div class="gear-prompt md">${markdownToHtml(g.prompt||"")}</div>` +
     (g.options||[]).map(o => {
       const txt = stripTags(o);
       return `<div class="opt"><button class="gear-add" data-area="opt:${areaKey}:${esc(txt)}" title="加入">＋</button> <span>${esc(txt)}</span></div>`;
     }).join("") + `</div>`).join("");
 
-  const hints = (body.hints || []).map(h => `<div class="question-hint">${markdownToHtml(h)}</div>`).join("");
+  const hints = (area.hints || []).map(h => `<div class="question-hint">${markdownToHtml(h)}</div>`).join("");
 
   return `<div class="pb-sec">${renderAreaHeader(areaKey, cls)}${counters}${addCounter}<textarea class="fillbox" data-area="text:${areaKey}">${esc(data.text||"")}</textarea>${opts}${hints}</div>`;
 }
 
 // bonds：若干可增删的文本行，可挂「关系」（目标 + 描述 + 深度轨道）
 function renderBondsArea(areaKey, cls){
-  const body = getAreaHeader(areaKey, cls).body;
-  if(!body || body.type !== "bonds") return "";
-  const data = areaData(areaKey, {lines:(body.lines||[]).slice(), relations:[]});
+  const area = getAreaHeader(areaKey, cls);
+  if(!area || area.type !== "bonds") return "";
+  const data = areaData(areaKey, {lines:(area.lines||[]).slice(), relations:[]});
   if(!data.lines) data.lines = [];
   if(!data.relations) data.relations = [];
 
-  const label = getAreaHeader(areaKey, cls).title || "";
-  const depth = body.relationDepth || 3;
-  const rels = body.relations ? (mode === "edit"
+  const label = area.title || "";
+  const depth = area.relationDepth || 3;
+  const rels = area.relations ? (mode === "edit"
     ? data.relations.map((r,i)=>`<div class="bond-line rel">
         <input data-area="rtarget:${areaKey}:${i}" value="${esc(r.target||"")}" placeholder="关系目标">
         <input data-area="rdesc:${areaKey}:${i}" value="${esc(r.description||"")}" placeholder="关系描述">
@@ -1292,14 +1293,14 @@ function renderBondsArea(areaKey, cls){
   }
   const lines = data.lines.map((b,i)=>`<div class="bond-line"><input data-area="bond:${areaKey}:${i}" value="${esc(b)}" placeholder="${esc(label)}"><button class="x" data-area="bdel:${areaKey}:${i}" title="删除">✕</button></div>`).join("");
   const btns = [`<button data-area="badd:${areaKey}">＋ ${esc(label)}</button>`];
-  if(body.relations) btns.push(`<button data-area="radd:${areaKey}">＋ 关系</button>`);
+  if(area.relations) btns.push(`<button data-area="radd:${areaKey}">＋ 关系</button>`);
   return `<div class="pb-sec">${renderAreaHeader(areaKey, cls)}${rels}${lines}<div class="addrow">${btns.join("")}</div></div>`;
 }
 
 // heritage：一组格子 + 等量的文本行 + 一张说明卡，可整区折叠
 function renderHeritageArea(areaKey, cls){
-  const body = getAreaHeader(areaKey, cls).body;
-  if(!body || body.type !== "heritage") return "";
+  const area = getAreaHeader(areaKey, cls);
+  if(!area || area.type !== "heritage") return "";
   const data = areaData(areaKey, {boxes:[], moves:[], upgraded:false, hidden:false});
   if(!data.boxes) data.boxes = [];
   if(!data.moves) data.moves = [];
@@ -1308,18 +1309,18 @@ function renderHeritageArea(areaKey, cls){
   const hdr = renderAreaHeader(areaKey, cls, toggle);
   if(data.hidden) return `<div class="pb-sec">${hdr}</div>`;
 
-  const n = data.upgraded ? (body.boxesUpgraded || body.boxes || 0) : (body.boxes || 0);
+  const n = data.upgraded ? (area.boxesUpgraded || area.boxes || 0) : (area.boxes || 0);
   const boxes = Array.from({length:n}, (_,i) =>
     `<label class="heritage-box"><input type="checkbox" class="chk" data-area="hbox:${areaKey}:${i}"${data.boxes[i]?" checked":""}></label>`).join("");
   const lines = Array.from({length:n}, (_,i) => mode === "edit"
-    ? `<div class="bond-line"><input data-area="hmove:${areaKey}:${i}" value="${esc(data.moves[i]||"")}" placeholder="${esc(body.movePlaceholder||"")}"></div>`
+    ? `<div class="bond-line"><input data-area="hmove:${areaKey}:${i}" value="${esc(data.moves[i]||"")}" placeholder="${esc(area.movePlaceholder||"")}"></div>`
     : `<div class="bond-line md">${renderFieldMarkdown(data.moves[i]||"", "heritage::"+areaKey+"::"+i, ()=>data.moves[i]||"", t=>{data.moves[i]=t;})}</div>`).join("");
 
   const card = [];
-  if(body.note) card.push(markdownToHtml(body.note));
-  if(body.upgradePrompt) card.push(markdownToHtml(body.upgradePrompt));
-  if(body.upgradeEffect){
-    card.push(`<p class="heritage-up"><input type="checkbox" class="chk" data-area="hup:${areaKey}"${data.upgraded?" checked":""}${mode==="view"?" disabled":""}>${inlineMarkdown(body.upgradeEffect)}</p>`);
+  if(area.description) card.push(markdownToHtml(area.description));
+  if(area.upgradePrompt) card.push(markdownToHtml(area.upgradePrompt));
+  if(area.upgradeEffect){
+    card.push(`<p class="heritage-up"><input type="checkbox" class="chk" data-area="hup:${areaKey}"${data.upgraded?" checked":""}${mode==="view"?" disabled":""}>${inlineMarkdown(area.upgradeEffect)}</p>`);
   }
   const cardHtml = card.length ? `<div class="mv"${mvBarStyle(areaKey)}><div class="mv-t">${card.join("")}</div></div>` : "";
   return `<div class="pb-sec">${hdr}<div class="heritage-boxes">${boxes}</div>${lines}${cardHtml}</div>`;
@@ -1334,6 +1335,14 @@ function renderRefTabs(){
   ).join("");
 }
 function renderRef(){
+  const panel = document.getElementById("refPanel");
+  const cols = document.getElementById("mainCols");
+  // 规则没声明 refSections 就没有边栏，不拿占位内容充数
+  const show = REF_SECTIONS.length > 0;
+  if(panel) panel.classList.toggle("hidden", !show);
+  if(cols) cols.classList.toggle("no-ref", !show);
+  if(!show) return;
+
   renderRefTabs();
   const body = document.getElementById("refBody");
   lastSearchItems = [];
@@ -1357,7 +1366,7 @@ function restoreRefDetails(state){
 // kind 即目标区域的 areaKey。能导入的唯一条件：该区域存在且是动作区
 function importTarget(kind){
   const area = kind && AREAS[kind];
-  return (area && area.body && area.body.type === "moveList") ? area : null;
+  return (area && area.type === "moveList") ? area : null;
 }
 // 登记可导入条目并返回卡片 HTML（idx 与 lastSearchItems 一一对应，-1 表示只展示）
 function refCard(item){
@@ -1413,7 +1422,7 @@ function renderArticle(it){
       return refCard(articleItem(it, b));
     }
     const area = b.kind && AREAS[b.kind];
-    const type = area && area.body && area.body.type;
+    const type = area && area.type;
     if(type === "bonds"){
       return `<div class="bond-line md">${markdownToHtml(b.text)}</div>`;
     }
@@ -1431,14 +1440,15 @@ function tagItemHtml(tag){
   const desc = tag.description ? ` ${inlineMarkdown(tag.description)}` : '';
   return `<div class="tag-item">${inlineMarkdown(`{${tag.name}}`)}${desc}</div>`;
 }
-function renderRefTags() {
-  const tags = DW_DATA.tags || {};
+// 该页签只渲染自己 id 指向的标签；颜色定义则由所有 tags 页签共同贡献
+function renderRefTags(sec) {
+  const tags = refData(sec.id) || {};
   if (!Object.keys(tags).length) {
     return '<div class="ref-empty">未定义标签</div>';
   }
   let html = '';
   for (const [category, tagList] of Object.entries(tags)) {
-    const items = tagList.map(tagItemHtml).join('');
+    const items = (tagList || []).map(tagItemHtml).join('');
     html += `<details class="rmv"><summary>${esc(category)}</summary><div class="rmv-t">${items}</div></details>`;
   }
   return html;
@@ -1453,16 +1463,13 @@ const REF_RENDERERS = {
   tags:      renderRefTags,
   search:    sec => renderRefSearch(searchKw),
 };
-// 取某职业某区域合并后的 body（不依赖角色状态）
-function areaBodyFor(cls, areaKey){
-  const base = AREAS[areaKey];
-  if(!base) return null;
-  const override = (cls && cls.areas && cls.areas[areaKey]) || {};
-  return deepMerge(base.body, override.body);
+// 取某职业某区域合并后的配置（不依赖角色状态）
+function areaFor(cls, areaKey){
+  return getAreaHeader(areaKey, cls);
 }
 // 列出所有 moveList 区域的 key
 function moveListAreaKeys(cls){
-  return Object.keys(AREAS).filter(k => { const b = areaBodyFor(cls, k); return b && b.type === "moveList"; });
+  return Object.keys(AREAS).filter(k => { const a = areaFor(cls, k); return a && a.type === "moveList"; });
 }
 // 所有 moveList 区域里的分组 → {label, key, areaKey}
 // key 要一起带出来：条目上存的 group 是 key，而匹配用的是 label，两者常常不等
@@ -1471,8 +1478,8 @@ function collectGroupLabels(){
   const seen = new Set();
   (DW_DATA.classes||[]).forEach(c => {
     moveListAreaKeys(c).forEach(areaKey => {
-      const b = areaBodyFor(c, areaKey);
-      (b.groups || []).forEach(g => {
+      const a = areaFor(c, areaKey);
+      (a.groups || []).forEach(g => {
         if(!g.label) return;
         const k = areaKey + "::" + g.key + "::" + g.label;
         if(seen.has(k)) return;
@@ -1486,9 +1493,9 @@ function collectGroupLabels(){
 function classMovesFlat(c){
   const items = [];
   moveListAreaKeys(c).forEach(areaKey => {
-    const b = areaBodyFor(c, areaKey);
-    (b.groups || []).forEach(g => (g.moves || []).forEach(m => items.push({kind:areaKey, name:m.name, html:m.text, source:c.name, group:g.key, classId:c.id})));
-    (b.moves || []).forEach(m => items.push({kind:areaKey, name:m.name, html:m.text, source:c.name, classId:c.id}));
+    const a = areaFor(c, areaKey);
+    (a.groups || []).forEach(g => (g.moves || []).forEach(m => items.push({kind:areaKey, name:m.name, html:m.text, source:c.name, group:g.key, classId:c.id})));
+    (a.moves || []).forEach(m => items.push({kind:areaKey, name:m.name, html:m.text, source:c.name, classId:c.id}));
   });
   return items;
 }
@@ -1543,10 +1550,9 @@ function searchResultsHtml(kw){
   }
   // 3. 标签
   const tagMatches = [];
-  const tagsData = DW_DATA.tags || {};
+  const tagsData = allTagCategories();
   for (const category in tagsData) {
-    const tagList = tagsData[category] || [];
-    tagList.forEach(tag => {
+    tagsData[category].forEach(tag => {
       if (tag.name.includes(kw) || (tag.description && tag.description.includes(kw))) {
         tagMatches.push(tag);
       }
@@ -1575,17 +1581,17 @@ function importSearchItem(idx){
   if(!item) return;
   const cls = getClass(char.classId);
   const areaKey = item.kind;
-  const body = cls ? areaBodyFor(cls, areaKey) : null;
+  const area = cls ? areaFor(cls, areaKey) : null;
 
-  if(!body || body.type !== "moveList"){
+  if(!area || area.type !== "moveList"){
     // 导入目标不存在或不是动作区，与其静默失败不如说清楚
     alert(areaKey ? `当前规则里没有可接收的「${areaKey}」动作区域。` : "该条目没有声明导入目标。");
     return;
   }
   // boundMove 未取得时该区域整个不渲染，导进去会看不见，所以挡在这里
   // （勾选动作只触发 renderPlaybook，边栏按钮来不及更新，只能在导入时判）
-  if(!boundMoveTaken(body)){
-    const need = body.features.boundMove;
+  if(!boundMoveTaken(area)){
+    const need = area.boundMove;
     const title = (AREAS[areaKey] && AREAS[areaKey].title) || areaKey;
     alert(`「${title}」要先取得「${need}」才会出现，现在导入会看不到。`);
     return;
@@ -1610,11 +1616,11 @@ function onClassChange(){
   if(newId!==char.classId){
     char.classId=newId;
     char.plainAreas={}; char.moveListSelections={}; char.moveListGroupNames={}; char.moveListNames={}; char.moveListTexts={};
-    // 内容来自职业的区域（body 里声明 resetOnClassChange）换职业时清空，其余保留
+    // 内容来自职业的区域（声明 resetOnClassChange）换职业时清空，其余保留
     const cls=getClass(newId);
     Object.keys(char.areaData||{}).forEach(k => {
-      const b = cls ? (getAreaHeader(k, cls).body || {}) : {};
-      if(b.resetOnClassChange) delete char.areaData[k];
+      const a = cls ? getAreaHeader(k, cls) : {};
+      if(a.resetOnClassChange) delete char.areaData[k];
     });
     char.damage=""; char.hpCur=0; char.hpMax=0; char.load=0;
   }
@@ -1809,8 +1815,8 @@ function customGroupStore(areaKey){
 function ensureMoveListGroup(areaKey, groupKey, label){
   if(!groupKey) return null;
   const cls = getClass(char.classId);
-  const body = cls ? getAreaHeader(areaKey, cls).body : null;
-  const inTemplate = ((body && body.groups) || []).some(g => g.key === groupKey);
+  const area = cls ? getAreaHeader(areaKey, cls) : null;
+  const inTemplate = ((area && area.groups) || []).some(g => g.key === groupKey);
   if(inTemplate) return groupKey;
   const store = customGroupStore(areaKey);
   if(!store.some(g => g.key === groupKey)) store.push({key:groupKey, label:(label !== undefined ? label : groupKey), moves:[]});
@@ -1925,11 +1931,11 @@ function updateMoveListGroupName(areaKey, groupKey, value){
 
 function collectMovesInArea(areaKey){
   const cls = getClass(char.classId);
-  const body = getAreaHeader(areaKey, cls).body;
-  if(!body || body.type !== "moveList") return [];
+  const area = getAreaHeader(areaKey, cls);
+  if(!area || area.type !== "moveList") return [];
   let all = [];
-  (body.groups || []).forEach(g => { all = all.concat(g.moves || []); });
-  all = all.concat(body.moves || []);
+  (area.groups || []).forEach(g => { all = all.concat(g.moves || []); });
+  all = all.concat(area.moves || []);
   all = all.concat(moveListCustomMoves(areaKey));
   return all;
 }
@@ -2039,18 +2045,18 @@ function checkAffected(after){
     if(!sel.length) continue;
     const base = areas[areaKey];
     const override = (cls.areas && cls.areas[areaKey]) || {};
-    const body = deepMerge(base && base.body, override.body);
-    const title = (override.title !== undefined ? override.title : (base && base.title)) || areaKey;
+    const area = deepMerge(base, override);
+    const title = area.title || areaKey;
     const label = n => (char.moveListGroupNames && char.moveListGroupNames[`${areaKey}::${n}`]) || n;
 
-    if(!body || body.type !== "moveList"){
+    if(!area || area.type !== "moveList"){
       sel.forEach(n => items.push("· "+title+"「"+label(n)+"」"));
       continue;
     }
     // 有效的勾选键：分组用 key，动作用 moveSelKey
     const keys = [];
-    (body.groups||[]).forEach(g => { keys.push(g.key); (g.moves||[]).forEach(m => keys.push(moveSelKey(m))); });
-    (body.moves||[]).forEach(m => keys.push(moveSelKey(m)));
+    (area.groups||[]).forEach(g => { keys.push(g.key); (g.moves||[]).forEach(m => keys.push(moveSelKey(m))); });
+    (area.moves||[]).forEach(m => keys.push(moveSelKey(m)));
     moveListCustomGroups(areaKey).forEach(g => keys.push(g.key));
     moveListCustomMoves(areaKey).forEach(m => keys.push(moveSelKey(m)));
     sel.forEach(n => { if(!keys.includes(n)) items.push("· "+title+"「"+label(n)+"」"); });
@@ -2140,12 +2146,10 @@ function renderRulesPanel(){
 }
 
 function renderNoRules(){
-  renderRefTabs();
   document.getElementById("playbook").innerHTML = '<div class="empty">⚠️ 未加载规则<br><br>请点「📥 导入规则」导入第一份规则 JSON（底层，需包含 classes）。之后可继续导入规则包叠加。</div>';
   const sel = document.getElementById("classSelect");
   if(sel) sel.innerHTML = '<option value="">—— 选择职业 ——</option>';
-  const body = document.getElementById("refBody");
-  if(body) body.innerHTML = '<div class="ref-empty">未加载规则。</div>';
+  renderRef();
   renderRulesPanel();
 }
 
@@ -2158,56 +2162,6 @@ function init(){
       bind();
       return;
     }
-    document.getElementById("jsonSchema").textContent = JSON.stringify({
-      "meta": {
-        "stats": ["属性甲", "属性乙"],
-        "areaLayout": { "left": ["区域甲"], "right": ["区域乙"] },
-        "areas": {
-          "区域甲": {
-            "title": "区域甲",
-            "note": "标题后的小字",
-            "rightStats": [{ "key": "数值键", "label": "数值名", "type": "number" }],
-            "body": {
-              "type": "plain",
-              "elements": [
-                { "type": "text", "value": "正文，支持 **加粗** 与 [ ] 勾选框" },
-                { "type": "choices", "key": "选项键", "value": [] },
-                { "type": "input", "key": "输入键", "label": "标签", "tip": "占位提示" }
-              ]
-            }
-          },
-          "区域乙": {
-            "title": "区域乙",
-            "body": {
-              "type": "moveList",
-              "features": { "selectMoves": true },
-              "buttons": [{ "label": "条目", "position": "inGroup", "action": "addMove" }]
-            }
-          }
-        }
-      },
-      "classes": [{
-        "id": "职业id",
-        "name": "职业名",
-        "hp": "6+属性乙",
-        "areas": {
-          "区域甲": {
-            "rightStats": [{ "key": "数值键", "formula": "9+属性甲" }],
-            "body": { "elements": [{ "key": "选项键", "value": ["选项一", "选项二"] }] }
-          },
-          "区域乙": {
-            "body": {
-              "groups": [{
-                "key": "分组键",
-                "label": "分组名",
-                "minLevel": 2,
-                "moves": [{ "name": "条目名", "text": "条目正文" }]
-              }]
-            }
-          }
-        }
-      }]
-    }, null, 2);
     load();
     renderClassSelect();
     renderPlaybook();

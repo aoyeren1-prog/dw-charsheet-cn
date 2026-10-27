@@ -8,20 +8,25 @@
 
 ```jsonc
 {
-  "meta":         { /* 规则配置，见第二节 */ },
-  "classes":      [ /* 职业数组，见第三节 */ ],
-  "basicMoves":   [ /* 基本动作，见第四节 */ ],
-  "specialMoves": [ /* 特殊动作，见第四节 */ ],
-  "spells":       { /* 法术，见第五节 */ },
-  "customMoves":  [ /* 自定义动作，见第六节 */ ],
-  "compendium":   [ /* 概略职业 / 新种族，见第六节 */ ],
-  "tags":         [ /* 标签定义，见第七节 */ ]
+  "meta": { /* 全局配置，见第二节 */ },
+  "classes": [ /* 职业数组，见第四节 */ ],
+  
+  // 资料边栏内容，键名由 meta.refSections 定义
+  "basicMoves": [...],
+  "spells": {...},
+  "tags": [...]
 }
 ```
 
-`classes` 是**必需**的（至少一个）。`basicMoves` / `specialMoves` / `spells` / `customMoves` / `compendium` / `tags` 可为空数组或省略。
+**三类顶层字段**：
 
-除上述固定键外，顶层还可加**任意自定义动作数组**（如 `"wizardDomains": [...]`），只要在 `meta.refSections` 里用 `type:"moves"` 的 `groups[].key` 指向它，就能作为资料边栏的一个分类展示。
+1. **`meta`**：全局配置（属性、区域、资料边栏定义、界面文案）
+2. **`classes`**：职业数组，每个职业除 `id`/`name`/`hp`/`damage`/`load` 外，其余字段都是对 `meta` 的覆盖
+3. **`refName`**：资料边栏内容，键名由 `meta.refSections[].groups[].key` 定义
+
+> **TODO**：当前 `refName` 直接放在顶层，结构不够明确。后续可能会添加 `"reference"` 对象将所有资料内容框起来，如 `{"meta":{...}, "classes":[...], "reference":{"basicMoves":[...]}}`，但需考虑向后兼容。
+
+> **TODO**：`classes` 字段名和 UI 中的"职业"文案是为《地城世界》硬编码的。不同 PbtA 规则对角色类别有不同命名（剧本？原型？英雄？……）。代码层面保持简洁的 `classes` 不变，但应在 `meta` 中增加可配置字段（如 `classLabel`、`classLabelPlural`），允许规则 JSON 自定义该术语在 UI 中的显示名称。这样既保持代码简洁，又能适配其他规则。
 
 ---
 
@@ -33,128 +38,378 @@
 | `statsMode` | `string` | `"scores"`（3–18 数值，查 `modTable` 得调整值）或 `"modifiers"`（直接填调整值，隐藏 HP/负载公式） | `"scores"` |
 | `modTable` | `object` | 数值区间 → 调整值 | `{"1-3":-3,"4-5":-2,"6-8":-1,"9-12":0,"13-15":1,"16-17":2,"18":3}` |
 | `debilities` | `object` | 属性 → 异常状态名 | `{"力量":"虚弱","敏捷":"颤抖",...}` |
-| `labels` | `object` | 界面文案（数值名、按钮等；板块名已移交 `areas`） | 见下 |
-| `areas` | `object` | **角色卡区域定义**（标题、栏位、内容模板） | 见 `AREAS_FORMAT.md` |
-| `areaLayout` | `object` | 区域的顺序与左右栏归属 | 见 `AREAS_FORMAT.md` |
+| `labels` | `object` | 界面文案 | 见下 |
+| `areas` | `object` | **角色卡区域定义**（标题、栏位、内容模板） | 见第三节 |
+| `areaLayout` | `object` | 区域的顺序与左右栏归属 | 见第三节 |
 | `refSections` | `array` | 资料边栏页签与内容组织 | 见下 |
-| `prepareCapFormula` | `string` | 准备上限公式 | `"施法等级+1"` |
 | `statNote` | `string` | 初始属性分配提示（纯展示文本，职业级可覆盖） | `"16(+2), 15(+1), ..."` |
 | `statMin` / `statMax` | `number` | 属性输入框上下限（可选，覆盖模式默认值） | `-1` / `3` |
 | `debilityPenalty` | `string` | 异常状态是否扣减显示调整值：`"on"`（扣 1）或 `"off"`（不扣） | `"off"` |
 | `source` / `license` | `string` | 来源 / 许可元信息（可选，仅记录） | — |
 
-> 已移除的键：`statDistribution`（改用 `statNote`）、`spellSections` / `heritage` / `advancedTiers` / `coins`（全部由 `meta.areas` 的区域模板取代，见 `AREAS_FORMAT.md`）。进阶分段的等级限制现在写在区域 `body.groups[]` 的 `minLevel` / `maxLevel` 上。
-
 ### `labels` 常用键
 
-实际被读取的只有 8 个：`name`（姓名）、`level`（等级）、`xp`（XP）、`hpMax`（最大生命）、`hpCur`（当前生命）、`armor`（护甲）、`damage`（伤害）、`statDist`（初始分配提示的前缀）。
+目前共 8 个：`name`（姓名）、`level`（等级）、`xp`（XP）、`hpMax`（最大生命）、`hpCur`（当前生命）、`armor`（护甲）、`damage`（伤害）、`statDist`（初始分配提示的前缀）。
 
-板块名已全部移交 `meta.areas` 的 `title`，所以 `look` / `race` / `alignment` / `starting` / `advanced` / `gear` / `bonds` / `notes` 这类键写在 `labels` 里不再生效。`load` / `casterLevel` / `prepareCap` / `coins` 改由区域的 `rightStats[].label` 声明。`defaultFormula` / `blank` / `customAdvanced` / `raceName` / `alignmentName` / `alignmentNote` 已无读取方。
+其他 labels 为旧结构弃用键，可无损删除。
 
-### `refSections`（资料边栏页签）
+### `refSections`
 
-每个元素一个页签，`type` 决定渲染方式。只有四种 `type`：
-
-```jsonc
-"refSections": [
-  { "id": "moves", "title": "通用动作", "type": "moves", "groups": [
-      { "key": "basicMoves",   "label": "基本动作" },
-      { "key": "specialMoves", "label": "特殊动作" }
-  ]},
-  { "id": "spells", "title": "法术列表", "type": "moves", "groups": [
-      { "key": "spells.wizard", "label": "法术书",   "kind": "wizard" },
-      { "key": "spells.cleric", "label": "牧师法术", "kind": "cleric" }
-  ]},
-  { "id": "extension", "title": "扩展", "type": "extension", "groups": [
-      { "key": "customMoves", "label": "自定义动作" }
-  ], "articles": "compendium" },
-  { "id": "tags",   "title": "标签",     "type": "tags" },
-  { "id": "search", "title": "资料速查", "type": "search" }
-]
-```
-
-| `type` | 内容 |
-|---|---|
-| `moves` | 动作分类展示，内容来自 `groups` |
-| `extension` | `groups` + `articles`（指向顶层 `compendium`） |
-| `tags` | 顶层 `tags` 的全部标签，按分类折叠 |
-| `search` | 全库搜索 |
-
-#### `groups[]` 字段
-
-| 字段 | 说明 |
-|---|---|
-| `key` | 指向规则数据里的动作数组。支持**点分路径**，如 `"spells.wizard"` 取 `spells` 下的 `wizard` |
-| `label` | 分类标题。省略则无标题、直接平铺 |
-| `kind` | **导入目标区域的 areaKey**。省略则该组只能看、不能导入 |
-
-`kind` 的值就是 `meta.areas` 里的键。导入按钮出现的唯一条件是：该 areaKey 存在，且其 `body.type` 为 `moveList`。所以指向 `bonds`、`look` 这类非动作区不会长出按钮，不存在「有按钮但点了没反应」的情况。
-
-条目自身若带 `group` 字段，会在该分类下再分小节——法术的环位（`戏法` / `等级1`…）就是这么来的，不需要在 `refSections` 里手写环位。导入时这个 `group` 会被用作目标区域里的分组 key，所以法术会自动落进对应环位。
-
-#### 搜索页
-
-`type:"search"` 的可搜范围由数据决定，不在代码里写死：职业动作 + 所有 `refSections` 的全部内容（含 `groups` 条目、`articles` 的每个块、纯文本块）+ 顶层 `tags`。换言之，边栏能浏览的内容都能搜到；能导入的在搜索结果里同样带导入按钮。
+资料边栏页签定义。详见「资料边栏」章节（待补充）。
 
 ---
 
-## 三、职业 `classes[]`
+## 三、区域系统 `areas` / `areaLayout`
+
+### 概述
+
+#### 数据层级
+
+配置分两层：`meta.areas` 定义通用结构，`classes[].areas` 按职业覆盖。
+
+`meta.areaLayout` 显式声明哪些区域渲染及其顺序和栏位：
+- **未定义 `areaLayout`**：渲染所有 `areas` 中的区域（按声明顺序放到左栏）
+- **定义了 `areaLayout`**：只渲染列入的区域，未列入的不渲染（可用于房规隐藏某个区域）
+
+**areaLayout 的合并行为**：职业层定义 `areaLayout` 时**完全覆盖**通用层，不定义时继承通用层。因此职业层若要改布局必须定义完整布局。
+
+#### 合并规则
+
+`meta.areas` 和 `classes[].areas` 按键深度合并。示例：
+
+```jsonc
+// meta.areas.gear
+{"title": "装备", "rightStats": [{"key": "load", "label": "负载", "formula": "9+力量"}]}
+
+// classes[0].areas.gear
+{"rightStats": [{"key": "load", "formula": "8+力量"}]}
+
+// 合并结果
+{"title": "装备", "rightStats": [{"key": "load", "label": "负载", "formula": "8+力量"}]}
+```
+
+完整的合并规则见第十节「分层合并」。
+
+### 区域定义 (`meta.areas`)
+
+#### 结构
 
 ```jsonc
 {
-  "id": "barbarian",            // 必需，唯一标识，英文小写
-  "name": "野蛮人",             // 必需，职业名
-  "intro": "简介（可省略）",
-  "hp": "6+体质",               // 生命公式（见第八节）
-  "damage": "d6",
-  "load": "9+力量",             // 负载公式
-  "statNote": "16 (+2), 15 (+1), ...",   // 属性分配提示（可选，纯展示）
-  "names": [                    // 名字/称号建议（可选）
-    { "race": "",     "names": ["戈姆","西易",...] },
-    { "race": "称号", "names": ["光荣的","饥饿的",...] }
-  ],
-  "look": [                     // 外观选项，二维数组，每组一组选项
-    ["痛苦的眼神","着魔的眼神","狂野的眼神","被遮蔽的双眼"],
-    ["强壮肌肉","长腿","骨瘦如柴的身躯","柔软的身躯"]
-  ],
-  "racialMoves": [              // 种族动作
-    { "race": "化外之民", "moves": [ { "name":"化外之民", "text":"..." } ] }
-  ],
-  "startingMoves": [            // 起始动作
-    { "name":"重装上阵", "text":"...", "replaces":"无拘无束" }
-  ],
-  "alignment": [                // 阵营 / 动机
-    { "name":"混乱", "text":"你远离文明世界的习俗常规。" }
-  ],
-  "gear": {
-    "groups": [
-      { "prompt": "你起始拥有……（装备说明；无 options 的组只显示这段提示）", "options": [] },
-      { "prompt": "选择你的武器：", "options": ["斧头 (近身, 1 重量)", "..."] }
-    ]
-  },
-  "bonds": [                    // 羁绊模板（下划线是填空处）
-    "_______________ 弱小而愚昧，但他也让我觉得有趣。"
-  ],
-  "advancedMoves": {            // 进阶动作，键对应 advancedTiers 的 key
-    "2-5":  [ { "name":"如饥似渴", "text":"...", "requires":null, "replaces":null } ],
-    "6-10": [ ]
-  },
-  "questions": [                // 「问自己的问题」（可选）：笔记栏下方的角色塑造提示
-    "你身上的哪种举止习惯，最明显地让你显得像个外来者？"
+  "meta": {
+    "areaLayout": {"left": ["look", "race", "gear"], "right": ["starting", "advanced"]},
+    "areas": {
+      "<areaKey>": {
+        "title": "区域标题",
+        "note": "可选说明",
+        "color": "#c8a24b",
+        "type": "plain",
+        "rightStats": [...]
+      }
+    }
+  }
+}
+```
+
+#### 字段说明
+
+| 字段 | 说明 |
+|------|------|
+| `title` | 区域标题，显示为粗体 |
+| `note` | 标题后的小字说明 |
+| `color` | 动作卡左侧色条颜色（CSS 颜色值），不写则无色条 |
+| `type` | 模板类型：`plain` / `moveList` / `fillbox` / `bonds` / `heritage` |
+| `rightStats` | 右对齐属性数组，见下节 |
+
+其他字段（如 `elements` / `groups` / `moves`）由 `type` 决定，见各模板节。
+
+### rightStats 详解
+
+右对齐属性（负载、HP、施法等级等）。
+
+```jsonc
+"rightStats": [
+  {"key": "load", "label": "负载", "type": "number", "formula": "9+力量", "min": 0}
+]
+```
+
+| 字段 | 说明 |
+|------|------|
+| `key` | 存储键，对应 `char[key]` |
+| `label` | 显示标签 |
+| `type` | `"number"` / `"text"` / `"display"`（只读） |
+| `formula` | 公式，如 `"9+力量"`；有此字段时显示公式提示和「默认」按钮 |
+| `min` / `max` | `type="number"` 时的范围 |
+
+**公式语法**：`+` 分隔的项，可以是整数、属性名（取调整值）、`等级`、其他 rightStat 的 `label`
+
+### 内容模板总览
+
+| type | 说明 | 主要字段 |
+|------|------|---------|
+| `plain` | 基础元素拼装（外观、起源、财富等） | `elements` |
+| `moveList` | 动作区域（起始动作、进阶动作、法术等） | `groups`, `moves`, `buttons`, `selectMoves` |
+| `fillbox` | 大文本框 + 计数器 + 选项（装备、笔记） | `counters`, `options`, `hints` |
+| `bonds` | 可增删的文本行 + 关系（羁绊） | `lines`, `relations` |
+| `heritage` | 格子 + 文本行 + 说明卡（血统） | `boxes`, `movePlaceholder` |
+
+渲染时，`AREA_RENDERERS[area.type]` 选择对应函数。
+
+### plain 模板
+
+#### 概述
+
+`type = "plain"` 用于外观、起源、财富等区域，通过 `elements` 数组声明式定义。
+
+#### 结构
+
+```jsonc
+{
+  "type": "plain",
+  "elements": [
+    {"type": "text", "value": "**外观**"},
+    {"type": "choices", "key": "group0", "value": ["魁梧", "精瘦"]},
+    {"type": "input", "key": "ancestry", "label": "血统", "prefix": "我是"},
+    {"type": "track", "key": "treasure", "value": [{"label": "破产"}, {"slots": 4}]}
   ]
+}
+```
+
+#### 元素类型
+
+| type | 说明 | 主要字段 |
+|------|------|---------|
+| `text` | 纯文本，支持 Markdown | `value` |
+| `hint` | 灰色小字 | `value` |
+| `choices` | 选项组（多选） | `key`, `value`（数组）, `layout: "break"` |
+| `input` | 输入框 | `key`, `label`, `prefix`, `hint` |
+| `track` | 轨道（格子 + 标签） | `key`, `value`（节点数组） |
+
+**公共字段**：
+- `view`：控制查看模式下的行为
+  - 省略：默认只读，所有可交互组件变为不可交互
+  - `"editable"`：查看模式下仍可编辑
+  - `"hide"`：查看模式下隐藏不渲染
+  - `"grey"`：查看模式下整个元素置灰（opacity: 0.5）
+  - `"hideUnselect"`：仅 `choices` 可用，查看模式下隐藏未选择的选项
+  - `"greyUnselect"`：仅 `choices` 可用，查看模式下置灰未选择的选项
+
+**track 节点**：`{"label": "标签"}` 或 `{"slots": N}`，轮流组成轨道。点击格子时后续格子自动清空。
+
+### moveList 模板
+
+#### 概述
+
+`type = "moveList"` 用于起始动作、进阶动作、种族动作、法术等。支持分组、勾选、前置关系、自定义动作。
+
+#### 结构
+
+```jsonc
+{
+  "type": "moveList",
+  "selectMoves": true,
+  "groups": [
+    {
+      "key": "2-5",
+      "label": "当你的等级升至2~5，从下列动作中选择：",
+      "minLevel": 2,
+      "moves": [
+        {"name": "铁意志", "text": "..."},
+        {"name": "强化防御", "text": "...", "requires": "铁意志"}
+      ]
+    }
+  ],
+  "moves": [...],
+  "buttons": [{"label": "动作", "position": "global", "action": "addMove"}]
+}
+```
+
+#### 字段说明
+
+| 字段 | 说明 |
+|------|------|
+| `groups` | 分组数组 |
+| `moves` | 无分组的动作数组 |
+| `buttons` | 按钮数组 |
+| `selectGroups` | 分组带勾选框 |
+| `selectMoves` | 动作带勾选框 |
+| `viewSelect` | 查看模式仍可勾选，未勾选置灰（用于 DW 的法术卡片） |
+| `boundMove` | 绑定动作名，该动作未取得时整区不渲染 |
+
+##### group
+
+| 字段 | 说明 |
+|------|------|
+| `key` | 分组标识（勾选与覆盖的键） |
+| `label` | 分组标题 |
+| `minLevel` / `maxLevel` | 等级范围，超出则灰显禁用 |
+| `selectable` | 覆盖 `selectGroups` |
+| `moves` | 该分组下的动作 |
+
+##### move
+
+| 字段 | 说明 |
+|------|------|
+| `name` | 动作名（勾选键，`requires` / `replaces` / `boundMove` 按它引用） |
+| `text` | 正文，支持 Markdown、`{标签}`、`[ ]` |
+| `requires` | 前置动作名（字符串或数组），未满足时禁用 |
+| `replaces` | 被替代动作名，勾选本动作时自动取消对方 |
+| `selectable` | 覆盖 `selectMoves` / `viewSelect` |
+
+##### button
+
+| 字段 | 说明 |
+|------|------|
+| `label` | 按钮文字，渲染为 `＋ {label}` |
+| `position` | `global`（区域末尾）/ `inGroup`（分组内） |
+| `action` | `addMove` / `addGroup` |
+| `targetGroup` | `addMove` 的落点分组，不存在时自动创建 |
+
+### 职业层覆盖 (`classes[].areas`)
+
+```jsonc
+{
+  "classes": [{
+    "id": "barbarian",
+    "areas": {
+      "gear": {"rightStats": [{"key": "load", "formula": "8+力量"}]},
+      "customArea": {"title": "怒气", "type": "plain", "elements": [...]}
+    }
+  }]
+}
+```
+
+职业可以：
+1. 覆盖通用区域的部分字段（如只改 `formula`）
+2. 覆盖整个区域（如改 `title` 和 `note`）
+3. 添加职业特有区域
+
+### fillbox / bonds / heritage 模板
+
+#### fillbox
+
+一个大文本框 + 计数器 + 选项 + 提示。替代装备区与笔记区。
+
+```jsonc
+{
+  "type": "fillbox",
+  "resetOnClassChange": true,
+  "counters": [{"key": "coins", "label": "金币", "value": 0}],
+  "addCounter": true,
+  "options": [{"prompt": "选择防具：", "options": ["皮甲", "链甲"]}],
+  "hints": ["你为什么离开家乡？"]
+}
+```
+
+#### bonds
+
+若干可增删的文本行 + 关系。
+
+```jsonc
+{
+  "type": "bonds",
+  "resetOnClassChange": true,
+  "lines": ["____ 曾与我并肩作战，我信任他。"],
+  "relations": true,
+  "relationDepth": 3
+}
+```
+
+#### heritage
+
+一组格子 + 文本行 + 说明卡，可折叠。
+
+```jsonc
+{
+  "type": "heritage",
+  "boxes": 2,
+  "boxesUpgraded": 3,
+  "movePlaceholder": "血统动作",
+  "description": "每次聚会开始时…",
+  "upgradePrompt": "当你升级时…",
+  "upgradeEffect": "获得第三个格子…"
 }
 ```
 
 ---
 
-## 四、动作（move）
+## 四、职业 `classes[]`
 
-动作对象（出现在 `startingMoves` / `racialMoves[].moves` / `advancedMoves` / `basicMoves` / `specialMoves`）：
+**职业自有字段**（不是覆盖行为）：
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `id` | string | 必需，唯一标识，英文小写 |
+| `name` | string | 必需，职业名 |
+| `intro` | string | 简介（可省略） |
+| `hp` | string | 生命公式，如 `"6+体质"` |
+| `damage` | string | 伤害骰，如 `"d6"` |
+| `load` | string | 负载公式，如 `"9+力量"` |
+
+**覆盖全局配置的字段**：
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `statNote` | string | 覆盖 `meta.statNote`，属性分配提示 |
+| `names` | array | 覆盖全局名字列表（如果 `meta.names` 存在） |
+| `areas` | object | 覆盖 `meta.areas` 中的特定区域，见第三节 |
+
+**示例**：
+
+```jsonc
+{
+  "id": "barbarian",
+  "name": "野蛮人",
+  "intro": "在荒野中长大的野蛮人...",
+  "hp": "6+体质",
+  "damage": "d10",
+  "load": "8+力量",
+  "statNote": "16 (+2), 15 (+1), 13 (+1), 12 (+0), 9 (+0), 8 (-1)",
+  "names": [
+    { "race": "", "names": ["戈姆", "西易", "斯德莫", "阿克蒂"] },
+    { "race": "称号", "names": ["光荣的", "饥饿的", "坚定的"] }
+  ],
+  "areas": {
+    "gear": {
+      "rightStats": [
+        {"key": "load", "formula": "8+力量"}
+      ]
+    },
+    "starting": {
+      "moves": [
+        {"name": "重装上阵", "text": "...", "replaces": "无拘无束"}
+      ]
+    }
+  }
+}
+```
+
+**字段说明**：
+
+职业定义中，`id`、`name`、`intro`、`hp`、`damage`、`load` 是职业自有的字段。
+
+其他字段如 `statNote`、`names`、`areas` 都是对全局配置（`meta` 中对应字段）的覆盖行为：
+- `statNote` 覆盖 `meta.statNote`
+- `names` 覆盖 `meta.names`（如果全局定义了的话）
+- `areas` 覆盖 `meta.areas` 中的特定区域
+
+`areas` 字段用于职业特定的区域定制。职业可以：
+1. 修改区域的部分字段（如改变负载公式）
+2. 添加职业特有的动作或选项
+3. 完全覆盖某个区域的内容
+
+详见第三节的「职业层覆盖」小节。
+
+---
+
+## 五、动作（move）
+
+动作对象（出现在 `areas[].moves` / `areas[].groups[].moves` / `basicMoves` / `specialMoves` 等）：
 
 ```jsonc
 {
   "name": "重装上阵",
-  "text": "你可以无视你所穿戴防具的{笨重}标签。",   // 支持标记语法（见第七节）
+  "text": "你可以无视你所穿戴防具的{笨重}标签。",   // 支持标记语法（见第八节）
   "requires": "某前置动作",        // 可选：前置动作名，字符串或数组
   "replaces": "某被替换动作"       // 可选：互斥动作名，字符串或数组
 }
@@ -163,35 +418,154 @@
 - `requires`：声明「必须先有某动作」。
 - `replaces`：声明「与某动作互斥」，选这个会取消那个（如野蛮人「重装上阵 ↔ 无拘无束」）。
 
+详见第三节的「moveList 模板」。
+
 ---
 
-## 五、法术 `spells`
+## 六、资料边栏 `refSections`
 
-按职业分页，每页是法术数组：
+`meta.refSections` 定义资料边栏的页签结构。每个元素一个页签，`type` 决定渲染方式。
+
+### 四种类型
+
+```jsonc
+"refSections": [
+  { "id": "moves", "title": "通用动作", "type": "moves", "groups": [
+      { "key": "basicMoves",   "label": "基本动作", "kind": "starting" },
+      { "key": "specialMoves", "label": "特殊动作" }
+  ]},
+  { "id": "extension", "title": "扩展", "type": "extension", 
+    "groups": [{ "key": "customMoves", "label": "自定义动作" }],
+    "articles": "compendium" 
+  },
+  { "id": "tags",   "title": "标签",     "type": "tags" },
+  { "id": "search", "title": "资料速查", "type": "search" }
+]
+```
+
+| type | 说明 |
+|------|------|
+| `moves` | 动作分类展示，内容来自 `groups` |
+| `extension` | `groups` + `articles` 的混合展示 |
+| `tags` | 顶层 `tags` 的全部标签，按分类折叠 |
+| `search` | 全库搜索 |
+
+### `type: "moves"` —— 动作分类
+
+通过 `groups` 数组组织动作内容。
+
+**groups 字段**：
+
+| 字段 | 说明 |
+|------|------|
+| `key` | 指向顶层的动作数组。支持**点分路径**，如 `"spells.wizard"` 取 `spells.wizard` |
+| `label` | 分类标题。省略则无标题、直接平铺 |
+| `kind` | **导入目标区域的 areaKey**。省略则该组只能看、不能导入 |
+
+**导入机制**：
+- `kind` 的值是 `meta.areas` 里的键
+- 导入按钮出现的条件：该 areaKey 存在，且其 `type` 为 `moveList`
+- 指向 `bonds`、`look` 等非 moveList 区域不会出现导入按钮
+- 导入时将会检查该区域 `type` 是否为 `moveList`，以及 `boundMove` 是否已满足。
+
+**自动分组**：
+- 动作对象若带 `group` 字段（如法术的 `"戏法"`、`"等级1"`），会在该分类下自动分小节
+- 导入时 `group` 会作为目标区域的分组 key
+
+### `type: "extension"` —— 扩展内容
+
+混合展示 `groups`（动作数组）和 `articles`（文章列表）。
+
+**结构**：
 
 ```jsonc
 {
-  "wizard": [ { "group":"戏法", "name":"光亮术", "text":"..." } ],
-  "cleric": [ { "group":"祷念", "name":"圣疗", "text":"..." } ]
+  "type": "extension",
+  "groups": [
+    { "key": "customMoves", "label": "自定义动作", "kind": "starting" }
+  ],
+  "articles": "compendium"  // 指向顶层的文章数组
 }
 ```
 
-法术不再是独立的一类数据，而是普通动作数组的一种用法：
+**groups**：普通动作数组，与 `type:"moves"` 的 `groups` 字段相同。
 
-- **边栏**：在 `refSections` 里用 `type:"moves"` + 点分路径 `key` 指向它（如 `"spells.wizard"`），`kind` 填接收它的区域 areaKey。
-- **角色卡**：接收法术的区域就是普通的 `moveList` 区域（如 `meta.areas.wizard`），环位是该区域 `body.groups` 里的分组，色条由区域的 `color` 声明，「拥有法术书才显示」由该区域的 `features.boundMove` 实现。
+**articles**：指向顶层的文章数组（如 `compendium`）。每篇文章结构：
 
-条目里的 `group`（`"戏法"` / `"祷念"` / `"等级1"`…）同时承担两个作用：在边栏分小节，以及导入时决定落进目标区域的哪个分组。所以法术环位的 key 要和接收区域 `body.groups` 的 key 一致。
+```jsonc
+{
+  "id": "undead",
+  "title": "亡灵化",
+  "importGroup": "亡灵化",  // 可选：导入后落进哪个分组
+  "blocks": [
+    { "kind": "text",  "text": "**说明文字**（纯文本块，不可导入）" },
+    { "kind": "race",  "name": "不死之躯", "text": "你不需要进食…" },
+    { "kind": "bonds", "text": "______ 承载着我生前的一段重要记忆。" }
+  ]
+}
+```
+
+**blocks 字段**：
+
+| 字段 | 说明 |
+|------|------|
+| `kind` | 目标区域的 areaKey。`"text"` 为纯文本块，不可导入 |
+| `name` / `text` | 动作内容（`kind` 不为 `"text"` 时） |
+| `importGroup` | 可选，块级覆盖文章级的 `importGroup` |
+
+**importGroup**：
+- 导入动作时，指定落进目标区域的哪个分组
+- 分组不存在时自动创建，排在已有分组**之后**
+- 只对 `kind` 指向 `moveList` 区域的块有效
+- 可写在文章级（所有块共用）或块级（覆盖文章级）
+
+### `type: "tags"` —— 标签
+
+按分类折叠展示标签。页签不写指向字段，数据取**与页签 `id` 同名的顶层键**：
+
+```jsonc
+"meta": {
+  "refSections": [
+    { "id": "tags", "title": "标签", "type": "tags" }   // 读顶层 tags
+  ]
+},
+"tags": {
+  "距离": [                   // 分类名（作为折叠组标题）
+    {
+      "name": "触及",         // 必需：标签名（与 {标签名} 匹配）
+      "color": "#ecacac",    // 可选：背景色（CSS 颜色值）
+      "textColor": "#fff",   // 可选：文字色（未设置则为黑色）
+      "description": "需要接触到目标才能使用"  // 可选：说明文字
+    }
+  ],
+  "通用": [
+    { "name": "笨重", "description": "该装备笨重难用" }
+  ]
+}
+```
+
+可以有多个 tags 页签，各读各的数据块：`{"id": "gearTags", "type": "tags"}` 读顶层 `gearTags`。
+
+**颜色生效范围**：所有 tags 页签的颜色定义汇总成一张**按标签名索引的全局表**，沿用到角色卡内的同名标签。详见第八节「文本标记语法」。
+
+**同名冲突**：全局表只认标签名，不分页签也不分分类。两个页签给同名标签配了不同颜色时，以**后声明的页签**为准；该标签在两个页签的边栏里都显示这一个颜色。同一数据块内的同名标签在规则栈合并阶段就已按 `name` 归并，不会走到这一步。未写 `color` 的同名标签不会清掉已有颜色。
+
+### `type: "search"` —— 搜索
+
+全库搜索，可搜范围由数据决定：
+- 职业动作
+- 所有 `refSections` 的内容（`groups` 条目、`articles` 的每个块、纯文本块）
+- 顶层 `tags`
+
+能导入的内容在搜索结果里同样带导入按钮。
 
 ---
 
-## 六、扩展内容 `customMoves` / `compendium`
+## 七、扩展内容 `customMoves` / `article`
 
-房规常用的三种「额外动作」都进「扩展」页签。
+### `customMoves` —— 自定义动作数组
 
-### `customMoves` —— 自定义动作
-
-普通动作数组，作为「扩展」页的一个类别展示：
+普通动作数组，在 refSections 中通过 `type:"extension"` 的 `groups` 引用：
 
 ```jsonc
 "customMoves": [
@@ -199,60 +573,68 @@
 ]
 ```
 
-要在「扩展」页加更多类别，就往 `meta.refSections` 里那个 `type:"extension"` 的 `groups` 数组加 `{ "key":"顶层键", "label":"类别名" }`。
+### `article` —— 文章数组
 
-### `compendium` —— 概略职业 / 新种族
-
-两者共用同一结构：一个「条目」= 标题 + 若干**块**。块的 `kind` 和 `groups[].kind` 同义，就是**目标区域的 areaKey**，渲染形态由那个区域的 `body.type` 反推：
+文章列表，在 refSections 中通过 `type:"extension"` 的 `articles` 引用。每篇文章包含标题和若干块：
 
 ```jsonc
 "compendium": [
   {
     "id": "undead",
-    "title": "新种族：亡灵化",
-    "importGroup": "亡灵化",             // 导入后落进目标区域的哪个分组
+    "title": "亡灵化",
+    "importGroup": "亡灵化",
     "blocks": [
-      { "kind":"text",  "text":"**亡灵化**可以与正常的种族并存…" },
-      { "kind":"race",  "name":"不死之躯", "text":"你不需要进食、饮水和呼吸…" },
-      { "kind":"race",  "name":"延命合同", "text":"你在 **临死一息** 的掷骰中…" },
-      { "kind":"bonds", "text":"______ 承载着我生前的一段重要记忆。" }
+      { "kind": "text",  "text": "**说明文字**" },
+      { "kind": "race",  "name": "不死之躯", "text": "你不需要进食…" },
+      { "kind": "bonds", "text": "______ 承载着我生前的一段重要记忆。" }
     ]
   }
 ]
 ```
 
-| `kind` | 渲染 |
-|---|---|
-| 指向 `moveList` 区域的 areaKey（如 `race`、`advanced`） | 动作卡片 + 「＋导入」按钮 |
-| 指向 `bonds` 区域的 areaKey | 羁绊行，不提供导入（羁绊由玩家自己写） |
-| 其他（含 `text`、或不写 `kind`） | 普通文本（支持标记语法） |
+**字段说明**：
 
-`text` 之所以能用，是因为它不是任何区域的 areaKey，自然落到纯文本分支——不是特例。
+| 字段 | 说明 |
+|------|------|
+| `id` | 文章唯一标识 |
+| `title` | 文章标题 |
+| `importGroup` | 可选，导入后落进的分组名 |
+| `blocks` | 块数组 |
 
-#### `importGroup`
+**blocks 字段**：
 
-导入一个动作块时，默认它会成为目标区域里**没有分类的游散动作**。对概略职业和新种族这不合适：导进去就看不出它来自哪个种族 / 哪个概略职业了。
+| 字段 | 说明 |
+|------|------|
+| `kind` | 目标区域的 areaKey，或 `"text"`（纯文本块） |
+| `name` | 动作名（`kind` 不为 `"text"` 时） |
+| `text` | 内容 |
+| `importGroup` | 可选，块级覆盖文章级 |
 
-`importGroup` 声明导入后该动作落进哪个分组；分组不存在时自动创建。可写在**文章级**（该文章所有块共用）或**块级**（覆盖文章级）。同一篇文章的多个动作块通常同属一组，写在文章级即可——两次导入会并进同一个分组，不会重复建组。
+详见第六节「资料边栏」。
 
-```jsonc
-{ "id":"revenant", "title":"概略职业：还魂者", "importGroup":"还魂者", "blocks":[ ... ] }
-```
+### 当前 moves 与 extension 的行为差异
 
-效果取决于目标区域的 features：
+| 项目 | `moves` | `extension` |
+|------|---------|-------------|
+| `kind` 定义位置 | 仅 `meta.refSections[].groups[].kind`，动作内不可定义 | 可在 `groups[].kind` 定义，也可在 `blocks[].kind` 覆盖 |
+| 导入目的地分组 | 由动作内的 `group` 决定（强制创建同名组） | 由 `importGroup` 决定（文章级 / 块级） |
+| 边栏内分组 | 由动作内的 `group` 决定（与导入分组同一个字段） | 由 `groups[].label` 决定，与 `importGroup` 分离 |
+| `kind` 的其他作用 | 无 | 同时决定 block 的渲染样式：按导入目的地区域的 `type` 反推；目的地不存在时退化为纯文本 |
 
-- `race`（`selectGroups`）：出现一个带勾选框的「亡灵化」分组，和「精灵」「人类」等同级。导入后**不自动勾选**——DW 的种族是「选择一项」，自动勾会造成多选。
-- `advanced`（`selectMoves`）：出现一个「还魂者」小节标题（无勾选框），组内动作各自带勾选框。
+两种类别的 `kind` / `group` / `importGroup` 语义不一致，容易造成困惑。
 
-自动创建的分组恒排在该区域已有分组**之后**。
-
-`importGroup` 只对 `kind` 指向 `moveList` 区域的块有意义，写在 `text` / `bonds` 块上会被忽略。
-
-新种族和概略职业的区别只在 `title` 前缀和块内容，结构完全一致。
+> **TODO：计划中的重构**
+>
+> `extension` 本质上是 `moves` 的扩展，后续应合并进 `moves`，并全面修改 `refSections` 数据结构：
+>
+> 1. **`meta` 只定义页签**：`refSections[]` 仅保留 `id` / `title` / `type`，不再用 `groups` 划分页签内部区块。
+> 2. **分组逻辑下移到内容侧**（届时位于 `reference` 内）：一个页签内可分多个 group，每个 group 内既可放动作（move）也可放文章（article）。
+> 3. **动作的 `kind`**：支持 group 级定义 + 动作级覆盖；并把 `group` 与 `importGroup` 分离——`group` 只控制边栏内分组，`importGroup` 只控制导入目的地所在组（与现在的文章行为一致）。
+> 4. **文章的 `kind`**：不再用同一个字段兼管导入目的地和 block 渲染类别。现在的逻辑是从角色卡区域定义反推边栏样式，依赖外部内容定义，不可靠。
 
 ---
 
-## 七、文本标记语法
+## 八、文本标记语法
 
 动作 / 羁绊 / 外观备注等**做渲染**的文本里可用：
 
@@ -269,29 +651,11 @@
 
 ### 标签颜色定义
 
-可在顶层定义 `tags` 对象，按分类组织标签并指定颜色。未定义的标签使用默认灰色背景 + 黑色文字。指定的颜色会沿用到角色卡内的同名标签中（换句话说，如果你想在角色卡让某个标签显示成自定义颜色，就必须在这里定义这个标签）。
-
-```jsonc
-"tags": {
-  "距离": [                   // 分类名（作为折叠组标题）
-    {
-      "name": "触及",         // 必需：标签名（与 {标签名} 匹配）
-      "color": "#ecacac",    // 可选：背景色（CSS 颜色值）
-      "textColor": "#fff",   // 可选：文字色（未设置则为黑色）
-      "description": "需要接触到目标才能使用"  // 可选：说明文字
-    }
-  ],
-  "通用": [
-    { "name": "笨重", "description": "该装备笨重难用" }
-  ]
-}
-```
-
-资料边栏新增"标签"页签，按分类折叠展示所有标签及其颜色。
+未定义的标签使用默认灰色背景 + 黑色文字。资料边栏 `tags` 类别内容里指定的颜色会沿用到角色卡内的同名标签——想让某个标签显示成自定义颜色，就必须在那里定义它。结构见第六节的 `type: "tags"`。
 
 ---
 
-## 八、公式语法
+## 九、公式语法
 
 `hp` / `load` / `prepareCapFormula` 用 `+` 连接若干项：
 
@@ -308,7 +672,7 @@
 
 ---
 
-## 九、分层合并（规则栈）
+## 十、分层合并（规则栈）
 
 工具内规则是**有序的规则栈**：第一份导入的是底层，之后导入的是规则包，上层覆盖下层。合并语义：
 
@@ -346,7 +710,7 @@ python builder\merge_rules.py data.json my-classpack.json -o merged.json
 
 ---
 
-## 十、最小可用示例
+## 十一、最小可用示例
 
 ```jsonc
 {
@@ -375,7 +739,7 @@ python builder\merge_rules.py data.json my-classpack.json -o merged.json
 
 ---
 
-## 十一、实验性功能（为 DW2 适配准备）
+## 十二、实验性功能（为 DW2 适配准备）
 
 > ⚠️ **本节所有字段均为实验性功能**，是为适配未来的《地城世界 2》（DW2）规则而预先加入的。DW2 仍是 beta，这些字段的语义、命名、结构随时可能调整，请勿在要长期使用的正式规则里依赖它们。
 
@@ -397,36 +761,7 @@ python builder\merge_rules.py data.json my-classpack.json -o merged.json
 - 当 `meta.conditions` 存在时，角色卡异常状态改用这套多态状态（每个属性格子下方一个可循环点击的状态钮），**取代**旧的 `meta.debilities`（属性→状态名映射）。
 - 状态数由 `conditionStates` 数组长度决定：DW1 二态、DW2 三态，未来四/五态也可扩。
 
-### 2. Treasure Track（财富轨道）
-
-| 键 | 类型 | 说明 |
-|---|---|---|
-| `meta.treasureTiers` | `array` | 阶层列表 `[{key, label, slots}]`，`slots` 是该阶层格数（`0` = 无格） |
-
-```jsonc
-"treasureTiers": [
-  { "key":"broke", "label":"破产", "slots":4 },
-  { "key":"poor",  "label":"贫穷", "slots":6 },
-  { "key":"aristocratic", "label":"贵族", "slots":0 }
-]
-```
-
-渲染为一条分段轨道：**点某格直接填充到该格、点已填充格清到该格**（双向），当前财富等级（已填满的最高阶层）标签高亮。格数、阶层全由数据决定。
-
-### 3. Advancement（升级）
-
-| 键 | 类型 | 说明 |
-|---|---|---|
-| `meta.advancement` | `string` | 一段**纯文本**（含 `[ ]` 勾选框），渲染成角色卡里的「升级」动作区域 |
-
-```jsonc
-"advancement": "当你升级时，HP +1，并选择以下一项：\n\n[ ] +1 任意属性（max +2）\n[ ] 获得一个 Path（含起始动作）\n\n从 5 级起，你还可以选择：\n[ ] Multiclass — 获得其他职业的 Path"
-```
-
-- 就是一个固定放着的「升级」动作（类似起始动作区域），文本里写升级规则和选项，勾选框复用动作文本的 `[ ]` 机制（`[x]` 表示勾选）。
-- 「从 5 级起…」这类等级说明直接写进文本即可，**不做按等级的置灰 / 禁用**。
-
-### 4. XP 轨道
+### 2. XP 轨道
 
 | 键 | 类型 | 说明 |
 |---|---|---|
@@ -438,7 +773,7 @@ python builder\merge_rules.py data.json my-classpack.json -o merged.json
 
 XP 改为轨道（点击填充），**不自动归零、不自动升级**——升级由玩家自行决定。
 
-### 5. Relationship Depth（关系深度）
+### 3. Relationship Depth（关系深度）
 
 | 键 | 类型 | 说明 |
 |---|---|---|
@@ -446,62 +781,8 @@ XP 改为轨道（点击填充），**不自动归零、不自动升级**——�
 
 角色数据 `char.relationships` 是 `[{target, description, depth}]`，在羁绊（bonds）区域上方渲染：每条关系 = 目标输入框 + 描述输入框 + 一条 Depth 轨道（点击填充/清空）。
 
-### 6. Origins（起源）
-
-| 键 | 类型 | 说明 |
-|---|---|---|
-| `meta.origins` | `array` | **可选**。字段列表 `[{key, label, prefix, hint}]`；不配置则完全不显示起源板块 |
-
-```jsonc
-"origins": [
-  { "key":"ancestry",  "label":"血缘", "prefix":"我是",   "hint":"如：矮人、精灵、人类……" },
-  { "key":"community", "label":"社群", "prefix":"我来自", "hint":"如：佣兵团、商队……" }
-]
-```
-
-- `prefix`：输入框预填文字（如「我是」），可编辑，未填写时显示。
-- `hint`：输入框下方的灰色示例文字。
-- 缺省 `prefix`/`hint` 时输入框为空、无示例。
-
-### 7. 伤害开关
+### 4. 伤害开关
 
 | 键 | 类型 | 说明 |
 |---|---|---|
 | `meta.showDamage` | `bool` | `false` 时属性栏不显示伤害（DW2 伤害由武器定义） |
-
-### 8. 公式显示开关
-
-| 键 | 类型 | 说明 |
-|---|---|---|
-| `meta.showFormula` | `bool` | `false` 时不显示 HP/负载的公式提示（DW2 的 HP/负重是写死的数字，非公式） |
-
-公式支持 **`等级`** 关键词（取角色当前等级），如 `"hp":"10+等级"`。缺省（`true`）时公式提示照常显示。
-
-### 9. 职业内覆盖进阶分段
-
-`classes[].advancedTiers` 可覆盖全局 `meta.advancedTiers`（道途 / Path 是职业独有的）：
-
-```jsonc
-"advancedTiers": [
-  { "key":"guardian", "label":"守护者 Path", "note":"以血肉之躯挡在同伴身前", "minLevel":1 }
-],
-"advancedMoves": { "guardian": [ ... ] }
-```
-
-`note` 是分组名下方的灰色说明文字（可选）。
-
-### 10. Struggle（心结）
-
-顶层 `struggles`（可导入的心结列表）+ `struggleHelp`（规则说明），在 `refSections` 里加一个 `type:"groups"` 页签：
-
-```jsonc
-"refSections": [
-  { "id":"struggles", "title":"心结", "type":"groups", "groups":[
-    { "key":"struggleHelp", "label":"怎么处理心结" },
-    { "key":"struggles", "label":"心结列表", "importable":true, "kind":"struggle" }
-  ]}
-]
-```
-
-- `struggles` 里的每个心结是动作（`{name, text}`），`importable:true` 使其可导入。
-- `kind:"struggle"` 让导入进角色卡的「心结」板块（而非自定义动作）。
