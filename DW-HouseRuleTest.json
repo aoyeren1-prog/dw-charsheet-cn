@@ -1,13 +1,6 @@
 {
   "meta": {
     "source": "房规示例，对 DW 的轻度修改，部分参考了 UD 规则。",
-    "labels": {
-      "race": "种族/背景",
-      "raceName": "种族/背景",
-      "alignment": "阵营/动机",
-      "alignmentNote": "Drive",
-      "alignmentName": "阵营/动机"
-    },
     "areas": {
       "race": {
         "title": "种族/背景"

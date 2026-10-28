@@ -2,33 +2,89 @@
   "meta": {
     "source": "Unlimited Dungeons (CC BY-SA 4.0)，简体译稿 Unlimited Dungeons CN",
     "license": "CC BY-SA 4.0",
-    "stats": [
-      "力量",
-      "敏捷",
-      "体质",
-      "智力",
-      "睿知",
-      "魅力"
-    ],
-    "statsMode": "modifiers",
-    "statMin": -1,
-    "statMax": 3,
-    "debilities": {
-      "力量": "虚弱",
-      "敏捷": "动摇",
-      "体质": "病弱",
-      "智力": "糊涂",
-      "睿知": "疲惫",
-      "魅力": "压抑"
-    },
-    "debilityPenalty": "off",
-    "showFormula": false,
-    "labels": {
-      "race": "背景动作",
-      "raceName": "背景",
-      "alignment": "驱策",
-      "alignmentName": "驱策",
-      "alignmentNote": "Drive"
+    "header": {
+      "charInfo": [
+        {"id": "name", "label": "姓名", "type": "text", "flex": 2},
+        { "id": "level", "label": "等级", "type": "number", "min": 1, "max": 10, "default": 1},
+        { "id": "xp", "label": "XP", "type": "number", "min": 0, "default": 0, "view": "editable"}
+      ],
+      "stats": {
+        "items": [
+          { "id": "STR", "label": "力量", "type": "modifier", "min": -1, "max": 3, "default": 0},
+          { "id": "DEX", "label": "敏捷", "type": "modifier", "min": -1, "max": 3, "default": 0},
+          { "id": "CON", "label": "体质", "type": "modifier", "min": -1, "max": 3, "default": 0},
+          { "id": "INT", "label": "智力", "type": "modifier", "min": -1, "max": 3, "default": 0},
+          { "id": "WIS", "label": "睿知", "type": "modifier", "min": -1, "max": 3, "default": 0},
+          { "id": "CHA", "label": "魅力", "type": "modifier", "min": -1, "max": 3, "default": 0}
+        ],
+        "conditions": [
+          {
+            "id": "weak",
+            "label": "虚弱",
+            "states": 2,
+            "boundStat": "STR"
+          },
+          {
+            "id": "shaken",
+            "label": "动摇",
+            "states": 2,
+            "boundStat": "DEX"
+          },
+          {
+            "id": "sick",
+            "label": "病弱",
+            "states": 2,
+            "boundStat": "CON"
+          },
+          {
+            "id": "muddled",
+            "label": "糊涂",
+            "states": 2,
+            "boundStat": "INT"
+          },
+          {
+            "id": "tired",
+            "label": "疲惫",
+            "states": 2,
+            "boundStat": "WIS"
+          },
+          {
+            "id": "stressed",
+            "label": "压抑",
+            "states": 2,
+            "boundStat": "CHA"
+          }
+        ]
+      },
+      "metrics": {
+        "columns": 2,
+        "fields": [
+          {
+            "id": "hpCur",
+            "label": "当前生命",
+            "type": "number",
+            "min": 0,
+            "view": "editable"
+          },
+          {
+            "id": "hpMax",
+            "label": "最大生命",
+            "type": "number",
+            "min": 0
+          },
+          {
+            "id": "armor",
+            "label": "护甲",
+            "type": "number",
+            "min": 0
+          },
+          {
+            "id": "damage",
+            "label": "伤害",
+            "type": "text"
+          }
+        ]
+      }
     },
     "refSections": [
       {
@@ -245,8 +301,6 @@
     {
       "id": "barbarian",
       "name": "野蛮人",
-      "hp": "24",
-      "damage": "d6+2",
       "areas": {
         "gear": {
           "rightStats": [
@@ -441,13 +495,25 @@
             "你们中谁最爱听我的故事？"
           ]
         }
+      },
+      "header": {
+        "metrics": {
+          "fields": [
+            {
+              "id": "hpMax",
+              "default": 24
+            },
+            {
+              "id": "damage",
+              "default": "d6+2"
+            }
+          ]
+        }
       }
     },
     {
       "id": "bard",
       "name": "吟游诗人",
-      "hp": "16",
-      "damage": "d6+0",
       "areas": {
         "gear": {
           "rightStats": [
@@ -626,13 +692,25 @@
             "你们中谁最不信任我，为什么？"
           ]
         }
+      },
+      "header": {
+        "metrics": {
+          "fields": [
+            {
+              "id": "hpMax",
+              "default": 16
+            },
+            {
+              "id": "damage",
+              "default": "d6+0"
+            }
+          ]
+        }
       }
     },
     {
       "id": "cleric",
       "name": "牧师",
-      "hp": "16",
-      "damage": "d6+0",
       "areas": {
         "gear": {
           "rightStats": [
@@ -813,13 +891,25 @@
             "你们中谁拥有最坚强的灵魂，即使你的信仰有所偏颇？"
           ]
         }
+      },
+      "header": {
+        "metrics": {
+          "fields": [
+            {
+              "id": "hpMax",
+              "default": 16
+            },
+            {
+              "id": "damage",
+              "default": "d6+0"
+            }
+          ]
+        }
       }
     },
     {
       "id": "druid",
       "name": "德鲁伊",
-      "hp": "16",
-      "damage": "d6+0",
       "areas": {
         "gear": {
           "rightStats": [
@@ -998,13 +1088,25 @@
             "你们中谁也见过精魂之境？"
           ]
         }
+      },
+      "header": {
+        "metrics": {
+          "fields": [
+            {
+              "id": "hpMax",
+              "default": 16
+            },
+            {
+              "id": "damage",
+              "default": "d6+0"
+            }
+          ]
+        }
       }
     },
     {
       "id": "fighter",
       "name": "战士",
-      "hp": "20",
-      "damage": "d6+2",
       "areas": {
         "gear": {
           "rightStats": [
@@ -1187,13 +1289,25 @@
             "你们中谁需要我来锤炼锤炼？"
           ]
         }
+      },
+      "header": {
+        "metrics": {
+          "fields": [
+            {
+              "id": "hpMax",
+              "default": 20
+            },
+            {
+              "id": "damage",
+              "default": "d6+2"
+            }
+          ]
+        }
       }
     },
     {
       "id": "immolator",
       "name": "燔祭者",
-      "hp": "16",
-      "damage": "d6+1",
       "areas": {
         "gear": {
           "rightStats": [
@@ -1374,13 +1488,25 @@
             "我改变了你们中的谁最多？"
           ]
         }
+      },
+      "header": {
+        "metrics": {
+          "fields": [
+            {
+              "id": "hpMax",
+              "default": 16
+            },
+            {
+              "id": "damage",
+              "default": "d6+1"
+            }
+          ]
+        }
       }
     },
     {
       "id": "paladin",
       "name": "圣武士",
-      "hp": "20",
-      "damage": "d6+2",
       "areas": {
         "gear": {
           "rightStats": [
@@ -1565,13 +1691,25 @@
             "我容忍你们中的谁，尽管你……误入歧途的方式？"
           ]
         }
+      },
+      "header": {
+        "metrics": {
+          "fields": [
+            {
+              "id": "hpMax",
+              "default": 20
+            },
+            {
+              "id": "damage",
+              "default": "d6+2"
+            }
+          ]
+        }
       }
     },
     {
       "id": "ranger",
       "name": "游侠",
-      "hp": "18",
-      "damage": "d6+1",
       "areas": {
         "gear": {
           "rightStats": [
@@ -1752,13 +1890,25 @@
             "在我眼里，你们中谁更像猎物？"
           ]
         }
+      },
+      "header": {
+        "metrics": {
+          "fields": [
+            {
+              "id": "hpMax",
+              "default": 18
+            },
+            {
+              "id": "damage",
+              "default": "d6+1"
+            }
+          ]
+        }
       }
     },
     {
       "id": "thief",
       "name": "盗贼",
-      "hp": "16",
-      "damage": "d6+1",
       "areas": {
         "gear": {
           "rightStats": [
@@ -1950,13 +2100,25 @@
             "你们中谁愿意不择手段？"
           ]
         }
+      },
+      "header": {
+        "metrics": {
+          "fields": [
+            {
+              "id": "hpMax",
+              "default": 16
+            },
+            {
+              "id": "damage",
+              "default": "d6+1"
+            }
+          ]
+        }
       }
     },
     {
       "id": "wizard",
       "name": "法师",
-      "hp": "12",
-      "damage": "d6-1",
       "areas": {
         "gear": {
           "rightStats": [
@@ -2129,6 +2291,20 @@
             "我预见了你们中谁有着黑暗的命运？",
             "你们中谁最不懂魔法？",
             "你们中谁对我藏着秘密？"
+          ]
+        }
+      },
+      "header": {
+        "metrics": {
+          "fields": [
+            {
+              "id": "hpMax",
+              "default": 12
+            },
+            {
+              "id": "damage",
+              "default": "d6-1"
+            }
           ]
         }
       }

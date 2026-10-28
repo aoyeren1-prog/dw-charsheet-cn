@@ -2,39 +2,167 @@
   "meta": {
     "source": "Dungeon-World-HTML-SRD (Hazmole 汉化), 繁体转简体 by OpenCC",
     "license": "CC-BY 3.0 + OGL",
-    "stats": ["力量", "敏捷", "体质", "智力", "睿知", "魅力"],
-    "statNote": "16(+2), 15(+1), 13(+1), 12(+0), 9(+0), 8(-1)",
-    "statsMode": "scores",
-    "modTable": {
-      "18": 3,
-      "1-3": -3,
-      "4-5": -2,
-      "6-8": -1,
-      "9-12": 0,
-      "13-15": 1,
-      "16-17": 2
-    },
-    "debilities": {
-      "力量": "虚弱",
-      "敏捷": "颤抖",
-      "体质": "患病",
-      "智力": "晕眩",
-      "睿知": "困惑",
-      "魅力": "疤痕"
-    },
-    "labels": {
-      "hpMax": "最大生命",
-      "hpCur": "当前生命",
-      "armor": "护甲",
-      "damage": "伤害",
-      "name": "姓名",
-      "level": "等级",
-      "xp": "XP",
-      "defaultFormula": "默认",
-      "blank": " ",
-      "casterLevel": "施法等级",
-      "prepareCap": "准备上限",
-      "statDist": "将以下数值分配到你的属性上"
+    "header": {
+      "charInfo": [
+        {
+          "id": "name",
+          "label": "姓名",
+          "type": "text",
+          "flex": 2
+        },
+        {
+          "id": "level",
+          "label": "等级",
+          "type": "number",
+          "min": 1,
+          "max": 10,
+          "default": 1
+        },
+        {
+          "id": "xp",
+          "label": "XP",
+          "type": "number",
+          "min": 0,
+          "default": 0,
+          "view": "editable"
+        }
+      ],
+      "stats": {
+        "prompt": "将以下数值分配到你的属性上：16(+2), 15(+1), 13(+1), 12(+0), 9(+0), 8(-1)",
+        "modTable": {
+          "1-3": -3,
+          "4-5": -2,
+          "6-8": -1,
+          "9-12": 0,
+          "13-15": 1,
+          "16-17": 2,
+          "18": 3
+        },
+        "items": [
+          {
+            "id": "STR",
+            "label": "力量",
+            "type": "score",
+            "min": 1,
+            "max": 18,
+            "default": 10
+          },
+          {
+            "id": "DEX",
+            "label": "敏捷",
+            "type": "score",
+            "min": 1,
+            "max": 18,
+            "default": 10
+          },
+          {
+            "id": "CON",
+            "label": "体质",
+            "type": "score",
+            "min": 1,
+            "max": 18,
+            "default": 10
+          },
+          {
+            "id": "INT",
+            "label": "智力",
+            "type": "score",
+            "min": 1,
+            "max": 18,
+            "default": 10
+          },
+          {
+            "id": "WIS",
+            "label": "睿知",
+            "type": "score",
+            "min": 1,
+            "max": 18,
+            "default": 10
+          },
+          {
+            "id": "CHA",
+            "label": "魅力",
+            "type": "score",
+            "min": 1,
+            "max": 18,
+            "default": 10
+          }
+        ],
+        "conditions": [
+          {
+            "id": "weak",
+            "label": "虚弱",
+            "states": 2,
+            "boundStat": "STR",
+            "effect": "modPenalty"
+          },
+          {
+            "id": "shaky",
+            "label": "颤抖",
+            "states": 2,
+            "boundStat": "DEX",
+            "effect": "modPenalty"
+          },
+          {
+            "id": "sick",
+            "label": "患病",
+            "states": 2,
+            "boundStat": "CON",
+            "effect": "modPenalty"
+          },
+          {
+            "id": "stunned",
+            "label": "晕眩",
+            "states": 2,
+            "boundStat": "INT",
+            "effect": "modPenalty"
+          },
+          {
+            "id": "confused",
+            "label": "困惑",
+            "states": 2,
+            "boundStat": "WIS",
+            "effect": "modPenalty"
+          },
+          {
+            "id": "scarred",
+            "label": "疤痕",
+            "states": 2,
+            "boundStat": "CHA",
+            "effect": "modPenalty"
+          }
+        ]
+      },
+      "metrics": {
+        "columns": 2,
+        "fields": [
+          {
+            "id": "hpCur",
+            "label": "当前生命",
+            "type": "number",
+            "min": 0,
+            "view": "editable"
+          },
+          {
+            "id": "hpMax",
+            "label": "最大生命",
+            "type": "number",
+            "min": 0
+          },
+          {
+            "id": "armor",
+            "label": "护甲",
+            "type": "number",
+            "min": 0
+          },
+          {
+            "id": "damage",
+            "label": "伤害",
+            "type": "select",
+            "options": ["d6", "d8", "d10", "d12"]
+          }
+        ]
+      }
     },
     "refSections": [
       {
@@ -97,15 +225,55 @@
         "title": "外观",
         "type": "plain",
         "elements": [
-          {"type": "choices", "key": "group0", "layout": "line", "view": "hideUnselect"},
-          {"type": "input", "key": "custom0", "tip": "自定义"},
-          {"type": "choices", "key": "group1", "layout": "line", "view": "hideUnselect"},
-          {"type": "input", "key": "custom1", "tip": "自定义"},
-          {"type": "choices", "key": "group2", "layout": "line", "view": "hideUnselect"},
-          { "type": "input", "key": "custom2", "tip": "自定义"},
-          { "type": "choices", "key": "group3", "layout": "line", "view": "hideUnselect"},
-          { "type": "input", "key": "custom3", "tip": "自定义"},
-          { "type": "input", "key": "notes", "tip": "其他外观描述"}
+          {
+            "type": "choices",
+            "key": "group0",
+            "layout": "line",
+            "view": "hideUnselect"
+          },
+          {
+            "type": "input",
+            "key": "custom0",
+            "tip": "自定义"
+          },
+          {
+            "type": "choices",
+            "key": "group1",
+            "layout": "line",
+            "view": "hideUnselect"
+          },
+          {
+            "type": "input",
+            "key": "custom1",
+            "tip": "自定义"
+          },
+          {
+            "type": "choices",
+            "key": "group2",
+            "layout": "line",
+            "view": "hideUnselect"
+          },
+          {
+            "type": "input",
+            "key": "custom2",
+            "tip": "自定义"
+          },
+          {
+            "type": "choices",
+            "key": "group3",
+            "layout": "line",
+            "view": "hideUnselect"
+          },
+          {
+            "type": "input",
+            "key": "custom3",
+            "tip": "自定义"
+          },
+          {
+            "type": "input",
+            "key": "notes",
+            "tip": "其他外观描述"
+          }
         ]
       },
       "race": {
@@ -113,9 +281,21 @@
         "note": "选择一项",
         "type": "moveList",
         "buttons": [
-          {"label": "种族", "position": "global", "action": "addGroup"},
-          {"label": "动作", "position": "global", "action": "addMove"},
-          {"label": "额外动作", "position": "inGroup", "action": "addMove"}
+          {
+            "label": "种族",
+            "position": "global",
+            "action": "addGroup"
+          },
+          {
+            "label": "动作",
+            "position": "global",
+            "action": "addMove"
+          },
+          {
+            "label": "额外动作",
+            "position": "inGroup",
+            "action": "addMove"
+          }
         ],
         "selectGroups": true
       },
@@ -124,18 +304,32 @@
         "note": "选择一项",
         "type": "moveList",
         "buttons": [
-          {"label": "阵营", "position": "global", "action": "addMove"}
+          {
+            "label": "阵营",
+            "position": "global",
+            "action": "addMove"
+          }
         ],
         "selectMoves": true
       },
       "gear": {
         "title": "装备",
         "rightStats": [
-          {"key": "load", "label": "负载上限", "type": "number", "min": 0}
+          {
+            "key": "load",
+            "label": "负载上限",
+            "type": "number",
+            "min": 0
+          }
         ],
         "type": "fillbox",
         "resetOnClassChange": true,
-        "counters": [{"key": "coins", "label": "金币"}]
+        "counters": [
+          {
+            "key": "coins",
+            "label": "金币"
+          }
+        ]
       },
       "bonds": {
         "title": "羁绊",
@@ -166,8 +360,7 @@
             "key": "6-10",
             "label": "当你的等级升至6~10，从下列动作或等级2~5的动作中选择：",
             "minLevel": 6,
-            "moves": [
-            ]
+            "moves": []
           },
           {
             "key": "custom",
@@ -176,7 +369,12 @@
           }
         ],
         "buttons": [
-          {"label": "动作", "position": "global", "action": "addMove", "targetGroup": "custom"}
+          {
+            "label": "动作",
+            "position": "global",
+            "action": "addMove",
+            "targetGroup": "custom"
+          }
         ],
         "selectMoves": true
       },
@@ -386,8 +584,6 @@
       "id": "barbarian",
       "name": "野蛮人",
       "intro": "",
-      "hp": "8+体质",
-      "damage": "d10",
       "names": [
         {
           "race": "",
@@ -690,14 +886,26 @@
             "_______________ 与我共享对荣耀的渴求；大地将因我们的步伐而颤抖！"
           ]
         }
+      },
+      "header": {
+        "metrics": {
+          "fields": [
+            {
+              "id": "hpMax",
+              "formula": "8+体质"
+            },
+            {
+              "id": "damage",
+              "default": "d10"
+            }
+          ]
+        }
       }
     },
     {
       "id": "bard",
       "name": "吟游诗人",
       "intro": "冒险者之诗乃是不断向前之路，是钱币与战斗的荣光。在那些乡农满座的酒馆中被传唱的故事，总有些许真实，对吧？那些鼓舞农民与国亲的歌谣──那些抚慰野兽或让人疯狂的歌谣──必定其来有自。\n\n当个诗人吧。来，带着你的巧舌与机智。你说故事，你唱歌谣。一名寻常乐手只会复诵，而真正的吟游诗人活在其中。系上你的靴子吧，高贵的演说家。磨利那把小刀，接受呼唤。总得有人要与那些暴徒、恶棍与即将成为英雄的人们并肩作战。又有谁比你更能传诵自己的英雄故事？\n\n没有别人了。来吧。",
-      "hp": "6+体质",
-      "damage": "d6",
       "names": [
         {
           "race": "精灵",
@@ -1003,14 +1211,26 @@
             "_______________ 不信任我，且他有着充分的理由。"
           ]
         }
+      },
+      "header": {
+        "metrics": {
+          "fields": [
+            {
+              "id": "hpMax",
+              "formula": "6+体质"
+            },
+            {
+              "id": "damage",
+              "default": "d6"
+            }
+          ]
+        }
       }
     },
     {
       "id": "cleric",
       "name": "牧师",
       "intro": "地城世界的大地就是个被神遗弃的烂摊子。在安全与被祝福的文明之间，布满了走动的死尸、各类野兽、以及广袤的超自然之地。那是个神不存在的世界，而这也正是为何需要你的原因。\n\n将神之荣光带给异教徒不只是你的本性──更是你的使命。你持着剑、槌和咒法宣教，劈开粗野的愚蠢之心，植入神圣之籽。有人说，最好让神常伴你心。你知道那都是狗屁。神只住在刀锋之上。\n\n向这个世界证明，谁才是它的主宰。",
-      "hp": "8+体质",
-      "damage": "d6",
       "names": [
         {
           "race": "矮人",
@@ -1312,14 +1532,26 @@
             "我正在努力让 _______________ 皈依我的信仰。"
           ]
         }
+      },
+      "header": {
+        "metrics": {
+          "fields": [
+            {
+              "id": "hpMax",
+              "formula": "8+体质"
+            },
+            {
+              "id": "damage",
+              "default": "d6"
+            }
+          ]
+        }
       }
     },
     {
       "id": "druid",
       "name": "德鲁伊",
       "intro": "环视火堆周围，这些人满是城市的尘埃与汗味，是什么将你带到这些人身边？或许是慈爱吧──你是否如同母熊照看她的幼崽保护着他们？他们现在是你这群的吗？你可真有群奇怪的兄弟姊妹。不管你有怎样的灵感，没有你锐利的感官和更锐利的獠爪，他们注定不会成功。\n\n你属于神圣之所；你出生于母土，你的身上戴着她的灵魂之印。你可能也曾有过凡人的生活，或许你也像他们曾居于都城，如今却已非如此。你抛弃了停滞的定型。聆听你盟友对他们所雕神像的祈祷，聆听他们的宗教寓言故事，讲述他们将在早已被你抛弃的破烂小镇中找回的荣耀。\n\n他们的诸神只是年幼的孩童，他们的钢铁只是虚假的保护。你走在古老的路上，披大地为衣。你会拿取属于你的财宝，但你是否会走上与他们相同的路呢？只有时间知道。",
-      "hp": "6+体质",
-      "damage": "d6",
       "names": [
         {
           "race": "精灵",
@@ -1621,14 +1853,26 @@
             "___________ 已与我歃血为盟。我们因此紧紧相系。"
           ]
         }
+      },
+      "header": {
+        "metrics": {
+          "fields": [
+            {
+              "id": "hpMax",
+              "formula": "6+体质"
+            },
+            {
+              "id": "damage",
+              "default": "d6"
+            }
+          ]
+        }
       }
     },
     {
       "id": "fighter",
       "name": "战士",
       "intro": "这是份烂差事－－日复一日靠着你的盔甲和手上技巧讨生活，不顾一切地跳入危险之中。当你在巴尔斯伯格的酒吧为他们两肋插刀时，没有人为你吹奏黄金号角。当你将还在尖叫的他们从疯狂深渊的边缘拽出时，没有成群天使为你合唱。什么都没有。\n\n忘了他们吧。\n\n你这么做是为了胆识与荣耀，是为了战斗的呼啸、以及那炽热的鲜血。你是铁打的猛兽。你的朋友或许带着钢铸的锋刃，然而，战士，你本身就是钢铁。当你的旅伴在荒野营火旁抱怨着他们的伤口，你则骄傲的背起自己的伤疤。\n\n你即是铜墙铁壁－－任凭所有扑向你的危险灰飞烟灭。最终，你会是站到最后的那一个。",
-      "hp": "10+体质",
-      "damage": "d10",
       "names": [
         {
           "race": "矮人",
@@ -1936,14 +2180,26 @@
             "_______________ 相当柔弱，但我会让他像我一样坚强。"
           ]
         }
+      },
+      "header": {
+        "metrics": {
+          "fields": [
+            {
+              "id": "hpMax",
+              "formula": "10+体质"
+            },
+            {
+              "id": "damage",
+              "default": "d10"
+            }
+          ]
+        }
       }
     },
     {
       "id": "immolator",
       "name": "燔祭者",
       "intro": "",
-      "hp": "4+体质",
-      "damage": "d8",
       "names": [
         {
           "race": "人类",
@@ -2193,14 +2449,26 @@
             "我曾为了 ______________ 将某些东西扔进火中，且仍然欠他他所应得的事物。"
           ]
         }
+      },
+      "header": {
+        "metrics": {
+          "fields": [
+            {
+              "id": "hpMax",
+              "formula": "4+体质"
+            },
+            {
+              "id": "damage",
+              "default": "d8"
+            }
+          ]
+        }
       }
     },
     {
       "id": "paladin",
       "name": "圣武士",
       "intro": "地狱正在等候。或寒冰，或烈火，或地城世界中那些该死罪人们所应得的惩罚，构成了此地的永恒折磨。残虐或者救赎，一切由你。神圣之士，战争机器，全善与光明的圣堂武士，是吧？牧师或许在夜里向天界上苍祈祷。战士或许会以「善」之名挥舞利剑。但只有你知道，何谓善。\n\n众神之眼，之手，之杀戮神罚，这就是你。你所赐的乃是公义与美德－－乃是正义，乃是愿景。你胸怀同伴们所欠缺的，纯粹之意念。\n\n所以引导这些愚者吧，圣武士。担负起你的圣洁使命，将救赎带到这个破烂世界。\n\n败者毋怨凄惨，对吧？",
-      "hp": "10+体质",
-      "damage": "d10",
       "names": [
         {
           "race": "",
@@ -2461,14 +2729,26 @@
             "_______________ 勇敢无惧，我还有许多要向他学习。"
           ]
         }
+      },
+      "header": {
+        "metrics": {
+          "fields": [
+            {
+              "id": "hpMax",
+              "formula": "10+体质"
+            },
+            {
+              "id": "damage",
+              "default": "d10"
+            }
+          ]
+        }
       }
     },
     {
       "id": "ranger",
       "name": "游侠",
       "intro": "与你同行的这些都市儿童。他们可曾听见孤狼的吠叫？可曾感受过东方荒芜沙漠的狂风呼啸？可曾如你那样以弓刃狩猎？当然他妈的没有。那就是为什么他们需要你。\n\n向导、猎手、荒野的造物。你远远不只如此。你在荒野中一向孤独，但那伟大之物的呼唤－－或许可以称之为命运－－将你与这些都市人的命连系在了一起。他们或许勇敢。或许强大健壮。但只有你通晓这两者间的秘密。\n\n没有你，他们就会迷失。在鲜血与黑暗之中烧出通往前方的道路吧，神行客。",
-      "hp": "8+体质",
-      "damage": "d8",
       "names": [
         {
           "race": "精灵",
@@ -2753,14 +3033,26 @@
             "_______________ 并不了解如何度过荒野中的生活，因此我会教导他。"
           ]
         }
+      },
+      "header": {
+        "metrics": {
+          "fields": [
+            {
+              "id": "hpMax",
+              "formula": "8+体质"
+            },
+            {
+              "id": "damage",
+              "default": "d8"
+            }
+          ]
+        }
       }
     },
     {
       "id": "thief",
       "name": "盗贼",
       "intro": "你听到他们围坐着营火，吹嘘着一场一场英勇的战斗，谈论神明如何青睐这帮微醺的快乐伙伴。而你独自在一旁数着金币，忍不住咧嘴微笑－－只有你才知道地城世界最令人刺激的秘密，就是那些肮脏、下流的金子。\n\n当然，你每每独自偷溜都让他们颇有微词。但少了你，他们要不早就被飞舞的断头刀切成碎片、就是死在古老的毒针陷阱上头。他们要抱怨就随他们吧，等你钻完这些狗洞，就轮到你朝他们的英雄冢举杯了。\n\n在你金杯玉箸的城堡里举杯，爽啦。",
-      "hp": "6+体质",
-      "damage": "d8",
       "names": [
         {
           "race": "半身人",
@@ -3040,14 +3332,26 @@
             "_______________ 和我有个正在执行的骗局。"
           ]
         }
+      },
+      "header": {
+        "metrics": {
+          "fields": [
+            {
+              "id": "hpMax",
+              "formula": "6+体质"
+            },
+            {
+              "id": "damage",
+              "default": "d8"
+            }
+          ]
+        }
       }
     },
     {
       "id": "wizard",
       "name": "法师",
       "intro": "地城世界有它的规则。不是凡人的法律也不是可悲暴君的规矩，而是更伟大、更完善的规则－－放开手东西就会落下、无中不能生有、死者不能复生，对吧？\n\n对，那些人们用来在漫漫长夜里让自己好过一点的规则。\n\n你竭尽人生钻研厚重的典籍，重复让你濒临疯狂的实验，召唤能危害你性命的存在。这都是为了什么？当然是为了力量，不然呢？你要的不是王室或国家的权力，而是可以煮沸人血的法力。你会用它呼唤苍穹中的霹雳，震撼翻腾的大地，将这世界珍视的无聊规则弃如敝履。\n\n庸人爱看就让他们看，随他们爱叫你「魔道士」还是「恶魔信徒」。难道他们的目光还会化为火球？\n\n呵，最好是会。",
-      "hp": "4+体质",
-      "damage": "d4",
       "names": [
         {
           "race": "精灵",
@@ -3334,6 +3638,20 @@
             "_______________ 将在即将到来的事件中扮演重要的角色。我已经预见了！",
             "_______________ 对我隐瞒了一个重要的秘密。",
             "_______________ 对这个世界有着可悲的误解；我将尽我所能的教导他。"
+          ]
+        }
+      },
+      "header": {
+        "metrics": {
+          "fields": [
+            {
+              "id": "hpMax",
+              "formula": "4+体质"
+            },
+            {
+              "id": "damage",
+              "default": "d4"
+            }
           ]
         }
       }

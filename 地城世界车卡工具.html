@@ -93,52 +93,100 @@ body{background:var(--bg);color:var(--text);font-family:"Segoe UI","Microsoft Ya
 .tag-item{margin-bottom:6px;font-size:12px;color:var(--ref-ink-2);line-height:1.6}
 .tag-item .tag{margin-right:4px}
 
-/* ===== 页头 ===== */
+/* ===== 页头：职业名 + charInfo ===== */
 .pb-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:12px}
 .pb-class{font-size:26px;font-weight:800;letter-spacing:1px;line-height:1.1}
 
-.pb-info{display:flex;gap:14px;flex-wrap:wrap;font-size:12px}
-.pb-info .it{display:flex;flex-direction:column;min-width:56px}
+/* --info-w 是字段基准宽；字段的 flex 声明按它的倍数折算成显式宽度，
+   不走 flex-grow，否则 basis:0 的那一格会把全部剩余空间吃掉 */
+.pb-info{--info-w:68px;display:flex;gap:14px;flex-wrap:wrap;font-size:12px;align-items:flex-end}
+.pb-info .it{display:flex;flex-direction:column;flex:none;width:var(--info-w)}
+/* 轨道的宽度由格数决定，不受基准宽约束 */
+.pb-info .it.it-track{width:auto}
 .pb-info .it .k{font-size:10px;color:var(--ink-4)}
-.pb-info .it .v{font-size:16px;font-weight:700}
-.pb-info input{background:transparent;border:none;border-bottom:1px dashed var(--ink-5);font-size:16px;font-weight:700;color:var(--ink);width:64px;text-align:left}
+.pb-info .it .v{font-size:16px;font-weight:700;word-break:break-word}
+.pb-info input{background:transparent;border:none;border-bottom:1px dashed var(--ink-5);font-size:16px;font-weight:700;color:var(--ink);width:100%;min-width:0;text-align:left}
 .pb-info .it .track{height:22px;align-content:center}
 .pb-info .it .track .trc{width:18px;height:18px}
 
-/* ===== 数值 ===== */
-.pb-stats{position:relative;display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;margin-bottom:12px}
-.stat-dist{position:absolute;top:0;left:0;font-size:11px;color:var(--ink-5);line-height:1.2;white-space:nowrap}
-.pb-statgrid{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
-.pb-stat{flex:1 1 0;min-width:52px;text-align:center}
-.pb-stat .n{font-size:13px;color:var(--ink-3);border-bottom:1px solid var(--paperline);padding-bottom:1px}
-.pb-stat .v{font-size:24px;font-weight:800}
-.pb-stat .m{font-size:15px;font-weight:700;color:var(--ink-2)}
-.pb-stat .deb{display:inline-flex;align-items:center;justify-content:center;gap:3px;font-size:12px;color:var(--ink-4);margin-top:2px;cursor:pointer}
-.pb-stat .deb .chk{width:13px;height:13px;border-width:1.2px;border-radius:2px}
-.pb-stat .deb .chk:checked::after{font-size:9px}
-.cond{border:1px solid var(--ink-5);background:transparent;color:var(--ink-4);border-radius:3px;padding:1px 5px;font-size:11px;cursor:pointer;display:inline-flex;align-items:center;gap:3px;line-height:1.4;margin-top:2px}
+/* ===== 属性 + 数值 ===== */
+.pb-stats{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:start;margin-bottom:12px}
+/* 属性块按内容收窄后整体居中，这样 prompt 能与最左侧属性卡左沿对齐 */
+.stat-block{display:inline-flex;flex-direction:column;gap:4px;max-width:100%}
+.pb-stats > .stat-block{justify-self:center}
+.stat-prompt{font-size:11px;color:var(--ink-5);line-height:1.3}
+.stat-grid{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+/* 宽度有下限，label 更宽时被撑开 */
+.stat-card{flex:0 0 auto;min-width:96px;text-align:center;display:flex;flex-direction:column;align-items:stretch}
+.stat-card .n{font-size:13px;color:var(--ink-3);border-bottom:1px solid var(--paperline);padding-bottom:1px;white-space:nowrap}
+.stat-card .v{font-size:24px;font-weight:800}
+.stat-card .m{font-size:15px;font-weight:700;color:var(--ink-2)}
+.stat-card input{width:100%;border:none;border-bottom:1px dashed var(--ink-5);text-align:center;font-size:24px;font-weight:800;background:transparent;color:var(--ink)}
+/* 无 boundStat 的状态：另起一行横排居中，超宽换行 */
+.loose-conditions{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:2px}
+.cond{border:1px solid var(--ink-5);background:transparent;color:var(--ink-4);border-radius:3px;padding:1px 5px;font-size:11px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:3px;line-height:1.4;margin-top:2px}
 .cond:hover{border-color:var(--accent)}
 .cond.on{color:var(--ink);border-color:var(--ink-3)}
-.cond-mark{display:inline-block;width:11px;height:11px;border:1px solid var(--ink-4);border-radius:50%;vertical-align:-2px;box-sizing:border-box}
-.cond[data-m="1"] .cond-mark{background:linear-gradient(90deg,var(--ink) 50%,transparent 50%)}
-.cond[data-m="2"] .cond-mark{background:var(--ink);border-color:var(--ink)}
+/* 状态标记：自己画的圆，填充比例由档位算出（--fill）。
+   不走字体，所以档位切换时尺寸恒定；currentColor 让它跟着 .cond / .cond.on 变色。
+   声明了 symbols 的状态改用字符，由 .cond-sym 退回纯文本。 */
+.cond-mark{flex:none;display:inline-block;width:11px;height:11px;box-sizing:border-box;border:1px solid currentColor;border-radius:50%;background:linear-gradient(90deg,currentColor var(--fill,0%),transparent var(--fill,0%))}
+.cond-sym{width:auto;height:auto;border:none;border-radius:0;background:none;font-size:11px;line-height:1}
 .track{display:flex;flex-wrap:wrap;gap:3px;align-items:center}
 .trl{font-size:14px;color:var(--ink-4);margin:0 3px}
 .trl.on{color:var(--ink);font-weight:700}
 .trc{width:14px;height:14px;border:1px solid var(--ink-5);border-radius:2px;background:transparent;padding:0;cursor:pointer}
 .trc.on{background:var(--accent);border-color:var(--accent)}
-.pb-stat input{width:100%;border:none;border-bottom:1px dashed var(--ink-5);text-align:center;font-size:24px;font-weight:800;background:transparent;color:var(--ink)}
-.pb-stat input[type=number],.pb-num input[type=number],.h3r input[type=number],input[data-bind=coins]{-moz-appearance:textfield;appearance:textfield}
-.pb-stat input[type=number]::-webkit-outer-spin-button,.pb-stat input[type=number]::-webkit-inner-spin-button,
-.pb-num input[type=number]::-webkit-outer-spin-button,.pb-num input[type=number]::-webkit-inner-spin-button,
+/* --metric-w 是每列的下限宽，标签更宽时列会被撑开 */
+.metrics-grid{--metric-w:96px;display:grid;gap:6px}
+.metric-field{text-align:center;border:1px solid var(--line-3);border-radius:4px;padding:4px 6px;min-width:0}
+.metric-field .k{font-size:12px;color:var(--ink-3)}
+.metric-field .v{font-size:22px;font-weight:800}
+/* 宽度必须是确定值：input 不写宽时固有宽约 20 字符，而 width:100% 在固有宽计算中被当作 auto 忽略 */
+.metric-field input{width:calc(var(--metric-w) - 14px);max-width:100%;border:none;border-bottom:1px dashed var(--ink-5);text-align:center;font-size:22px;font-weight:800;background:transparent;color:var(--ink)}
+.metric-field .formula{font-size:10px;color:var(--ink-5);margin-top:1px}
+
+/* ===== number 字段的步进箭头 =====
+   绝对定位叠在输入框右侧，不占横向空间，
+   这样属性格的大数字仍然居中、列宽也不受影响 */
+/* 数值格的输入框有显式宽度，包裹层按内容收窄并居中，箭头才贴着框右沿；
+   属性格与页首的输入框是 width:100%，包裹层必须撑满才能给出参照宽度 */
+/* 箭头尺寸随所在格的字号走：两枚箭头叠起来不能超过输入框的行高，
+   否则下箭头会压到输入框的下划线上。页首字号小，单独调小一档。 */
+.num-wrap{--step-w:17px;--step-h:13px;--step-f:10px;position:relative;display:inline-block;max-width:100%}
+.pb-info .num-wrap{--step-w:15px;--step-h:9px;--step-f:8px}
+.stat-card .num-wrap,.pb-info .num-wrap{display:block}
+.num-step{position:absolute;right:0;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:1px;line-height:0}
+.num-step button{border:none;background:transparent;color:var(--line-3);cursor:pointer;padding:0;width:var(--step-w);height:var(--step-h);font-size:var(--step-f);line-height:1;display:flex;align-items:center;justify-content:center}
+.num-step button:hover{color:var(--accent)}
+/* 给箭头让出位置，避免长数字顶上去。
+   居中的数字两侧要对称留白，否则文字会被推向左边 */
+.num-wrap > input{padding-right:calc(var(--step-w) + 1px)}
+.stat-card .num-wrap > input,.metric-field .num-wrap > input{padding:0 calc(var(--step-w) + 1px)}
+
+/* ===== select 字段：可输入的下拉 =====
+   不用 <datalist>：它的箭头由浏览器绘制、弹层宽度不可控，
+   而且按输入内容过滤选项（那是输入建议，不是下拉） */
+.sel-wrap{position:relative;display:inline-flex;align-items:flex-end;gap:2px;max-width:100%}
+/* 箭头要占掉一点横向空间，所以输入框比普通数值格窄一些，
+   这样整格不会比别的列宽 */
+.metric-field .sel-wrap{width:calc(var(--metric-w) - 10px)}
+.metric-field .sel-wrap > input{width:auto;flex:1;min-width:0}
+.sel-caret{flex:none;border:none;background:transparent;color:var(--ink-4);cursor:pointer;padding:0;width:20px;height:20px;font-size:11px;line-height:1;align-self:center;display:flex;align-items:center;justify-content:center;border-radius:3px}
+.sel-caret:hover{color:var(--accent);background:var(--tag-bg)}
+.sel-menu{position:absolute;top:100%;left:0;min-width:100%;z-index:50;margin-top:2px;background:var(--paper);border:1px solid var(--line-3);border-radius:4px;box-shadow:0 4px 14px rgba(0,0,0,.18);padding:2px;max-height:220px;overflow:auto}
+.sel-menu.hidden{display:none}
+.sel-opt{display:block;width:100%;border:none;background:transparent;color:var(--ink);text-align:left;white-space:nowrap;cursor:pointer;font-size:13px;font-weight:400;padding:4px 8px;border-radius:3px}
+.sel-opt:hover{background:var(--tag-bg)}
+/* 纸面区域要能接住浮层，否则会被后面的边栏盖住 */
+.playbook{position:relative;z-index:0}
+/* 数字框一律去掉浏览器自带的上下箭头 */
+.stat-card input[type=number],.metric-field input[type=number],.pb-info input[type=number],.h3r input[type=number],.coins-input[type=number]{-moz-appearance:textfield;appearance:textfield}
+.stat-card input[type=number]::-webkit-outer-spin-button,.stat-card input[type=number]::-webkit-inner-spin-button,
+.metric-field input[type=number]::-webkit-outer-spin-button,.metric-field input[type=number]::-webkit-inner-spin-button,
+.pb-info input[type=number]::-webkit-outer-spin-button,.pb-info input[type=number]::-webkit-inner-spin-button,
 .h3r input[type=number]::-webkit-outer-spin-button,.h3r input[type=number]::-webkit-inner-spin-button,
-input[data-bind=coins]::-webkit-outer-spin-button,input[data-bind=coins]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
-.pb-nums{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;min-width:190px}
-.pb-num{text-align:center;border:1px solid var(--line-3);border-radius:4px;padding:4px 6px}
-.pb-num .k{font-size:12px;color:var(--ink-3)}
-.pb-num .v{font-size:22px;font-weight:800}
-.pb-num input{width:68px;border:none;border-bottom:1px dashed var(--ink-5);text-align:center;font-size:22px;font-weight:800;background:transparent;color:var(--ink)}
-.pb-num .formula{font-size:10px;color:var(--ink-5);margin-top:1px}
+.coins-input[type=number]::-webkit-outer-spin-button,.coins-input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 .formula-link{margin:0;padding:0;border:none;background:none;color:inherit;font:inherit;text-decoration:none;cursor:pointer}
 .formula-link:hover{color:var(--accent);text-decoration:underline}
 
@@ -318,27 +366,13 @@ input.mbox:disabled:hover{border-color:var(--ink-5)}
 </div>
 
 <script>
-let DW_DATA = null, META = {}, STATS = [], STATS_MODE = "scores", DEBILITIES = {}, LABELS = {}, STAT_NOTE = "", REF_SECTIONS = [], STAT_MIN = null, STAT_MAX = null, DEBILITY_PENALTY = "on", CONDITIONS = null, CONDITION_STATES = ["clear","marked"], XP_TRACK_SIZE = null, SHOW_DAMAGE = true, SHOW_FORMULA = true, AREAS = {}, AREA_LAYOUT = {left:[], right:[]};
+let DW_DATA = null, META = {}, HEADER = {charInfo:[], stats:{}, metrics:{}}, REF_SECTIONS = [], SHOW_FORMULA = true, AREAS = {}, AREA_LAYOUT = {left:[], right:[]};
 function applyData(data){
   DW_DATA = data || {};
   META = DW_DATA.meta || {};
-  STATS = META.stats || [];
-  STATS_MODE = META.statsMode || "scores";
-  DEBILITIES = META.debilities || {力量:"虚弱",敏捷:"颤抖",体质:"患病",智力:"晕眩",睿知:"困惑",魅力:"疤痕"};
-  LABELS = Object.assign({
-    look:"外观", race:"种族动作", raceName:"种族", alignment:"阵营动作", alignmentNote:"动机 / Drive", alignmentName:"阵营",
-    starting:"起始动作", advanced:"进阶动作", customAdvanced:"其他", gear:"装备", bonds:"羁绊", notes:"笔记",
-    load:"负载上限", hpMax:"最大生命", hpCur:"当前生命", armor:"护甲", damage:"伤害", name:"姓名", level:"等级", xp:"XP",
-    defaultFormula:"默认", blank:" ", casterLevel:"施法等级", prepareCap:"准备上限", statDist:"初始分配", coins:"金币"
-  }, META.labels || {});
-  STAT_NOTE = META.statNote || "";
-  STAT_MIN = (META.statMin !== undefined) ? META.statMin : null;
-  STAT_MAX = (META.statMax !== undefined) ? META.statMax : null;
-  DEBILITY_PENALTY = META.debilityPenalty || "on";
-  CONDITIONS = META.conditions || null;
-  CONDITION_STATES = META.conditionStates || ["clear","marked"];
-  XP_TRACK_SIZE = META.xpTrackSize || null;
-  SHOW_DAMAGE = META.showDamage !== false;
+  // 页首三个区块全由 meta.header 声明，代码不预设任何属性名、状态名或字段名
+  HEADER = resolveHeader(META.header);
+  HEADER_CACHE = {};
   SHOW_FORMULA = META.showFormula !== false;
   AREAS = META.areas || {};
   AREA_LAYOUT = resolveAreaLayout(META.areaLayout);
@@ -346,6 +380,37 @@ function applyData(data){
   REF_SECTIONS = META.refSections || [];
   if(!REF_SECTIONS.some(s => s.id === refTab)) refTab = REF_SECTIONS[0] ? REF_SECTIONS[0].id : null;
   buildTagMap();
+}
+
+// header 的三个区块都允许整块缺省：缺 charInfo 就没有页首字段，
+// 缺 stats.items 就没有属性格，缺 metrics.fields 就没有数值格。
+function resolveHeader(h){
+  const src = isObj(h) ? h : {};
+  const stats = isObj(src.stats) ? src.stats : {};
+  const metrics = isObj(src.metrics) ? src.metrics : {};
+  return {
+    charInfo: Array.isArray(src.charInfo) ? src.charInfo : [],
+    stats: {
+      prompt: stats.prompt || "",
+      modTable: isObj(stats.modTable) ? stats.modTable : null,
+      items: Array.isArray(stats.items) ? stats.items : [],
+      conditions: Array.isArray(stats.conditions) ? stats.conditions : []
+    },
+    metrics: {
+      columns: metrics.columns || 2,
+      fields: Array.isArray(metrics.fields) ? metrics.fields : []
+    }
+  };
+}
+
+// 职业可以覆盖 header 的任何部分，合并规则与 areas 一致。
+// 渲染时每个属性、每个分组都会问一次，所以按职业缓存合并结果。
+let HEADER_CACHE = {};
+function headerFor(cls){
+  if(!cls || !isObj(cls.header)) return HEADER;
+  const k = cls.id || "";
+  if(!HEADER_CACHE[k]) HEADER_CACHE[k] = resolveHeader(deepMerge(META.header || {}, cls.header));
+  return HEADER_CACHE[k];
 }
 
 // areaLayout 显式声明哪些区域渲染及其顺序和栏位。
@@ -424,38 +489,114 @@ let lastSearchItems = [];
 let boxReg = {};
 let ruleStack = [];
 let customData = {classes:[], moveListMoves:{}, moveListGroups:{}};
-let char = defaultChar();
+let char = null;  // 延迟初始化，等待 HEADER 就位
 let TAG_COLOR_MAP = {};
 
 function uid(){ return "c"+Math.random().toString(36).slice(2,9); }
+
+/* ============ 角色数据 ============ */
+// 三个容器，键名全部来自 header 声明：
+//   fields —— charInfo 与 metrics 的字段值
+//   stats  —— 属性值，按 stats.items[].id 存
+//   states —— 状态档位，按 stats.conditions[].id 存，0 即初始档
 function defaultChar(){
-  const stats = {};
-  if(STATS_MODE==="modifiers"){ STATS.forEach(s=>stats[s]=0); }
-  else { STATS.forEach(s=>stats[s]=10); }
-  return {name:"",classId:"",level:1,xp:0,
-    stats,
-    hpMax:0, load:0, hpCur:0, armor:0, damage:"",
-    debilities:[], conditions:{},
+  const c = {classId:"", fields:{}, stats:{}, states:{},
     areaData:{}, plainAreas:{}, moveListSelections:{}, moveListGroupNames:{}, moveListNames:{}, moveListTexts:{}};
+  seedChar(c, HEADER);
+  return c;
 }
-function mod(score){
-  const table = META.modTable || {"1-3":-3, "4-5":-2, "6-8":-1, "9-12":0, "13-15":1, "16-17":2, "18":3};
+// 按 header 声明补齐字段初值。已有值不动，所以换职业时只补新出现的字段。
+function seedChar(c, header){
+  header.charInfo.forEach(f => {
+    if(c.fields[f.id] === undefined) c.fields[f.id] = fieldSeed(f);
+  });
+  header.metrics.fields.forEach(f => {
+    if(c.fields[f.id] === undefined) c.fields[f.id] = fieldSeed(f);
+  });
+  header.stats.items.forEach(s => {
+    if(c.stats[s.id] === undefined) c.stats[s.id] = s.default || 0;
+  });
+}
+function fieldSeed(f){
+  if(f.default !== undefined) return f.default;
+  return (f.type === "number" || f.type === "track") ? 0 : "";
+}
+
+/* ============ 属性与状态 ============ */
+// 属性定义按 id 或 label 查：公式和 boundStat 都允许写任意一种
+function statItem(statKey, header){
+  const h = header || headerFor(getClass(char.classId));
+  return h.stats.items.find(s => s.id === statKey || s.label === statKey) || null;
+}
+function statValue(statKey, header){
+  const item = statItem(statKey, header);
+  if(!item) return null;
+  const v = char.stats[item.id];
+  return v === undefined || v === "" ? (item.default || 0) : (parseInt(v, 10) || 0);
+}
+// 数值 → 调整值。只有 score 类属性查表，modifier 类属性自身即调整值。
+function rawMod(item, value, header){
+  if(item.type !== "score") return value || 0;
+  const h = header || headerFor(getClass(char.classId));
+  const table = h.stats.modTable;
+  if(!table) return 0;
   for(const r of Object.keys(table)){
-    const parts = r.split("-");
-    const lo = parseInt(parts[0])||0;
-    const hi = parts.length>1 ? (parseInt(parts[1])||0) : Infinity;
-    if(score >= lo && score <= hi) return table[r];
+    const parts = String(r).split("-");
+    const lo = parseInt(parts[0], 10) || 0;
+    const hi = parts.length > 1 ? (parseInt(parts[1], 10) || 0) : Infinity;
+    if(value >= lo && value <= hi) return table[r];
   }
   return 0;
 }
+// 计入状态效果后的调整值
+function effModOf(item, header){
+  const h = header || headerFor(getClass(char.classId));
+  const value = statValue(item.id, h);
+  return rawMod(item, value, h) - statePenalty(item, h);
+}
+// 绑定到该属性、且已离开初始档的状态，每个按 effect 扣减
+function statePenalty(item, header){
+  const h = header || headerFor(getClass(char.classId));
+  let penalty = 0;
+  boundConditions(item, h).forEach(c => {
+    if(c.effect !== "modPenalty") return;
+    if((char.states[c.id] || 0) > 0) penalty += 1;
+  });
+  return penalty;
+}
+// boundStat 同样按 id 或 label 匹配
+function boundConditions(item, header){
+  const h = header || headerFor(getClass(char.classId));
+  return h.stats.conditions.filter(c =>
+    c.boundStat !== undefined && (c.boundStat === item.id || c.boundStat === item.label));
+}
 function fmtMod(m){return (m>0?"+":"")+m;}
-function statMod(score){ return STATS_MODE==="modifiers" ? (score||0) : mod(score); }
-function effMod(score, stat){ return statMod(score) - ((DEBILITY_PENALTY==="on" && (char.debilities||[]).includes(stat))?1:0); }
-function statBoundsAttr(isMod){
-  if(STAT_MIN!==null || STAT_MAX!==null){
-    return `${STAT_MIN!==null?` min="${STAT_MIN}"`:""}${STAT_MAX!==null?` max="${STAT_MAX}"`:""}`;
-  }
-  return isMod ? ' min="-4" max="4"' : ' min="1" max="18"';
+// 就地刷新调整值文本，省掉一次整表重渲染（输入框正在被编辑，不能重建）
+function refreshMods(){
+  const header = headerFor(getClass(char.classId));
+  header.stats.items.forEach(item => {
+    const el = document.querySelector(`[data-mod="${cssEsc(item.id)}"]`);
+    if(el) el.textContent = fmtMod(effModOf(item, header));
+  });
+}
+// id 由规则作者自定，可能含引号或中文，放进选择器前要转义
+function cssEsc(s){
+  if(window.CSS && CSS.escape) return CSS.escape(String(s));
+  return String(s).replace(/["\\]/g, "\\$&");
+}
+// 状态档数，至少两档（清空 / 已标记）
+function stateCount(c){ return Math.max(2, parseInt(c.states, 10) || 2); }
+function boundsAttr(f){
+  let out = "";
+  if(f.min !== undefined) out += ` min="${esc(f.min)}"`;
+  if(f.max !== undefined) out += ` max="${esc(f.max)}"`;
+  return out;
+}
+// 数值输入框的上下限。规则没声明就给一个足够宽的区间兜底，
+// 只为挡住会把输入框撑爆的超长数字，不是业务约束。
+function numBounds(f){
+  if(f.min !== undefined || f.max !== undefined) return boundsAttr(f);
+  return ' min="-9999" max="99999"';
 }
 // tags 页签的数据按它自己的 id 取：id 为 tags 的页签读顶层 tags。
 // 可以有多个 tags 页签，各读各的数据块。按页签声明顺序返回。
@@ -556,20 +697,33 @@ function getClass(id){ return mergedClasses().find(c=>c.id===id); }
 function reqList(mv){ return mv.requires ? (Array.isArray(mv.requires) ? mv.requires : [mv.requires]) : []; }
 function repList(mv){ return mv.replaces ? (Array.isArray(mv.replaces) ? mv.replaces : [mv.replaces]) : []; }
 
+// 公式项的查找顺序：数字 → 属性 → header 字段 → 区域 rightStat。
+// 每一层都同时接受 id 与 label，规则想用哪种写法都行。
 function evalFormula(formula, ctx){
   const terms = String(formula||"").split("+").map(t=>t.trim()).filter(t=>t!=="");
   if(!terms.length) return null;
+  const header = headerFor(getClass(char.classId));
   let sum = 0;
   for(const t of terms){
     if(/^-?\d+$/.test(t)){ sum += parseInt(t,10); continue; }
-    if(STATS.includes(t)){ sum += (char.stats[t]||0); continue; }
-    if(t === "等级" || t === "level"){ sum += (char.level||0); continue; }
-    // 引用其他 rightStat：按 label 反查它的当前值
-    const v = statValueByLabel(t);
-    if(v !== null){ sum += v; continue; }
+    const sv = statValue(t, header);
+    if(sv !== null){ sum += sv; continue; }
+    const fv = fieldValueByKey(t, header);
+    if(fv !== null){ sum += fv; continue; }
+    const rv = statValueByLabel(t);
+    if(rv !== null){ sum += rv; continue; }
     return null;
   }
   return sum;
+}
+// 在 charInfo / metrics 里按 id 或 label 找字段的当前数值
+function fieldValueByKey(key, header){
+  const h = header || headerFor(getClass(char.classId));
+  const def = h.charInfo.concat(h.metrics.fields)
+    .find(f => f.id === key || f.label === key);
+  if(!def) return null;
+  const cur = char.fields[def.id];
+  return cur !== undefined && cur !== "" ? (parseInt(cur, 10) || 0) : 0;
 }
 // 按 label 在所有区域的 rightStats 里反查当前值
 function statValueByLabel(label){
@@ -578,21 +732,20 @@ function statValueByLabel(label){
     const stats = getAreaHeader(areaKey, cls).rightStats || [];
     const def = stats.find(s => s.label === label);
     if(!def) continue;
-    const cur = char[def.key];
+    const cur = char.fields[def.key];
     return cur !== undefined && cur !== "" ? (parseInt(cur, 10) || 0) : 0;
   }
   return null;
 }
-function defaultHP(cls){ const b=(parseInt((cls.hp||"0").split("+")[0])||0); return STATS_MODE==="modifiers" ? b : (evalFormula(cls.hp) ?? b); }
+// 公式按钮：target 可能是 header 的 metrics 字段，也可能是区域里的 rightStat
 function applyFormula(target){
-  const cls=getClass(char.classId);
+  const cls = getClass(char.classId);
   if(!cls) return;
-  if(target==="hpMax"){ const v=evalFormula(cls.hp); if(v!=null) char.hpMax=v; }
-  else {
-    // 通用 rightStat 处理：查找定义并应用公式
-    const def = statDefByKey(target, cls);
-    if(def && def.formula){ const v=evalFormula(def.formula); if(v!=null) char[target]=v; }
-  }
+  const field = headerFor(cls).metrics.fields.find(f => f.id === target);
+  const formula = field ? field.formula : (statDefByKey(target, cls) || {}).formula;
+  if(!formula) return;
+  const v = evalFormula(formula);
+  if(v != null) char.fields[target] = v;
   renderPlaybook(); save();
 }
 
@@ -618,17 +771,29 @@ function normalizeCustomData(){
   Object.values(customData.moveListGroups).forEach(byArea => Object.values(byArea||{}).forEach(arr => (arr||[]).forEach(g => { if(!g.key) g.key = uid(); })));
 }
 function normalizeChar(){
-  char.conditions = char.conditions || {};
+  char.fields = char.fields || {};
+  char.stats = char.stats || {};
+  char.states = char.states || {};
   char.areaData = char.areaData || {};
   char.plainAreas = char.plainAreas || {};
   char.moveListSelections = char.moveListSelections || {};
   char.moveListGroupNames = char.moveListGroupNames || {};
   char.moveListNames = char.moveListNames || {};
   char.moveListTexts = char.moveListTexts || {};
+  // 补齐当前 header 新声明、而存档里还没有的字段
+  seedChar(char, headerFor(getClass(char.classId)));
+}
+// 只认 fields/stats/states 三容器的新结构，旧的扁平存档直接丢弃
+function usableChar(saved){
+  return isObj(saved) && isObj(saved.fields) && isObj(saved.states);
 }
 function load(){
   try{
-    const c=lsGet("dw-char"); if(c) char=Object.assign(defaultChar(), JSON.parse(c));
+    const c=lsGet("dw-char");
+    if(c){
+      const saved = JSON.parse(c);
+      if(usableChar(saved)) char = Object.assign(defaultChar(), saved);
+    }
     const cu=lsGet("dw-custom"); if(cu) customData=JSON.parse(cu);
     const ui=lsGet("dw-ui"); if(ui){ const u=JSON.parse(ui); if(u.mode==="view"||u.mode==="edit") mode=u.mode; if(u.refTab && REF_SECTIONS.some(s=>s.id===u.refTab)) refTab=u.refTab; }
   }catch(e){}
@@ -655,12 +820,23 @@ function statFormula(statKey, cls){
   const d = statDefByKey(statKey, cls);
   return d ? d.formula : undefined;
 }
-// 与旧 defaultLoad 等价，但公式来源改为 areaHeaders
+// rightStat 的默认值：公式算得出就用它，算不出退回公式首项的常数
 function defaultStatValue(statKey, cls){
   const f = statFormula(statKey, cls);
   if(!f) return 0;
-  const b = parseInt(String(f).split("+")[0]) || 0;
-  return STATS_MODE === "modifiers" ? b : (evalFormula(f) ?? b);
+  const v = evalFormula(f);
+  if(v != null) return v;
+  return parseInt(String(f).split("+")[0], 10) || 0;
+}
+// metrics 字段的默认值：有公式先算公式，否则取声明的 default。
+// 职业覆盖已在 headerFor 里合并进 field，这里不必再看 cls。
+function defaultFieldValue(field){
+  if(field.formula){
+    const v = evalFormula(field.formula);
+    if(v != null) return v;
+  }
+  if(field.default !== undefined) return field.default;
+  return field.type === "number" ? 0 : "";
 }
 
 function getAreaHeader(areaKey, cls) {
@@ -966,9 +1142,19 @@ function boundMoveTaken(area){
   return false;
 }
 
+// minLevel / maxLevel 对照的是 charInfo 里的等级字段。
+// 字段名由规则自定，默认按 level 查（id 或 label 都行），
+// 也可以用 group.levelField 指定别的字段。
+function groupLevel(group){
+  const key = group.levelField || "level";
+  const v = fieldValueByKey(key, headerFor(getClass(char.classId)));
+  return v === null ? null : v;
+}
 function groupLocked(group){
   if(group.minLevel === undefined && group.maxLevel === undefined) return false;
-  const lvl = char.level || 1;
+  const lvl = groupLevel(group);
+  // 规则没声明对应字段时不锁，否则整组动作会凭空消失
+  if(lvl === null) return false;
   if(group.minLevel !== undefined && lvl < group.minLevel) return true;
   if(group.maxLevel !== undefined && lvl > group.maxLevel) return true;
   return false;
@@ -1094,7 +1280,7 @@ function getMoveGroupName(areaKey, group){
 
 function renderRightStat(stat, cls) {
   // char 值优先，0/空则回退到公式默认值
-  const cur = char[stat.key];
+  const cur = char.fields[stat.key];
   const val = cur || defaultStatValue(stat.key, cls);
 
   let html = `${esc(stat.label)} `;
@@ -1103,10 +1289,7 @@ function renderRightStat(stat, cls) {
     html += `<b>${esc(val)}</b>`;
   } else if (mode === "edit") {
     const type = stat.type === "number" ? "number" : "text";
-    let attrs = "";
-    if (stat.min !== undefined) attrs += ` min="${stat.min}"`;
-    if (stat.max !== undefined) attrs += ` max="${stat.max}"`;
-    html += `<input type="${type}" data-bind="${esc(stat.key)}" value="${esc(val)}"${attrs}>`;
+    html += `<input type="${type}" data-field="field:${esc(stat.key)}" value="${esc(val)}"${boundsAttr(stat)}>`;
   } else {
     html += `<b>${esc(val)}</b>`;
   }
@@ -1133,7 +1316,7 @@ function renderPlaybook(){
   if(!cls){ root.innerHTML='<div class="empty">↑ 在左上角选择一个职业开始车卡</div>'; return; }
   const col = keys => keys.map(k => renderArea(k, cls)).join("");
   root.innerHTML =
-    headHtml(cls) + statsHtml(cls) +
+    renderHeader(cls) +
     `<div class="pb-cols">
       <div class="pb-left">${col(AREA_LAYOUT.left)}</div>
       <div class="pb-right">${col(AREA_LAYOUT.right)}</div>
@@ -1155,22 +1338,130 @@ const AREA_RENDERERS = {
   heritage: renderHeritageArea,
 };
 
-function headHtml(cls){
-  const info = mode==="edit" ?
-    `<div class="pb-info">
-      <div class="it"><span class="k">${esc(LABELS.name)}</span><input data-bind="name" value="${esc(char.name)}" placeholder="角色名"></div>
-      <div class="it"><span class="k">${esc(LABELS.level)}</span><input type="number" data-bind="level" value="${char.level}" min="1" max="10"></div>
-      <div class="it"><span class="k">${esc(LABELS.xp)}</span>${XP_TRACK_SIZE?xpHtml():`<input type="number" data-bind="xp" value="${char.xp||0}" min="0">`}</div>
-    </div>` :
-    `<div class="pb-info">
-      <div class="it"><span class="k">${esc(LABELS.name)}</span><span class="v">${esc(char.name||"—")}</span></div>
-      <div class="it"><span class="k">${esc(LABELS.level)}</span><span class="v">${esc(char.level)}</span></div>
-      <div class="it"><span class="k">${esc(LABELS.xp)}</span>${XP_TRACK_SIZE?xpHtml():`<input type="number" data-bind="xp" value="${char.xp||0}" min="0">`}</div>
-    </div>`;
+/* ============ 页首：charInfo / stats / metrics ============ */
+// 页首布局固定（不参与 areaLayout），但三个区块的内容全由 header 声明
+function renderHeader(cls){
+  const header = headerFor(cls);
   return `<div class="pb-head">
     <div class="pb-class">${esc(cls.name)}</div>
-    ${info}
+    ${renderCharInfo(header)}
+  </div>
+  <div class="pb-stats">
+    ${renderStatsBlock(header)}
+    ${renderMetricsBlock(header)}
   </div>`;
+}
+
+// 字段是否可改：编辑模式一律可改，查看模式只认 view:"editable"
+function fieldEditable(f){ return mode === "edit" || f.view === "editable"; }
+
+function renderCharInfo(header){
+  if(!header.charInfo.length) return "";
+  const items = header.charInfo.map(f => {
+    const raw = char.fields[f.id];
+    const val = raw === undefined || raw === "" ? fieldSeed(f) : raw;
+    // flex 是基准宽的倍数：写 2 就是两倍宽，不写即一倍
+    const n = parseFloat(f.flex);
+    const w = (n > 0 && f.type !== "track")
+      ? ` style="width:calc(var(--info-w) * ${n})"` : "";
+    const cls = f.type === "track" ? "it it-track" : "it";
+    return `<div class="${cls}"${w}><span class="k">${esc(f.label || f.id)}</span>${renderFieldControl(f, "char", val)}</div>`;
+  }).join("");
+  return `<div class="pb-info">${items}</div>`;
+}
+
+// 带步进箭头的数字框。target 形如 "field:xp" 或 "stat:STR"。
+// 等级、XP、护甲这类值多是 ±1 变化，点箭头比重填一遍方便。
+function numberControl(f, val, target){
+  const btn = (dir, label) =>
+    `<button type="button" data-field-step="${esc(target)}:${dir}" title="${dir > 0 ? "+1" : "-1"}">${label}</button>`;
+  return `<span class="num-wrap">`
+    + `<input type="number" data-field="${esc(target)}" value="${esc(val)}"${numBounds(f)}>`
+    + `<span class="num-step">${btn(1, "▲")}${btn(-1, "▼")}</span></span>`;
+}
+
+// charInfo 与 metrics 共用的字段控件：text / number / select / track
+function renderFieldControl(f, scope, val){
+  if(f.type === "track") return renderFieldTrack(f, val);
+  if(!fieldEditable(f)) return `<span class="v">${esc(val === "" ? "—" : val)}</span>`;
+
+  const bind = `data-field="field:${esc(f.id)}"`;
+  if(f.type === "number"){
+    return numberControl(f, val, `field:${f.id}`);
+  }
+  if(f.type === "select"){
+    // 下拉只提供候选，输入框照旧可以填任意值
+    const opts = (f.options || []).map(o =>
+      `<button type="button" class="sel-opt" data-field-pick="${esc(f.id)}" data-val="${esc(o)}">${esc(o)}</button>`).join("");
+    return `<span class="sel-wrap">`
+      + `<input ${bind} value="${esc(val)}" placeholder="${esc(f.tip || "")}">`
+      + `<button type="button" class="sel-caret" data-field-menu="${esc(f.id)}" title="选择">▼</button>`
+      + `<span class="sel-menu hidden">${opts}</span></span>`;
+  }
+  return `<input ${bind} value="${esc(val)}" placeholder="${esc(f.tip || "")}">`;
+}
+
+function renderFieldTrack(f, val){
+  const slots = Math.max(0, parseInt(f.slots, 10) || 0);
+  if(!slots) return "";
+  const dis = fieldEditable(f) ? "" : " disabled";
+  const cells = Array.from({length:slots}, (_, i) =>
+    `<button type="button" class="trc${i < (val||0) ? " on" : ""}" data-field-track="${esc(f.id)}:${i}"${dis}></button>`).join("");
+  return `<div class="track">${cells}</div>`;
+}
+
+function renderStatsBlock(header){
+  const cfg = header.stats;
+  if(!cfg.items.length) return "<div></div>";
+  const prompt = cfg.prompt ? `<div class="stat-prompt">${esc(cfg.prompt)}</div>` : "";
+  const cards = cfg.items.map(item => renderStatCard(item, header)).join("");
+  // 没有 boundStat 的状态不归属任何属性，另起一行横排，超宽自动换行
+  const loose = cfg.conditions.filter(c => c.boundStat === undefined)
+    .map(c => renderConditionBtn(c)).join("");
+  const looseHtml = loose ? `<div class="loose-conditions">${loose}</div>` : "";
+  return `<div class="stat-block">${prompt}<div class="stat-grid">${cards}</div>${looseHtml}</div>`;
+}
+
+function renderStatCard(item, header){
+  const value = statValue(item.id, header);
+  const em = fmtMod(effModOf(item, header));
+  // score 类属性数值与调整值分两行；modifier 类属性本身就是调整值，只有一行
+  const isMod = item.type !== "score";
+  const val = mode === "edit"
+    ? numberControl(item, value, `stat:${item.id}`)
+    : `<div class="v"${isMod ? ` data-mod="${esc(item.id)}"` : ""}>${isMod ? em : esc(value)}</div>`;
+  const modRow = isMod ? "" : `<div class="m" data-mod="${esc(item.id)}">${em}</div>`;
+  const conds = boundConditions(item, header).map(c => renderConditionBtn(c)).join("");
+  return `<div class="stat-card"><div class="n">${esc(item.label || item.id)}</div>${val}${modRow}${conds}</div>`;
+}
+
+// 状态按钮：点一次进下一档，到顶回 0。
+// 默认用画出来的圆表示档位（0 空心 → 满档实心），
+// 规则显式写了 symbols 时改用字符——那种场合多半不是渐进语义。
+function renderConditionBtn(c){
+  const st = char.states[c.id] || 0;
+  const n = stateCount(c);
+  const syms = Array.isArray(c.symbols) && c.symbols.length >= n ? c.symbols : null;
+  const mark = syms
+    ? `<span class="cond-mark cond-sym">${esc(syms[st])}</span>`
+    : `<span class="cond-mark" style="--fill:${Math.round(st / (n - 1) * 100)}%"></span>`;
+  return `<button type="button" class="cond${st ? " on" : ""}" data-state="${esc(c.id)}" data-m="${st}" title="${esc(c.label || c.id)}">${mark} ${esc(c.label || c.id)}</button>`;
+}
+
+function renderMetricsBlock(header){
+  const cfg = header.metrics;
+  if(!cfg.fields.length) return "";
+  const fields = cfg.fields.map(f => {
+    const hint = f.formula ? `<div class="formula">${formulaHint(f.formula, f.id)}</div>` : "";
+    return `<div class="metric-field"><div class="k">${esc(f.label || f.id)}</div>${renderMetricControl(f)}${hint}</div>`;
+  }).join("");
+  return `<div class="metrics-grid" style="grid-template-columns:repeat(${esc(cfg.columns)},minmax(var(--metric-w),max-content))">${fields}</div>`;
+}
+
+// 与 charInfo 的区别：空值回退到公式或 default 算出的默认值，
+// 这样职业给了 hpMax 公式、角色还没填时也显示算好的数
+function renderMetricControl(f){
+  return renderFieldControl(f, "metric", shownFieldValue(f, f.id));
 }
 
 function formulaHint(txt, setter){
@@ -1180,47 +1471,6 @@ function formulaHint(txt, setter){
     return `<span class="formula-hint">（<button type="button" class="formula-link" data-setformula="${esc(setter)}" title="设为默认值">${body}</button>）</span>`;
   }
   return `<span class="formula-hint">（${body}）</span>`;
-}
-// 初始属性分配提示：纯展示文本，职业级可覆盖 meta 级
-function distHint(cls){
-  const note = (cls && cls.statNote) || STAT_NOTE;
-  if(!note) return "";
-  return `<div class="stat-dist">${esc(LABELS.statDist||"初始分配")}：${esc(note)}</div>`;
-}
-function conditionFor(stat){
-  if(!CONDITIONS) return null;
-  return CONDITIONS.find(c=>c.stat===stat);
-}
-function conditionBtn(c){
-  const st = char.conditions[c.key] || 0;
-  const stateName = CONDITION_STATES[st] || "";
-  return `<button type="button" class="cond${st?" on":""}" data-cond="${esc(c.key)}" data-m="${st}" title="${esc(c.label)}${stateName?`（${esc(stateName)}）`:""}"><span class="cond-mark"></span> ${esc(c.label)}</button>`;
-}
-function statsHtml(cls){
-  const hp = char.hpMax||defaultHP(cls);
-  const isMod = STATS_MODE==="modifiers";
-  const statCells = STATS.map(s=>{
-    const v = char.stats[s] || (isMod?0:10);
-    const em = fmtMod(effMod(v, s));
-    const cond = conditionFor(s);
-    const condHtml = cond ? conditionBtn(cond) : (CONDITIONS ? "" : `<label class="deb"><input type="checkbox" class="chk" data-deb="${esc(s)}" ${(char.debilities||[]).includes(s)?"checked":""}>${esc(DEBILITIES[s])}</label>`);
-    const val = mode==="edit"
-      ? `<input type="number" data-stat="${esc(s)}" value="${v}"${statBoundsAttr(isMod)}">`
-      : `<div class="v"${isMod?` data-mod="${esc(s)}"`:""}>${isMod?em:v}</div>`;
-    const modRow = isMod ? "" : `<div class="m" data-mod="${esc(s)}">${em}</div>`;
-    return `<div class="pb-stat"><div class="n">${esc(s)}</div>${val}${modRow}${condHtml}</div>`;
-  }).join("");
-  const curHp = `<div class="pb-num"><div class="k">${esc(LABELS.hpCur)}</div><input type="number" data-bind="hpCur" value="${char.hpCur||hp}" min="0"></div>`;
-  const maxHp = mode==="edit" ? `<div class="pb-num"><div class="k">${esc(LABELS.hpMax)}</div><input type="number" data-bind="hpMax" value="${hp}" min="0"><div class="formula">${formulaHint(cls.hp, "hpMax")}</div></div>` : `<div class="pb-num"><div class="k">${esc(LABELS.hpMax)}</div><div class="v">${hp}</div><div class="formula">${formulaHint(cls.hp, "hpMax")}</div></div>`;
-  const armor = mode==="edit" ? `<div class="pb-num"><div class="k">${esc(LABELS.armor)}</div><input type="number" data-bind="armor" value="${char.armor||0}" min="0"></div>` : `<div class="pb-num"><div class="k">${esc(LABELS.armor)}</div><div class="v">${esc(char.armor||0)}</div></div>`;
-  const dmg = SHOW_DAMAGE ? (mode==="edit" ? `<div class="pb-num"><div class="k">${esc(LABELS.damage)}</div><input data-bind="damage" value="${esc(char.damage||cls.damage||"")}"></div>` : `<div class="pb-num"><div class="k">${esc(LABELS.damage)}</div><div class="v">${esc(char.damage||cls.damage||"")}</div></div>`) : "";
-  return `<div class="pb-stats">${distHint(cls)}<div class="pb-statgrid">${statCells}</div><div class="pb-nums">${curHp}${maxHp}${armor}${dmg}</div></div>`;
-}
-
-function xpHtml(){
-  if(!XP_TRACK_SIZE) return "";
-  const cells = Array.from({length:XP_TRACK_SIZE},(_,gi)=>`<button type="button" class="trc${gi<(char.xp||0)?" on":""}" data-track="xp:${gi}"></button>`).join("");
-  return `<div class="track">${cells}</div>`;
 }
 
 /* ============ fillbox / bonds / heritage 区域模板 ============ */
@@ -1614,6 +1864,7 @@ function autosizeAll(){ document.querySelectorAll("textarea").forEach(autosize);
 function onClassChange(){
   const newId=document.getElementById("classSelect").value;
   if(newId!==char.classId){
+    const prevHeader = headerFor(getClass(char.classId));
     char.classId=newId;
     char.plainAreas={}; char.moveListSelections={}; char.moveListGroupNames={}; char.moveListNames={}; char.moveListTexts={};
     // 内容来自职业的区域（声明 resetOnClassChange）换职业时清空，其余保留
@@ -1622,28 +1873,47 @@ function onClassChange(){
       const a = cls ? getAreaHeader(k, cls) : {};
       if(a.resetOnClassChange) delete char.areaData[k];
     });
-    char.damage=""; char.hpCur=0; char.hpMax=0; char.load=0;
+    // metrics 与区域 rightStat 都是逐职业的数值，换职业一律丢掉重算；
+    // charInfo（姓名/等级/XP）属于角色本身，保留
+    prevHeader.metrics.fields.forEach(f => { delete char.fields[f.id]; });
+    rightStatKeys().forEach(k => { delete char.fields[k]; });
   }
   const cls=getClass(char.classId);
   if(!cls){ renderPlaybook(); return; }
-  if(!char.damage) char.damage=cls.damage||"";
-  if(!char.hpMax) char.hpMax=defaultHP(cls);
-  if(!char.load) char.load=defaultStatValue("load", cls);
+  // 回填：有公式的按公式算，否则取声明的 default
+  headerFor(cls).metrics.fields.forEach(f => {
+    if(char.fields[f.id]) return;
+    const v = defaultFieldValue(f);
+    if(v !== "" && v !== 0) char.fields[f.id] = v;
+  });
   renderPlaybook(); save();
+}
+// 所有区域里声明过的 rightStat key
+function rightStatKeys(){
+  const out = [];
+  const cls = getClass(char.classId);
+  Object.keys(AREAS).forEach(areaKey => {
+    (getAreaHeader(areaKey, cls).rightStats || []).forEach(s => {
+      if(s.key && !out.includes(s.key)) out.push(s.key);
+    });
+  });
+  return out;
 }
 
 document.addEventListener("input", e=>{
   const t=e.target, d=t.dataset||{};
   if(t.id==="refSearch"){ searchKw=t.value; const r=document.getElementById("refSearchResults"); if(r) r.innerHTML=searchResultsHtml(searchKw); return; }
-  if(d.bind){
-    if(t.type === "number") char[d.bind] = parseInt(t.value)||0;
-    else char[d.bind] = t.value;
-    autosize(t); save(); return;
-  }
-  if(d.stat!==undefined){
-    char.stats[d.stat]=parseInt(t.value)||0;
-    const modEl=document.querySelector(`[data-mod="${d.stat}"]`);
-    if(modEl) modEl.textContent=fmtMod(effMod(char.stats[d.stat], d.stat));
+  // 页首字段与属性共用一个分支：field: 写 char.fields，stat: 写 char.stats
+  if(d.field!==undefined){
+    const i = d.field.indexOf(":");
+    const scope = d.field.slice(0, i), key = d.field.slice(i + 1);
+    if(scope === "stat"){
+      char.stats[key] = parseInt(t.value)||0;
+    } else {
+      char.fields[key] = t.type === "number" ? (parseInt(t.value)||0) : t.value;
+    }
+    // 属性与页首数值都可能被调整值或公式引用，就地刷新显示
+    refreshMods();
     save(); return;
   }
   if(d.area!==undefined){
@@ -1693,7 +1963,13 @@ document.addEventListener("input", e=>{
 document.addEventListener("change", e=>{
   const t=e.target, d=t.dataset||{};
   if(t.id==="classSelect"){ onClassChange(); return; }
-  if(d.bind==="level"){ renderPlaybook(); return; }
+  // charInfo 的数值字段可能被公式或 minLevel 依赖，改完整表重渲染
+  if(d.field !== undefined && d.field.startsWith("field:") && t.type === "number"){
+    const key = d.field.slice(6);
+    if(headerFor(getClass(char.classId)).charInfo.some(f => f.id === key)){
+      renderPlaybook(); return;
+    }
+  }
   if(d.plain && d.plain.startsWith("choice:")){
     const [, areaKey, key] = d.plain.split(":");
     let arr = plainGet(areaKey, key, []);
@@ -1702,14 +1978,7 @@ document.addEventListener("change", e=>{
     plainSet(areaKey, key, arr);
     save(); return;
   }
-  if(d.deb!==undefined){
-    const st=d.deb;
-    if(t.checked){ if(!char.debilities.includes(st)) char.debilities.push(st); }
-    else { char.debilities=char.debilities.filter(x=>x!==st); }
-    const modEl=document.querySelector(`[data-mod="${st}"]`);
-    if(modEl) modEl.textContent=fmtMod(effMod(char.stats[st]||(STATS_MODE==="modifiers"?0:10), st));
-    save(); return;
-  }
+
   if(d.area!==undefined){
     const [op, areaKey, i] = d.area.split(":");
     const data = char.areaData && char.areaData[areaKey];
@@ -1742,18 +2011,90 @@ document.addEventListener("change", e=>{
   }
 });
 
+// 数字框的步进箭头。dir 为 +1 / -1，声明了 min/max 就夹住。
+// 从当前显示值起步：metrics 字段值为空时显示的是公式算出的默认值，
+// 不从那个值开始加减会跳回 0。
+function stepField(spec){
+  const i = spec.indexOf(":"), j = spec.lastIndexOf(":");
+  const scope = spec.slice(0, i);
+  const key = spec.slice(i + 1, j);
+  const dir = parseInt(spec.slice(j + 1), 10) || 0;
+  const header = headerFor(getClass(char.classId));
+
+  let def, cur;
+  if(scope === "stat"){
+    def = header.stats.items.find(s => s.id === key);
+    cur = statValue(key, header) || 0;
+  } else {
+    def = header.charInfo.concat(header.metrics.fields).find(f => f.id === key);
+    cur = shownFieldValue(def, key);
+  }
+  if(!def) return;
+
+  let next = (parseInt(cur, 10) || 0) + dir;
+  if(def.min !== undefined) next = Math.max(parseInt(def.min, 10), next);
+  if(def.max !== undefined) next = Math.min(parseInt(def.max, 10), next);
+
+  if(scope === "stat") char.stats[key] = next;
+  else char.fields[key] = next;
+  renderPlaybook(); save();
+}
+// 字段当前显示的值：空值回退到公式或 default 算出的默认值
+function shownFieldValue(def, key){
+  const raw = char.fields[key];
+  if(raw !== undefined && raw !== "" && raw !== 0) return raw;
+  return def ? defaultFieldValue(def) : 0;
+}
+
+// select 字段的下拉弹层
+function closeSelectMenus(except){
+  document.querySelectorAll(".sel-menu").forEach(m => {
+    if(m !== except) m.classList.add("hidden");
+  });
+}
+document.addEventListener("keydown", e=>{
+  if(e.key === "Escape") closeSelectMenus();
+});
+
 document.addEventListener("click", e=>{
   const t=e.target, d=t.dataset||{};
+  // 点到弹层外面就收起来（点 caret 或选项时在 .sel-wrap 内，不受影响）
+  if(!t.closest(".sel-wrap")) closeSelectMenus();
+  if(d.fieldMenu!==undefined){
+    const menu = t.parentNode.querySelector(".sel-menu");
+    if(menu){
+      const willOpen = menu.classList.contains("hidden");
+      closeSelectMenus(menu);
+      menu.classList.toggle("hidden", !willOpen);
+    }
+    return;
+  }
+  if(d.fieldPick!==undefined){
+    char.fields[d.fieldPick] = d.val;
+    renderPlaybook(); save(); return;
+  }
+  if(d.fieldStep!==undefined){ stepField(d.fieldStep); return; }
   if(d.setformula!==undefined){ applyFormula(d.setformula); return; }
   if(d.ruleDel!==undefined){ removeRule(+d.ruleDel); return; }
   if(d.ruleReload!==undefined){ reloadRule(+d.ruleReload); return; }
   if(t.closest("[data-ref-tab]")){ refTab=t.closest("[data-ref-tab]").dataset.refTab; renderRef(); save(); return; }
   if(d.imp!==undefined){ importSearchItem(+d.imp); return; }
-  if(d.cond!==undefined){ const n=CONDITION_STATES.length; const cur=char.conditions[d.cond]||0; char.conditions[d.cond]=(cur+1)%n; renderPlaybook(); save(); return; }
-  if(d.track!==undefined){
-    const [key,idx]=d.track.split(":"); const k=parseInt(idx);
-    if(key==="xp"){ char.xp = (k < (char.xp||0)) ? k : (k+1); renderPlaybook(); save(); }
-    return;
+  // 状态按钮：点一次进下一档，到顶回 0
+  if(d.state!==undefined){
+    const cond = headerFor(getClass(char.classId)).stats.conditions.find(c => c.id === d.state);
+    if(!cond) return;
+    const cur = char.states[d.state] || 0;
+    char.states[d.state] = (cur + 1) % stateCount(cond);
+    renderPlaybook(); save(); return;
+  }
+  // charInfo 的轨道字段：点第 k 格即设为 k 或 k+1
+  if(d.fieldTrack!==undefined){
+    const i = d.fieldTrack.lastIndexOf(":");
+    const key = d.fieldTrack.slice(0, i);
+    const k = parseInt(d.fieldTrack.slice(i + 1), 10);
+    const cur = char.fields[key] || 0;
+    char.fields[key] = (k < cur) ? k : (k + 1);
+    renderPlaybook(); save(); return;
   }
   if(d.plain && d.plain.startsWith("track:")){
     const [, areaKey, key, idxStr] = d.plain.split(":");
@@ -1981,13 +2322,19 @@ function bind(){
   });
 }
 
+// 导出文件名里的角色名：取 charInfo 第一个有值的文本字段
+function charDisplayName(){
+  const f = headerFor(getClass(char.classId)).charInfo
+    .find(f => (f.type || "text") === "text" && char.fields[f.id]);
+  return f ? String(char.fields[f.id]) : "";
+}
 function exportJSON(){
-  const payload={kind:"dw-card-export",version:4,character:char,custom:customData,exportedAt:new Date().toISOString()};
+  const payload={kind:"dw-card-export",version:5,character:char,custom:customData,exportedAt:new Date().toISOString()};
   const text=JSON.stringify(payload,null,2);
   const blob=new Blob([text],{type:"application/json"});
   const a=document.createElement("a");
   a.href=URL.createObjectURL(blob);
-  a.download=(char.name||"角色")+"-地城世界角色卡.json";
+  a.download=(charDisplayName()||"角色")+"-角色卡.json";
   a.click(); URL.revokeObjectURL(a.href);
 }
 function importJSON(e){
@@ -2003,8 +2350,13 @@ function importJSON(e){
     }
     if(!data){ alert("无法识别的文件：应为 JSON（兼容旧的 window.DW_CARD 格式）。"); return; }
     if(data.kind==="dw-card-export"){
+      if(data.character && !usableChar(data.character)){
+        alert("这张角色卡是旧版格式（扁平字段），当前版本不再支持，请重新车卡。");
+        return;
+      }
       if(data.character) char=Object.assign(defaultChar(),data.character);
       if(data.custom) customData=data.custom;
+      normalizeChar();
       alert("已导入角色与自定义数据。");
     } else if(data.classes||data.moveListMoves||data.moveListGroups){
       customData={classes:(data.classes||[]).concat(customData.classes||[]),
@@ -2022,8 +2374,15 @@ function importJSON(e){
 function effectiveRules(){
   return ruleStack.reduce((acc, layer) => deepMerge(acc, layer.data), {});
 }
+// char 的字段集取决于 header，所以必须在 applyData 之后才能建。
+// 规则换了之后也要再补一次：新规则可能声明了旧存档里没有的字段。
+function ensureChar(){
+  if(!char) char = defaultChar();
+  else normalizeChar();
+}
 function applyEffective(){
   applyData(effectiveRules());
+  ensureChar();
   if(!DW_DATA || !DW_DATA.classes || !DW_DATA.classes.length){
     renderNoRules();
     save();
@@ -2157,6 +2516,8 @@ function init(){
   const start = () => {
     loadRules();
     applyData(effectiveRules());
+    // char 的字段集由 header 决定，必须在 applyData 之后建
+    ensureChar();
     if(!DW_DATA || !DW_DATA.classes || !DW_DATA.classes.length){
       renderNoRules();
       bind();

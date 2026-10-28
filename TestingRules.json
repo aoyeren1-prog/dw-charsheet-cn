@@ -1,0 +1,445 @@
+{
+  "meta": {
+    "source": "先写一个目标数据 json，然后照着这个重构代码",
+    "header": {
+      "charInfo": [
+        {"id": "name", "label": "姓名", "type": "text", "flex": 2},
+        {"id": "level", "label": "等级", "type": "number", "min": 1, "max": 10},
+        {"id": "xp", "label": "XP", "type": "track", "slots": 5, "view": "editable"}
+      ],
+      "stats": {
+        "prompt": "初始将 16 (+2), 15 (+1), 13 (+1), 12 (+0), 9 (+0), 8 (-1) 分配至你的六个属性",
+        "modTable": {"1-3": -3, "4-5": -2, "6-8": -1, "9-12": 0, "13-15": 1, "16-17": 2, "18": 3},
+        "items": [
+          {"id": "STR", "label": "力量", "type": "score", "min": 0, "max": 18, "default": 10},
+          {"id": "DEX", "label": "敏捷", "type": "score", "min": 0, "max": 18, "default": 10},
+          {"id": "WIS", "label": "意志", "type": "score", "min": 0, "max": 18, "default": 10},
+          {"id": "SAN", "label": "压力度", "type": "mod", "min": -3, "max": 0, "default": 0}
+        ],
+        "conditions":[
+          {"id": "injury", "label": "受伤", "states": 3, "symbols": ["0/2", "1/2", "2/2"], "boundStat": "STR", "effect": "modPenalty"},
+          {"id": "stunned", "label": "晕眩", "states": 3},
+          {"id": "bloodied", "label": "半血", "states": 2, "symbols": ["x", "√"]}
+        ]
+      },
+      "metrics": {
+        "columns": 2,
+        "fields": [
+          {
+            "id": "hpCur", 
+            "label": "生命值", 
+            "type": "number",
+            "view": "editable"
+          },
+          {
+            "id": "hpMax", 
+            "label": "最大生命值", 
+            "type": "number",
+            "formula": "8+体质"
+          },
+          {
+            "id": "armor", 
+            "label": "护甲", 
+            "type": "number"
+          },
+          {
+            "id": "damage", 
+            "label": "职业伤害", 
+            "type": "select",
+            "options": ["d6", "d8", "d10"]
+          }
+        ]
+      }
+    },
+    "refSections": [
+      {
+        "id": "moves",
+        "title": "通用动作",
+        "type": "moves",
+        "groups": [
+          {
+            "key": "basicMoves",
+            "label": "基本动作"
+          },
+          {
+            "key": "specialMoves",
+            "label": "特殊动作"
+          }
+        ]
+      },
+      {
+        "id": "extension",
+        "title": "扩展",
+        "type": "extension",
+        "groups": [
+          {
+            "key": "customMoves",
+            "label": "自定义动作"
+          }
+        ],
+        "articles": "compendium"
+      },
+      {
+        "id": "tags",
+        "title": "标签",
+        "type": "tags"
+      },
+      {
+        "id": "search",
+        "title": "资料速查",
+        "type": "search"
+      }
+    ],
+    "areas": {
+      "look": {
+        "title": "外观",
+        "type": "plain",
+        "elements": [
+          {"type": "choices", "key": "group0", "layout": "line", "view": "hideUnselect"},
+          {"type": "input", "key": "custom0", "tip": "自定义"},
+          {"type": "choices", "key": "group1", "layout": "line", "view": "hideUnselect"},
+          {"type": "input", "key": "custom1", "tip": "自定义"},
+          { "type": "input", "key": "notes", "tip": "其他外观描述"}
+        ]
+      },
+      "race": {
+        "title": "种族动作",
+        "note": "选择一项",
+        "type": "moveList",
+        "buttons": [
+          {"label": "种族", "position": "global", "action": "addGroup"},
+          {"label": "动作", "position": "global", "action": "addMove"},
+          {"label": "额外动作", "position": "inGroup", "action": "addMove"}
+        ],
+        "selectGroups": true
+      },
+      "alignment": {
+        "title": "阵营动作",
+        "note": "选择一项",
+        "type": "moveList",
+        "buttons": [
+          {"label": "阵营", "position": "global", "action": "addMove"}
+        ],
+        "selectMoves": true
+      },
+      "gear": {
+        "title": "装备",
+        "rightStats": [
+          {"key": "load", "label": "负载上限", "type": "number", "min": 0}
+        ],
+        "type": "fillbox",
+        "resetOnClassChange": true,
+        "counters": [{"key": "coins", "label": "金币"}]
+      },
+      "bonds": {
+        "title": "羁绊",
+        "type": "bonds",
+        "resetOnClassChange": true,
+        "relations": false
+      },
+      "notes": {
+        "title": "笔记",
+        "type": "fillbox",
+        "addCounter": true
+      },
+      "starting": {
+        "title": "起始动作",
+        "type": "moveList"
+      },
+      "advanced": {
+        "title": "进阶动作",
+        "type": "moveList",
+        "groups": [
+          {
+            "key": "2-5",
+            "label": "当你的等级升至2~5，从下列动作中选择：",
+            "minLevel": 2,
+            "moves": []
+          },
+          {
+            "key": "6-10",
+            "label": "当你的等级升至6~10，从下列动作或等级2~5的动作中选择：",
+            "minLevel": 6,
+            "moves": [
+            ]
+          },
+          {
+            "key": "custom",
+            "label": "其他",
+            "moves": []
+          }
+        ],
+        "buttons": [
+          {"label": "动作", "position": "global", "action": "addMove", "targetGroup": "custom"}
+        ],
+        "selectMoves": true
+      }
+    },
+    "areaLayout": {
+      "left": [
+        "look",
+        "race",
+        "alignment",
+        "heritage",
+        "gear",
+        "bonds",
+        "notes"
+      ],
+      "right": [
+        "starting",
+        "advanced"
+      ]
+    }
+  },
+  "classes": [
+    {
+      "id": "barbarian",
+      "name": "野蛮人",
+      "hp": "8",
+      "damage": "d10",
+      "names": [
+        {
+          "race": "",
+          "names": [
+            "戈姆",
+            "西易"
+          ]
+        },
+        {
+          "race": "称号",
+          "names": [
+            "光荣的",
+            "饥饿的"
+          ]
+        }
+      ],
+      "areas": {
+        "gear": {
+          "rightStats": [
+            {
+              "key": "load",
+              "formula": "8+力量"
+            }
+          ],
+          "options": [
+            {
+              "prompt": "你起始拥有 地城口粮 ({5 使用次数} {1 重量}), 匕首 ({触及} {1 重量}), 和 一些象征你旅经之地或出身故乡的信物。\n\n选择你的武器：",
+              "options": [
+                "斧头 (近身，1 重量)",
+                "双手剑 (近身，+1 伤害，2 重量)"
+              ]
+            },
+            {
+              "prompt": "选择一项：",
+              "options": [
+                "探险工具组 (5 使用次数，1 重量) 和 地城口粮 (5 使用次数，1 重量)",
+                "链甲 (1 护甲，1 重量)"
+              ]
+            }
+          ]
+        },
+        "look": {
+          "elements": [
+            {
+              "key": "group0",
+              "value": [
+                "痛苦的眼神",
+                "着魔的眼神",
+                "狂野的眼神",
+                "被遮蔽的双眼"
+              ]
+            },
+            {
+              "key": "group1",
+              "value": [
+                "强壮肌肉",
+                "长腿",
+                "骨瘦如柴的身躯",
+                "柔软的身躯"
+              ]
+            }
+          ]
+        },
+        "starting": {
+          "moves": [
+            {
+              "name": "重装上阵",
+              "text": "你可以无视你所穿戴防具的{笨重}标签。",
+              "replaces": "无拘无束"
+            },
+            {
+              "name": "无拘无束",
+              "text": "只要你的负重还没有超过你的负载上限，且你未穿戴任何防具或携带盾牌时，你获得 +1 护甲值。",
+              "replaces": "重装上阵"
+            },
+            {
+              "name": "豪壮欲望",
+              "text": "一般人可能只要稍尝美酒滋味、支配一两个仆从便能感到满足，然而你总是想要更多。选择两项欲望，当你在追求其中一个欲望的期间需要为了进行动作而掷骰时，你掷 1d6+1d8 取代原本使用的 2d6。如果 d6 掷出的结果高于 d8 的结果，则 GM 将会把一个因你鲁莽追求而造成的混乱或危险引进故事中。\n\n- [ ] 纯粹的破坏\n\n- [ ] 凌驾他人的权力\n\n- [ ] 凡俗享乐\n\n- [ ] 征服\n\n- [ ] 财富和领地\n\n- [ ] 名声与荣耀"
+            }
+          ]
+        },
+        "alignment": {
+          "moves": [
+            {
+              "name": "混乱",
+              "text": "你远离文明世界的习俗常规。"
+            },
+            {
+              "name": "中立",
+              "text": "教导他人关于你族人的生活方式。"
+            }
+          ]
+        },
+        "advanced": {
+          "groups": [
+            {
+              "key": "2-5",
+              "moves": [
+                {
+                  "name": "毁灭欲望",
+                  "text": "从战士、吟游诗人、或盗贼职业列表中选择并获得一个动作。你不能选择这些职业中的兼职动作。",
+                  "requires": null,
+                  "replaces": null
+                },
+                {
+                  "name": "致汝吾爱狂猛如车",
+                  "text": "当你**做出一个能展现力量的壮举**时，指定一个在场的对象，他将对你留下深刻的印象，且你在与他谈判时获得下次 +1。",
+                  "requires": null,
+                  "replaces": null
+                }
+              ]
+            },
+            {
+              "key": "6-10",
+              "moves": [
+                {
+                  "name": "吉日赴死",
+                  "text": "只要你的当前生命值低于你的体质调整值（或 1，看何者较高），你获得持续 +1。",
+                  "requires": null,
+                  "replaces": null
+                },
+                {
+                  "name": "杀光他们",
+                  "text": "再从战士、吟游诗人、或盗贼职业列表中选择并获得另一个动作。你不能选择这些职业中的兼职动作。",
+                  "requires": "毁灭欲望",
+                  "replaces": null
+                }
+              ]
+            }
+          ]
+        },
+        "race": {
+          "moves": [
+            {
+              "name": "化外之民",
+              "text": "你可能是精灵、矮人、半身人或人类，但你与你的族人并非来自此地。在每次聚会开始时，GM 会询问你某件关于你故乡的事情、你为何离开、或你把什么遗留在了身后。若你回答这些问题，你标记经验值。"
+            }
+          ]
+        },
+        "bonds": {
+          "lines": [
+            "_______________ 弱小而愚昧，但他也让我觉得有趣。",
+            "_______________ 的做事方法相当怪异，让人困惑。"
+          ]
+        }
+      }
+    }
+  ],
+  "basicMoves": [
+    {
+      "name": "砍劈",
+      "text": "当你**以近战肉搏攻击敌人**时，掷 + 力量。\n\n\t✴掷出 10+ 时，你对敌人造成伤害并避开其攻击。你也可以选择造成额外 +1d6 伤害，但将自己暴露在敌人的攻击之下。\n\n\t✴掷出 7-9 时，你对敌人造成伤害，但敌人的攻击也击中了你。"
+    },
+    {
+      "name": "射击",
+      "text": "当你**瞄准并射击远方的敌人**时，掷 + 敏捷。\n\n\t✴掷出 10+ 时，你成功命中目标－－造成你的伤害。\n\n\t✴掷出 7-9 时，选择下列一项（无论选择哪一项，你都可以如常造成伤害）：\n\n\t- 你必须移动位置才能射中目标，这将使你置身 GM 所决定的危险当中。\n\n\t- 你必须妥协：-1d6 伤害。\n\n\t- 你必须射好几箭，减少 1 发弹药。"
+    },
+    {
+      "name": "面对危险",
+      "text": "当你**在迫在眉睫的威胁之下采取行动**或**即将遭受灾难性的后果**，叙述你要如何处理它并掷骰。如果你……\n\n\t- ……靠蛮力解决，掷 + 力量。\n\n\t- ……靠迅速行动或躲避开来，掷 + 敏捷。\n\n\t- ……靠耐力忍受，掷 + 体质。\n\n\t- ……借由临机应变，掷 + 智力。\n\n\t- ……透过坚毅的精神，掷 + 睿知。\n\n\t- ……使用魅力与社交礼仪，掷 + 魅力。\n\n\t✴掷出 10 时，你做出你预计执行的行动，该威胁不会应验。\n\n\t✴掷出 7-9 时，你踌躇、犹豫、或退缩了：GM 会给你一个更糟的后果、妥协，或是困难的抉择。"
+    }
+  ],
+  "specialMoves": [
+    {
+      "name": "临死一息",
+      "text": "当你**濒临死亡**时，你瞥见了死亡国度的黑门后头的景象（GM 将会描述它的样子）。接着掷骰（单纯掷骰，什么都不加－－是的，死神才不在乎你有多强壮或多厉害）。\n\n\t✴掷出 10+ 时，你死里逃生－－你的处境仍然糟糕，但你仍然活着。\n\n\t✴掷出 7-9 时，死神对你提出一项交易。你要嘛接受并活下来，要嘛拒绝并穿过黑门，迎接你等候已久的命运。\n\n\t✴掷出 6-时，你的命运已经注定。你将成为死神的财产，并很快地离开人世。GM 将告诉你那一刻何时来到。"
+    },
+    {
+      "name": "负重",
+      "text": "当你**进行某个动作时身上携带的重量**低于或等于负载上限时，你不会有事。\n\n\t当你进行某个动作时身上携带的重量等于负载上限 +1 或负载上限 +2，你的掷骰获得 -1。\n\n\t当你进行某个动作时身上携带的重量超过负载上限 +2，你必须做出选择：你必须舍弃至少 1 重量的物品并获得掷骰 -1，或者，你的掷骰自动失败。"
+    },
+    {
+      "name": "扎营",
+      "text": "当你**安顿下来休息**时，消耗一份口粮。如果你们正处于某个危险的场所，那么也请决定守夜的顺序。如果你有足够的经验值，也可以在这时候升级。当你经历了好几个小时不被打扰的睡眠后并悠悠醒转，恢复等同你最大生命值一半的伤害。"
+    }
+  ],
+  "tags": {
+    "泛用": [
+      {
+        "name": "内服",
+        "description": "它只有在你确切地让目标服用、或混进他们咽下的饮食内才会生效。"
+      },
+      {
+        "name": "不便",
+        "description": "它相当笨重且难以使用。"
+      },
+      {
+        "name": "+修正",
+        "description": "它将改变你在特定情况下的行动成效。比如说{忆述见闻下次+1}或是{砍劈持续-1}等等。"
+      },
+      {
+        "name": "n 金币",
+        "description": "它在正常情况下值多少钱。如果价格包括{-魅力}的文字，则将其价格减去购买者的魅力值（而非修正值）。"
+      }
+    ],
+    "武器": [
+      {
+        "name": "强力",
+        "description": "它可以迫使某人后退几步，或甚至让他们失足倒地。"
+      },
+      {
+        "name": "+n 伤害",
+        "description": "它对你的敌人而言特别危险。当你造成伤害时，你使伤害增加n点。"
+      },
+      {
+        "name": "无视护甲",
+        "description": "造成的伤害并不需要减去对方的护甲值。"
+      },
+      {
+        "name": "触及",
+        "color": "#ecacac",
+        "description": "它适合用来攻击位于你徒手接触范围内的事物，不能再远了。"
+      },
+      {
+        "name": "近身",
+        "color": "#ecacac",
+        "description": "它适合用来攻击位于徒手触及距离再加上一到二英尺范围内的事物。"
+      },
+      {
+        "name": "及远",
+        "color": "#ecacac",
+        "description": "它适合用来攻击数英尺远的事物——或许最远十英尺。"
+      },
+      {
+        "name": "近程",
+        "color": "#ecacac",
+        "description": "它适合用来攻击你能够看到其眼白的目标。"
+      },
+      {
+        "name": "远程",
+        "color": "#ecacac",
+        "description": "它适合用来攻击于呐喊所能传达距离内的事物。"
+      }
+    ],
+    "防具": [
+      {
+        "name": "n 护甲",
+        "description": "它能够保护你不受伤害。当你受到伤害时，将总伤害减去你的护甲值。如果你有超过一个带有{n 护甲}标签的物品，则只有数值最高的那个会纳入计算。"
+      },
+      {
+        "name": "+n 护甲",
+        "description": "它能够保护你，且能够与其他防具的护甲值叠加。将它的数值加到你的总护甲值中。"
+      }
+    ]
+  }
+}

@@ -2,84 +2,135 @@
   "meta": {
     "source": "DW2 Beta v3 最小 demo（手写，覆盖全部新机制）",
     "license": "demo",
-    "stats": [
-      "STR",
-      "DEX",
-      "INT",
-      "WIS",
-      "CHA"
-    ],
-    "statsMode": "modifiers",
-    "conditions": [
-      {
-        "key": "exhausted",
-        "label": "力竭",
-        "stat": "STR"
+    "header": {
+      "charInfo": [
+        {
+          "id": "name",
+          "label": "姓名",
+          "type": "text",
+          "flex": 2
+        },
+        {
+          "id": "level",
+          "label": "等级",
+          "type": "number",
+          "min": 1,
+          "max": 10,
+          "default": 1
+        },
+        {
+          "id": "xp",
+          "label": "XP",
+          "type": "track",
+          "slots": 5,
+          "view": "editable"
+        }
+      ],
+      "stats": {
+        "items": [
+          {
+            "id": "STR",
+            "label": "STR",
+            "type": "modifier",
+            "min": -4,
+            "max": 4,
+            "default": 0
+          },
+          {
+            "id": "DEX",
+            "label": "DEX",
+            "type": "modifier",
+            "min": -4,
+            "max": 4,
+            "default": 0
+          },
+          {
+            "id": "INT",
+            "label": "INT",
+            "type": "modifier",
+            "min": -4,
+            "max": 4,
+            "default": 0
+          },
+          {
+            "id": "WIS",
+            "label": "WIS",
+            "type": "modifier",
+            "min": -4,
+            "max": 4,
+            "default": 0
+          },
+          {
+            "id": "CHA",
+            "label": "CHA",
+            "type": "modifier",
+            "min": -4,
+            "max": 4,
+            "default": 0
+          }
+        ],
+        "conditions": [
+          {
+            "id": "exhausted",
+            "label": "力竭",
+            "states": 3,
+            "boundStat": "STR",
+            "effect": "none"
+          },
+          {
+            "id": "frightened",
+            "label": "受惊",
+            "states": 3,
+            "boundStat": "DEX",
+            "effect": "none"
+          },
+          {
+            "id": "angry",
+            "label": "愤怒",
+            "states": 3,
+            "boundStat": "INT",
+            "effect": "none"
+          },
+          {
+            "id": "distracted",
+            "label": "分心",
+            "states": 3,
+            "boundStat": "WIS",
+            "effect": "none"
+          },
+          {
+            "id": "insecure",
+            "label": "不安",
+            "states": 3,
+            "boundStat": "CHA",
+            "effect": "none"
+          }
+        ]
       },
-      {
-        "key": "frightened",
-        "label": "受惊",
-        "stat": "DEX"
-      },
-      {
-        "key": "angry",
-        "label": "愤怒",
-        "stat": "INT"
-      },
-      {
-        "key": "distracted",
-        "label": "分心",
-        "stat": "WIS"
-      },
-      {
-        "key": "insecure",
-        "label": "不安",
-        "stat": "CHA"
+      "metrics": {
+        "columns": 2,
+        "fields": [
+          {
+            "id": "hpCur",
+            "label": "当前生命",
+            "type": "number",
+            "min": 0,
+            "view": "editable"
+          },
+          {
+            "id": "hpMax",
+            "label": "最大生命",
+            "type": "number",
+            "min": 0
+          },
+          {
+            "id": "armor",
+            "label": "护甲",
+            "type": "number",
+            "min": 0
+          }
+        ]
       }
-    ],
-    "conditionStates": [
-      "clear",
-      "marked",
-      "locked"
-    ],
-    "xpTrackSize": 5,
-    "showDamage": false,
-    "showFormula": false,
-    "treasureTiers": [
-      {
-        "key": "broke",
-        "label": "破产",
-        "slots": 4
-      },
-      {
-        "key": "poor",
-        "label": "贫穷",
-        "slots": 6
-      },
-      {
-        "key": "modest",
-        "label": "适中",
-        "slots": 8
-      },
-      {
-        "key": "comfortable",
-        "label": "舒适",
-        "slots": 10
-      },
-      {
-        "key": "rich",
-        "label": "富有",
-        "slots": 12
-      },
-      {
-        "key": "aristocratic",
-        "label": "贵族",
-        "slots": 0
-      }
-    ],
-    "labels": {
-      "struggle": "心结",
-      "advancement": "升级"
     },
     "refSections": [
       {
@@ -153,17 +204,39 @@
             "key": "treasure",
             "view": "editable",
             "value": [
-              {"label": "破产"},
-              {"slots": 4},
-              {"label": "贫穷"},
-              {"slots": 6},
-              {"label": "适中"},
-              {"slots": 8},
-              {"label": "舒适"},
-              {"slots": 10},
-              {"label": "富有"},
-              {"slots": 12},
-              {"label": "贵族"}
+              {
+                "label": "破产"
+              },
+              {
+                "slots": 4
+              },
+              {
+                "label": "贫穷"
+              },
+              {
+                "slots": 6
+              },
+              {
+                "label": "适中"
+              },
+              {
+                "slots": 8
+              },
+              {
+                "label": "舒适"
+              },
+              {
+                "slots": 10
+              },
+              {
+                "label": "富有"
+              },
+              {
+                "slots": 12
+              },
+              {
+                "label": "贵族"
+              }
             ]
           }
         ]
@@ -260,7 +333,7 @@
         ]
       },
       "bonds": {
-      "title": "羁绊",
+        "title": "羁绊",
         "type": "bonds",
         "resetOnClassChange": true,
         "relations": true,
@@ -288,10 +361,6 @@
     {
       "id": "fighter",
       "name": "战士",
-      "hp": "12",
-      "damage": "d10",
-      "load": "10",
-      "statNote": "STR +2，选 WIS 或 CHA 也 +2，其余 0 / 0 / -1",
       "look": [
         [
           "冷酷的眼神",
@@ -428,6 +497,19 @@
             "____ 与我并肩作战，我欠他一条命。",
             "____ 曾是我的对手，如今是我的盟友。"
           ]
+        }
+      },
+      "header": {
+        "metrics": {
+          "fields": [
+            {
+              "id": "hpMax",
+              "default": 12
+            }
+          ]
+        },
+        "stats": {
+          "prompt": "初始分配：STR +2，选 WIS 或 CHA 也 +2，其余 0 / 0 / -1"
         }
       }
     }

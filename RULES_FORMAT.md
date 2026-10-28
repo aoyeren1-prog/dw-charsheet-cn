@@ -26,7 +26,7 @@
 
 > **TODO**：当前 `refName` 直接放在顶层，结构不够明确。后续可能会添加 `"reference"` 对象将所有资料内容框起来，如 `{"meta":{...}, "classes":[...], "reference":{"basicMoves":[...]}}`，但需考虑向后兼容。
 
-> **TODO**：`classes` 字段名和 UI 中的"职业"文案是为《地城世界》硬编码的。不同 PbtA 规则对角色类别有不同命名（剧本？原型？英雄？……）。代码层面保持简洁的 `classes` 不变，但应在 `meta` 中增加可配置字段（如 `classLabel`、`classLabelPlural`），允许规则 JSON 自定义该术语在 UI 中的显示名称。这样既保持代码简洁，又能适配其他规则。
+> **TODO**：`classes` 字段名和 UI 中的"职业"文案是为《地城世界》硬编码的。不同 PbtA 规则对角色类别有不同命名。代码层面保持简洁的 `classes` 不变，但应在 `meta` 中增加可配置字段（如 `classLabel`、`classLabelPlural`），允许规则 JSON 自定义该术语在 UI 中的显示名称。
 
 ---
 
@@ -404,7 +404,7 @@
 
 ## 五、动作（move）
 
-动作对象（出现在 `areas[].moves` / `areas[].groups[].moves` / `basicMoves` / `specialMoves` 等）：
+动作对象（`areas[].moves` / `areas[].groups[].moves` / `refSections`自定义组别）：
 
 ```jsonc
 {
@@ -631,6 +631,8 @@
 > 2. **分组逻辑下移到内容侧**（届时位于 `reference` 内）：一个页签内可分多个 group，每个 group 内既可放动作（move）也可放文章（article）。
 > 3. **动作的 `kind`**：支持 group 级定义 + 动作级覆盖；并把 `group` 与 `importGroup` 分离——`group` 只控制边栏内分组，`importGroup` 只控制导入目的地所在组（与现在的文章行为一致）。
 > 4. **文章的 `kind`**：不再用同一个字段兼管导入目的地和 block 渲染类别。现在的逻辑是从角色卡区域定义反推边栏样式，依赖外部内容定义，不可靠。
+>
+> 重构后这一章可整体废弃。
 
 ---
 
@@ -708,6 +710,8 @@
 python builder\merge_rules.py data.json my-classpack.json -o merged.json
 ```
 
+> TODO：已过时，需重写，此外 merge_rules.py 未经过测试，可能现在也已不能用了……
+
 ---
 
 ## 十一、最小可用示例
@@ -737,52 +741,26 @@ python builder\merge_rules.py data.json my-classpack.json -o merged.json
 }
 ```
 
+> TODO：结构早就不是这样子了，这一节需重写
+
 ---
 
-## 十二、实验性功能（为 DW2 适配准备）
+## 十二、实验性功能
 
-> ⚠️ **本节所有字段均为实验性功能**，是为适配未来的《地城世界 2》（DW2）规则而预先加入的。DW2 仍是 beta，这些字段的语义、命名、结构随时可能调整，请勿在要长期使用的正式规则里依赖它们。
+> ⚠️ 为适配未来的《地城世界 2》（DW2）规则而预先加入的功能。DW2 仍是 beta，这些字段的语义、命名、结构随时可能调。
 
-### 1. Conditions 多态状态（取代 debilities）
+### Relationship 关系
 
-| 键 | 类型 | 说明 |
-|---|---|---|
-| `meta.conditions` | `array` | 状态列表 `[{key, label, stat}]`，`stat` 是该状态对应的受损属性 |
-| `meta.conditionStates` | `array` | 状态列表，**长度决定状态数**（`["clear","marked"]` 二态、`["clear","marked","locked"]` 三态） |
+在 Areas 的 bonds 类型中：
 
 ```jsonc
-"conditions": [
-  { "key":"exhausted",  "label":"力竭", "stat":"STR" },
-  { "key":"frightened", "label":"受惊", "stat":"DEX" }
-],
-"conditionStates": ["clear","marked","locked"]
+{
+  "type": "bonds",
+  "resetOnClassChange": true,
+  "lines": ["____ 曾与我并肩作战，我信任他。"],
+  "relations": true, // 打开“关系”功能
+  "relationDepth": 3 // 关系深度
+}
 ```
-
-- 当 `meta.conditions` 存在时，角色卡异常状态改用这套多态状态（每个属性格子下方一个可循环点击的状态钮），**取代**旧的 `meta.debilities`（属性→状态名映射）。
-- 状态数由 `conditionStates` 数组长度决定：DW1 二态、DW2 三态，未来四/五态也可扩。
-
-### 2. XP 轨道
-
-| 键 | 类型 | 说明 |
-|---|---|---|
-| `meta.xpTrackSize` | `number` | XP 格数（配了才启用轨道，否则用数字输入框） |
-
-```jsonc
-"xpTrackSize": 5
-```
-
-XP 改为轨道（点击填充），**不自动归零、不自动升级**——升级由玩家自行决定。
-
-### 3. Relationship Depth（关系深度）
-
-| 键 | 类型 | 说明 |
-|---|---|---|
-| `meta.relationshipDepthMax` | `number` | 关系深度上限（默认 3） |
 
 角色数据 `char.relationships` 是 `[{target, description, depth}]`，在羁绊（bonds）区域上方渲染：每条关系 = 目标输入框 + 描述输入框 + 一条 Depth 轨道（点击填充/清空）。
-
-### 4. 伤害开关
-
-| 键 | 类型 | 说明 |
-|---|---|---|
-| `meta.showDamage` | `bool` | `false` 时属性栏不显示伤害（DW2 伤害由武器定义） |
