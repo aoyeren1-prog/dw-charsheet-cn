@@ -129,32 +129,20 @@
     },
     "refSections": [
       {
-        "id": "moves",
-        "title": "通用动作",
-        "type": "moves",
-        "groups": [
-          {
-            "key": "basicMoves",
-            "label": "基本动作"
-          }
-        ]
+        "id": "basicMoves",
+        "title": "基本动作",
+        "type": "moves"
+      },
+      {
+        "id": "struggleHelp",
+        "title": "怎么处理心结",
+        "type": "moves"
       },
       {
         "id": "struggles",
-        "title": "心结",
+        "title": "心结列表",
         "type": "moves",
-        "groups": [
-          {
-            "key": "struggleHelp",
-            "label": "怎么处理心结"
-          },
-          {
-            "key": "struggles",
-            "label": "心结列表",
-            "importable": true,
-            "kind": "struggle"
-          }
-        ]
+        "importArea": "struggle"
       },
       {
         "id": "search",
@@ -508,30 +496,38 @@
       }
     }
   ],
-  "basicMoves": [
-    {
-      "name": "交易打击",
-      "text": "当你**在近战中攻击敌人**时，掷 +力量。\n\n✴10+：造成伤害。\n\n✴7-9：造成伤害，但敌人回敬你。"
-    }
-  ],
-  "struggles": [
-    {
-      "name": "被背叛 BETRAYED",
-      "text": "一个挚爱背叛了你，你再也没法信任别人。\n\n**Questions**：谁背叛了你？他们怎么背叛的？那道伤如何愈合？\n\n**DRIVEN (+)** — 你可用 1d4 DMG 换取下一次掷骰无视所有 Condition 惩罚。\n\n**WARY (-)** — 当你与其他 PC 获得 Depth 时，标记一个 Condition。"
+  "reference": {
+    "basicMoves": {
+      "moves": [
+        {
+          "name": "交易打击",
+          "text": "当你**在近战中攻击敌人**时，掷 +力量。\n\n✴10+：造成伤害。\n\n✴7-9：造成伤害，但敌人回敬你。"
+        }
+      ]
     },
-    {
-      "name": "失忆 AMNESIA",
-      "text": "你对过去毫无记忆。\n\n**Questions**：你在哪里醒来？什么人或地方让你感到熟悉？\n\n**SHARDS (+/-)** — 每场一次，当你本该标记最后一个 Condition 时，改为标记 Memories 并触发一次闪回。"
-    }
-  ],
-  "struggleHelp": [
-    {
-      "name": "揭示 Reveal",
-      "text": "升级、或带着 locked Condition 扎营时，你可以坦白一个可怕真相：揭示一个新 Struggle（或加深已揭示的细节），并清除一个 locked Condition。"
+    "struggleHelp": {
+      "moves": [
+        {
+          "name": "揭示 Reveal",
+          "text": "升级、或带着 locked Condition 扎营时，你可以坦白一个可怕真相：揭示一个新 Struggle（或加深已揭示的细节），并清除一个 locked Condition。"
+        },
+        {
+          "name": "解决 Resolve",
+          "text": "当叙事上满意时解决：**升级**（保留已标记 XP），抹掉 Struggle，失去其好处 (+) 与坏处 (-)。一次只能有一个已揭示的 Struggle。"
+        }
+      ]
     },
-    {
-      "name": "解决 Resolve",
-      "text": "当叙事上满意时解决：**升级**（保留已标记 XP），抹掉 Struggle，失去其好处 (+) 与坏处 (-)。一次只能有一个已揭示的 Struggle。"
+    "struggles": {
+      "moves": [
+        {
+          "name": "被背叛 BETRAYED",
+          "text": "一个挚爱背叛了你，你再也没法信任别人。\n\n**Questions**：谁背叛了你？他们怎么背叛的？那道伤如何愈合？\n\n**DRIVEN (+)** — 你可用 1d4 DMG 换取下一次掷骰无视所有 Condition 惩罚。\n\n**WARY (-)** — 当你与其他 PC 获得 Depth 时，标记一个 Condition。"
+        },
+        {
+          "name": "失忆 AMNESIA",
+          "text": "你对过去毫无记忆。\n\n**Questions**：你在哪里醒来？什么人或地方让你感到熟悉？\n\n**SHARDS (+/-)** — 每场一次，当你本该标记最后一个 Condition 时，改为标记 Memories 并触发一次闪回。"
+        }
+      ]
     }
-  ]
+  }
 }

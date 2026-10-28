@@ -66,7 +66,7 @@ body{background:var(--bg);color:var(--text);font-family:"Segoe UI","Microsoft Ya
 .playbook{background:var(--paper);color:var(--ink);border-radius:6px;padding:20px 22px;min-height:600px;box-shadow:0 4px 24px rgba(0,0,0,.4)}
 
 /* ===== 参考资料边栏 (浅色) ===== */
-.ref{position:sticky;top:64px;max-height:calc(100vh - 80px);overflow:auto;background:var(--ref-paper);border:1px solid var(--ref-line-4);border-radius:8px;display:flex;flex-direction:column}
+.ref{position:sticky;top:64px;max-height:calc(100vh - 80px);overflow:auto;background:var(--ref-paper);color:var(--ref-ink);border:1px solid var(--ref-line-4);border-radius:8px;display:flex;flex-direction:column}
 .ref-tabs{display:flex;border-bottom:1px solid var(--ref-paperline);position:sticky;top:0;background:var(--ref-paper);z-index:5}
 .ref-tab{flex:1;background:transparent;color:var(--ref-ink-4);border:none;padding:9px 4px;cursor:pointer;font-size:13px;border-bottom:2px solid transparent}
 .ref-tab.active{color:var(--ref-ink);border-bottom-color:var(--accent);font-weight:600}
@@ -81,7 +81,7 @@ body{background:var(--bg);color:var(--text);font-family:"Segoe UI","Microsoft Ya
 .rmv[open] summary::before{content:"▾"}
 .rmv summary::-webkit-details-marker{display:none}
 .rmv summary .src{font-size:10.5px;font-weight:400;color:var(--ref-ink-4);margin-left:auto;white-space:nowrap}
-.rmv .rmv-b{margin-left:6px;padding:1px 6px;border-radius:4px;font-size:11px;border:1px solid var(--accent);color:var(--tag-ink);background:transparent;cursor:pointer}
+.rmv .rmv-b{margin-left:6px;padding:1px 6px;border-radius:4px;font-size:11px;border:1px solid var(--accent);color:var(--accent);background:transparent;cursor:pointer}
 .rmv .rmv-b:hover{background:var(--accent);color:var(--accent-ink)}
 .rmv .rmv-t{padding:6px 9px 8px;font-size:12px;color:var(--ref-ink-2);border-top:1px solid var(--ref-paperline)}
 .rmv .rmv-foot{padding:0 9px 8px;text-align:right}
@@ -89,7 +89,17 @@ body{background:var(--bg);color:var(--text);font-family:"Segoe UI","Microsoft Ya
 .rmv .rmv-t ul{margin:3px 0;padding-left:18px}
 .rmv .rmv-t .tag{background:var(--tag-bg);color:var(--tag-ink);border-radius:3px;padding:0 4px;font-size:12px}
 .ref-search{width:100%;background:var(--ref-paper);color:var(--ref-ink);border:1px solid var(--ref-line-5);border-radius:6px;padding:7px 9px;font-size:13px;margin-bottom:4px}
-.ref-subsec{margin:10px 0 4px;font-size:13px;font-weight:700;color:var(--ref-ink-3)}
+.mv .mv-imp{flex:none;padding:1px 6px;border-radius:4px;font-size:11px;border:1px solid var(--accent);color:var(--accent);background:transparent;cursor:pointer}
+.mv .mv-imp:hover{background:var(--accent);color:var(--accent-ink)}
+/* 资料分组：无边框，样子就是一条可点开合的标题，组内动作卡铺满边栏整宽 */
+.ref-grp{margin:14px 0 6px}
+.ref-grp:first-child{margin-top:0}
+.ref-grp>summary{display:flex;align-items:center;gap:6px;cursor:pointer;list-style:none;font-size:12.5px;font-weight:700;color:var(--ref-ink);letter-spacing:.5px;border-bottom:1px solid var(--ref-paperline);padding-bottom:3px;margin-bottom:6px}
+.ref-grp>summary::-webkit-details-marker{display:none}
+.ref-grp>summary::before{content:"▸";color:var(--ref-ink-4);font-size:10px;flex:none}
+.ref-grp[open]>summary::before{content:"▾"}
+/* 边栏里的纯文本串：与动作正文 .mv-t 同字号 */
+.ref .md{font-size:12px}
 .tag{background:var(--tag-bg);color:var(--tag-ink);border-radius:3px;padding:0 4px;font-size:12px;display:inline-block}
 .tag-item{margin-bottom:6px;font-size:12px;color:var(--ref-ink-2);line-height:1.6}
 .tag-item .tag{margin-right:4px}
@@ -388,6 +398,9 @@ function applyData(data){
   buildTagMap();
 }
 
+// 获取角色类型的显示名称（默认"职业"）
+function getClassLabel(){ return META.classLabel || "职业"; }
+
 // header 的三个区块都允许整块缺省：缺 charInfo 就没有页首字段，
 // 缺 stats.items 就没有属性格，缺 metrics.fields 就没有数值格。
 function resolveHeader(h){
@@ -607,25 +620,25 @@ function numBounds(f){
 // tags 页签的数据按它自己的 id 取：id 为 tags 的页签读顶层 tags。
 // 可以有多个 tags 页签，各读各的数据块。按页签声明顺序返回。
 function tagSectionData(){
-  return REF_SECTIONS.filter(s => s.type === "tags").map(s => refData(s.id) || {});
-}
-// 所有 tags 页签的标签，按分类并成一份（供搜索用）
-function allTagCategories(){
-  const out = {};
-  for(const tags of tagSectionData()){
-    for(const category in tags){
-      out[category] = (out[category] || []).concat(tags[category] || []);
-    }
-  }
-  return out;
+  return REF_SECTIONS.filter(s => s.type === "tags").map(s => refSectionData(s.id));
 }
 // 颜色定义来自全部 tags 页签，与页签是否渲染无关。
 // 按「页签 → 分类 → 标签」的声明顺序写入，所以同名标签以后出现的页签为准。
 function buildTagMap() {
   TAG_COLOR_MAP = {};
-  for (const tags of tagSectionData()) {
-    for (const category in tags) {
-      (tags[category] || []).forEach(tag => {
+  for (const tagsData of tagSectionData()) {
+    // 顶层 tags
+    (tagsData.tags || []).forEach(tag => {
+      if (tag.name && tag.color) {
+        TAG_COLOR_MAP[tag.name] = {
+          color: tag.color,
+          textColor: tag.textColor || null
+        };
+      }
+    });
+    // groups 内的 tags
+    (tagsData.groups || []).forEach(g => {
+      (g.tags || []).forEach(tag => {
         if (tag.name && tag.color) {
           TAG_COLOR_MAP[tag.name] = {
             color: tag.color,
@@ -633,7 +646,7 @@ function buildTagMap() {
           };
         }
       });
-    }
+    });
   }
 }
 function getTagColor(tagName) {
@@ -1328,7 +1341,7 @@ function renderRightStat(stat, cls) {
 
 function renderClassSelect(){
   const el=document.getElementById("classSelect");
-  el.innerHTML = ['<option value="">—— 选择职业 ——</option>']
+  el.innerHTML = [`<option value="">—— 选择${esc(getClassLabel())} ——</option>`]
     .concat(mergedClasses().map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`)).join("");
   el.value=char.classId||"";
 }
@@ -1340,7 +1353,7 @@ function renderPlaybook(){
   const btnMode=document.getElementById("btnMode");
   btnMode.textContent = mode==="edit" ? "👁 查看模式" : "✏️ 编辑模式";
   btnMode.classList.toggle("view", mode==="view");
-  if(!cls){ root.innerHTML='<div class="empty">↑ 在左上角选择一个职业开始车卡</div>'; return; }
+  if(!cls){ root.innerHTML=`<div class="empty">↑ 在左上角选择一个${esc(getClassLabel())}开始车卡</div>`; return; }
   const col = keys => keys.map(k => renderArea(k, cls)).join("");
   root.innerHTML =
     renderHeader(cls) +
@@ -1628,9 +1641,84 @@ function renderRef(){
     return;
   }
   const sec = REF_SECTIONS.find(s => s.id === refTab);
-  const fn = sec && REF_RENDERERS[sec.type];
-  body.innerHTML = fn ? fn(sec) : renderRefSearch(searchKw);
+  if(!sec){
+    body.innerHTML = '';
+    return;
+  }
+  
+  if(sec.type === "search"){
+    body.innerHTML = renderRefSearch(searchKw);
+  } else if(sec.type === "moves"){
+    body.innerHTML = renderRefMoves(sec);
+  } else if(sec.type === "tags"){
+    body.innerHTML = renderRefTags(sec);
+  } else {
+    body.innerHTML = '<div class="ref-empty">未知类型。</div>';
+  }
 }
+
+function refSectionData(sectionId){
+  return (DW_DATA.reference && DW_DATA.reference[sectionId]) || {};
+}
+
+function renderRefMoves(sec){
+  const data = refSectionData(sec.id);
+  if(!data.moves && !data.groups) return '<div class="ref-empty">暂无内容。</div>';
+  
+  let html = "";
+  
+  // 顶层 moves
+  html += renderMovesList(data.moves || [], sec, sec);
+  
+  // groups：组标题可点开合，默认展开
+  for(const g of (data.groups || [])){
+    const inner = renderMovesList(g.moves || [], g, sec);
+    html += g.title ? `<details class="ref-grp" open><summary>${esc(g.title)}</summary>${inner}</details>` : inner;
+  }
+  
+  return html || '<div class="ref-empty">暂无内容。</div>';
+}
+
+function renderMovesList(moves, context, sec){
+  return moves.map(m => {
+    if(typeof m === "string") return `<div class="md">${markdownToHtml(m)}</div>`;
+    return refMoveCard(createMoveItem(m, context, sec));
+  }).join("");
+}
+
+function createMoveItem(move, context, sec){
+  return {
+    kind: move.importArea || context.importArea || sec.importArea || null,
+    name: move.name,
+    html: move.text,
+    source: context.title || sec.title,
+    group: move.importGroup || context.importGroup || sec.importGroup || null
+  };
+}
+
+function renderRefTags(sec){
+  const data = refSectionData(sec.id);
+  if(!data.tags && !data.groups) return '<div class="ref-empty">未定义标签</div>';
+  
+  let html = "";
+  
+  // 顶层 tags
+  if(data.tags && data.tags.length){
+    html += `<details class="rmv" open><summary>标签</summary><div class="rmv-t">`;
+    html += data.tags.map(tagItemHtml).join("");
+    html += `</div></details>`;
+  }
+  
+  // groups
+  for(const g of (data.groups || [])){
+    html += `<details class="rmv" open><summary>${esc(g.title)}</summary><div class="rmv-t">`;
+    html += (g.tags || []).map(tagItemHtml).join("");
+    html += `</div></details>`;
+  }
+  
+  return html || '<div class="ref-empty">未定义标签</div>';
+}
+
 function refDetailsState(){
   const body = document.getElementById("refBody");
   return body ? [...body.querySelectorAll("details")].map(d => d.open) : [];
@@ -1640,6 +1728,7 @@ function restoreRefDetails(state){
   if(!body) return;
   [...body.querySelectorAll("details")].forEach((d, i) => { if(i < state.length) d.open = state[i]; });
 }
+
 // kind 即目标区域的 areaKey。能导入的唯一条件：该区域存在且是动作区
 function importTarget(kind){
   const area = kind && AREAS[kind];
@@ -1653,93 +1742,19 @@ function refCard(item){
     ? `<div class="rmv-foot"><button class="rmv-b" data-imp="${idx}">＋ 导入</button></div>` : "";
   return `<details class="rmv"><summary>${esc(item.name || "")}${src}</summary><div class="rmv-t">${markdownToHtml(item.html)}</div>${btn}</details>`;
 }
-// 按点分路径取规则数据，便于把嵌套数据（如 spells.wizard）声明成一个 group
-function refData(key){
-  return String(key||"").split(".").reduce((o,k) => (o && o[k] !== undefined) ? o[k] : undefined, DW_DATA);
-}
-// group.kind 由数据声明；是否可导入交给 refCard 按 importTarget 判断
-function refItem(g, sec, m){
-  return {
-    kind: g.kind, name: m.name, html: m.text, source: g.label || sec.title,
-    group: m.group
-  };
-}
-function movesHtml(sec){
-  let html = "";
-  for(const g of (sec.groups||[])){
-    const items = refData(g.key) || [];
-    if(!items.length) continue;
-    if(g.label) html += `<div class="ref-sec">${esc(g.label)}</div>`;
-    // 条目自带 group 时按它分小节（法术环位即走这条）
-    const subs = [...new Set(items.map(m => m.group).filter(x => x))];
-    html += items.filter(m => !m.group).map(m => refCard(refItem(g, sec, m))).join("");
-    for(const sub of subs){
-      html += `<div class="ref-subsec">${esc(sub)}</div>`;
-      html += items.filter(m => m.group === sub).map(m => refCard(refItem(g, sec, m))).join("");
-    }
-  }
-  return html;
-}
-function renderRefMoves(sec){
-  return movesHtml(sec) || '<div class="ref-empty">暂无内容。</div>';
-}
-// 文章块 → 条目。importGroup 声明导入后落进目标区域的哪个分组，
-// 块级优先、文章级兜底：同一篇里的 move 块通常同属一组，写在文章上即可。
-// 只对 kind 指向 moveList 区域的块有意义，text / bonds 块上写了会被忽略。
-function articleItem(it, b){
-  return {
-    kind: b.kind, name: b.name || it.title, html: b.text, source: it.title,
-    group: b.importGroup || it.importGroup || null
-  };
-}
-// 文章块的 kind 同样是目标区域的 areaKey；渲染形态由那个区域的 type 反推
-function renderArticle(it){
-  const body = (it.blocks||[]).map(b => {
-    if(importTarget(b.kind)){
-      return refCard(articleItem(it, b));
-    }
-    const area = b.kind && AREAS[b.kind];
-    const type = area && area.type;
-    if(type === "bonds"){
-      return `<div class="bond-line md">${markdownToHtml(b.text)}</div>`;
-    }
-    return `<div class="md">${markdownToHtml(b.text)}</div>`;
-  }).join("");
-  return `<details class="rmv" open><summary>${esc(it.title)}</summary><div class="rmv-t">${body}</div></details>`;
-}
-function renderRefExtension(sec){
-  let html = movesHtml(sec);
-  const items = refData(sec.articles) || [];
-  html += items.map(it => renderArticle(it)).join("");
-  return html || '<div class="ref-empty">暂无内容。</div>';
+// 资料区段里的动作：不折叠，用角色卡那套普通动作卡 .mv
+function refMoveCard(item){
+  const idx = importTarget(item.kind) ? lastSearchItems.push(item) - 1 : -1;
+  const btn = (idx >= 0 && mode === "edit") ? `<button class="mv-imp" data-imp="${idx}">＋ 导入</button>` : "";
+  return `<div class="mv"><div class="mv-h"><div class="mv-n">${esc(item.name || "")}</div>${btn}</div><div class="mv-t">${markdownToHtml(item.html)}</div></div>`;
 }
 function tagItemHtml(tag){
   const desc = tag.description ? ` ${inlineMarkdown(tag.description)}` : '';
   return `<div class="tag-item">${inlineMarkdown(`{${tag.name}}`)}${desc}</div>`;
 }
-// 该页签只渲染自己 id 指向的标签；颜色定义则由所有 tags 页签共同贡献
-function renderRefTags(sec) {
-  const tags = refData(sec.id) || {};
-  if (!Object.keys(tags).length) {
-    return '<div class="ref-empty">未定义标签</div>';
-  }
-  let html = '';
-  for (const [category, tagList] of Object.entries(tags)) {
-    const items = (tagList || []).map(tagItemHtml).join('');
-    html += `<details class="rmv"><summary>${esc(category)}</summary><div class="rmv-t">${items}</div></details>`;
-  }
-  return html;
-}
 function renderRefSearch(kw){
-  return `<input class="ref-search" id="refSearch" placeholder="搜索动作、职业、分组、法术…" value="${esc(kw||"")}"><div id="refSearchResults">${searchResultsHtml(kw||"")}</div>`;
+  return `<input class="ref-search" id="refSearch" placeholder="搜索动作、${esc(getClassLabel())}、分组、法术…" value="${esc(kw||"")}"><div id="refSearchResults">${searchResultsHtml(kw||"")}</div>`;
 }
-// refSection 的 type → 渲染器。加新类型只需加一行
-const REF_RENDERERS = {
-  moves:     renderRefMoves,
-  extension: renderRefExtension,
-  tags:      renderRefTags,
-  search:    sec => renderRefSearch(searchKw),
-};
 // 取某职业某区域合并后的配置（不依赖角色状态）
 function areaFor(cls, areaKey){
   return getAreaHeader(areaKey, cls);
@@ -1779,15 +1794,33 @@ function classMovesFlat(c){
 // 一个 refSection 里的全部可搜条目：组条目 + 文章块（含纯文本块）
 // 不区分能否导入，能导入的由 refCard 自己长出按钮
 function sectionSearchItems(sec){
+  if(sec.type !== 'moves') return [];
+  
+  const data = refSectionData(sec.id);
   const items = [];
-  (sec.groups || []).forEach(g => {
-    (refData(g.key) || []).forEach(m => items.push(refItem(g, sec, m)));
-  });
-  (refData(sec.articles) || []).forEach(it => {
-    (it.blocks || []).forEach(b => items.push(articleItem(it, b)));
-  });
+  
+  const addMove = (m, context) => {
+    if(typeof m === "string") return;  // 跳过纯文本
+    items.push({
+      kind: m.importArea || context.importArea || sec.importArea || null,
+      name: m.name,
+      html: m.text,
+      source: sec.title,
+      group: m.importGroup || context.importGroup || sec.importGroup || null
+    });
+  };
+  
+  // 顶层 moves
+  (data.moves || []).forEach(m => addMove(m, sec));
+  
+  // groups
+  for(const g of (data.groups || [])){
+    (g.moves || []).forEach(m => addMove(m, g));
+  }
+  
   return items;
 }
+
 // 可搜范围 = 职业动作 + 所有 refSection 的内容。标签另有形态，见 searchResultsHtml
 function collectSearchable(){
   const items = [];
@@ -1798,14 +1831,14 @@ function collectSearchable(){
 function searchResultsHtml(kw){
   kw = (kw||"").trim();
   lastSearchItems = [];
-  if(!kw) return `<div class="ref-empty">输入关键词，可搜动作名/正文、职业名、分组名、法术。</div>`;
+  if(!kw) return `<div class="ref-empty">输入关键词，可搜动作名/正文、${esc(getClassLabel())}名、分组名、法术。</div>`;
   const parts = [];
   // 1. 职业
   const classMatches = (DW_DATA.classes||[]).filter(c => c.name.includes(kw));
   classMatches.forEach(c => {
     const intro = c.intro ? `<div class="ref-intro">${markdownToHtml(c.intro)}</div>` : "";
     const cards = classMovesFlat(c).map(refCard).join("");
-    parts.push(`<div class="ref-sec">职业：${esc(c.name)}</div>${intro}${cards}`);
+    parts.push(`<div class="ref-sec">${esc(getClassLabel())}：${esc(c.name)}</div>${intro}${cards}`);
   });
   // 2. 分组名（种族 / 背景 / 法术环位等）
   const searchable = collectSearchable();
@@ -1825,14 +1858,47 @@ function searchResultsHtml(kw){
       parts.push(`<div class="ref-sec">${esc(title)}：${esc(byArea[areaKey].join("、"))}</div>${cards}`);
     }
   }
+  // 2b. reference 中 group title 的搜索
+  const ref = DW_DATA.reference || {};
+  for(const sectionId of Object.keys(ref)){
+    const sec = REF_SECTIONS.find(s => s.id === sectionId);
+    if(!sec || sec.type !== 'moves') continue;
+    
+    const data = ref[sectionId];
+    
+    // 搜索 group title
+    (data.groups || []).forEach(g => {
+      if(g.title && g.title.includes(kw)){
+        const groupMoves = [];
+        (g.moves || []).forEach(m => { 
+          if(typeof m === "object") groupMoves.push(createMoveItem(m, g, sec)); 
+        });
+        if(groupMoves.length){
+          parts.push(`<div class="ref-sec">${esc(sec.title)}：${esc(g.title)}</div>${groupMoves.map(refCard).join("")}`);
+        }
+      }
+    });
+  }
   // 3. 标签
   const tagMatches = [];
-  const tagsData = allTagCategories();
-  for (const category in tagsData) {
-    tagsData[category].forEach(tag => {
-      if (tag.name.includes(kw) || (tag.description && tag.description.includes(kw))) {
+  for(const sectionId of Object.keys(ref)){
+    const data = ref[sectionId];
+    const sec = REF_SECTIONS.find(s => s.id === sectionId);
+    if(!sec || sec.type !== 'tags') continue;
+    
+    // 顶层 tags
+    (data.tags || []).forEach(tag => {
+      if(tag.name.includes(kw) || (tag.description && tag.description.includes(kw))){
         tagMatches.push(tag);
       }
+    });
+    // groups 内的 tags
+    (data.groups || []).forEach(g => {
+      (g.tags || []).forEach(tag => {
+        if(tag.name.includes(kw) || (tag.description && tag.description.includes(kw))){
+          tagMatches.push(tag);
+        }
+      });
     });
   }
   if(tagMatches.length){
@@ -2421,7 +2487,7 @@ function checkAffected(after){
   const items = [];
   const cls = (after.classes||[]).find(c=>c.id===char.classId);
   if(!cls){
-    if(char.classId) items.push("· 当前职业「"+char.classId+"」");
+    if(char.classId) items.push(`· 当前${getClassLabel()}「${char.classId}」`);
     return items;
   }
   // 逐个 moveList 区域比对：移除后规则 + 自定义数据里是否还存在该条目
@@ -2534,7 +2600,7 @@ function renderRulesPanel(){
 function renderNoRules(){
   document.getElementById("playbook").innerHTML = '<div class="empty">⚠️ 未加载规则<br><br>请点「📥 导入规则」导入第一份规则 JSON（底层，需包含 classes）。之后可继续导入规则包叠加。</div>';
   const sel = document.getElementById("classSelect");
-  if(sel) sel.innerHTML = '<option value="">—— 选择职业 ——</option>';
+  if(sel) sel.innerHTML = `<option value="">—— 选择${esc(getClassLabel())} ——</option>`;
   renderRef();
   renderRulesPanel();
 }

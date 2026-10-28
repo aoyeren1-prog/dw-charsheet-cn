@@ -27,7 +27,26 @@
     "areaLayout": {
       "left": ["description"],
       "right": []
-    }
+    },
+    "refSections": [
+      {
+        "id": "movebase",
+        "title": "动作库",
+        "type": "moves",
+        "importArea": "xx",
+        "importGroup": "yy"
+      },
+      {
+        "id": "tagbase",
+        "title": "标签库",
+        "type": "tags"
+      },
+      {
+        "id": "search",
+        "title": "搜索",
+        "type": "search"
+      }
+    ]
   },
   "classes": [
     {
@@ -41,5 +60,39 @@
         }
       }
     }
-  ]
+  ],
+  "reference":{
+    "movebase": {
+      "moves": [
+        {"name": "一个动作", "text": "这是一个动作。", "importArea": "cc", "importGroup": "dd"}
+      ],
+      "groups": [
+        {
+          "key": "necromancer",
+          "title": "副职业：死灵法师",
+          "importArea": "aa",
+          "importGroup": "bb",
+          "moves":[
+            "如果你选择死灵法师，你还可以获得这两个动作：",
+            {"name": "a", "text": "a。"},
+            {"name": "b", "text": "b。"}
+          ]
+        }
+      ]
+    },
+    "tagbase": {
+      "tags": [
+        {"name": "一个标签", "color": "#66ccff", "textColor": "#fff", "description": "这是一个蓝色白字标签。"}
+      ],
+      "groups": [
+        {
+          "key": "other",
+          "title": "其他",
+          "tags": [
+            {"name": "另一个标签", "description": "这是一个默认颜色的标签。"}
+          ]
+        }
+      ]
+    }
+  }
 }

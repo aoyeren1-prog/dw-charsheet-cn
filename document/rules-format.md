@@ -12,10 +12,7 @@
 {
   "meta": { /* 全局配置 */ },
   "classes": [ /* 职业数组 */ ],
-  
-  // 资料边栏内容，键名由 meta.refSections 定义
-  "basicMoves": [...],
-  "spells": {...}
+  "reference": { /* 资料边栏内容 */ }
 }
 ```
 
@@ -23,7 +20,7 @@
 
 1. **`meta`**：全局配置（属性、区域、资料边栏定义）
 2. **`classes`**：职业数组，除 `id`/`name` 外，其余字段覆盖 `meta`
-3. **资料内容键**：由 `meta.refSections[].groups[].key` 指向的内容（如 `basicMoves`、`spells`）
+3. **`reference`**：资料边栏内容对象，键名由 `meta.refSections[].id` 定义
 
 ### 规则栈合并
 
@@ -42,6 +39,18 @@
 ## meta
 
 全局配置对象，定义角色卡的头部结构、区域布局、资料边栏组织。
+
+### meta.classLabel
+
+修改“职业”的名称，例如：
+
+```jsonc
+{
+  "meta": {
+    "classLabel": "Playbook"
+  }
+}
+```
 
 ### meta.header
 
@@ -443,116 +452,168 @@
 
 ### meta.refSections
 
-资料边栏页签配置数组，定义资料内容的组织结构。
+资料边栏的页签定义数组。
 
-**refSection 配置**：
+**页签配置**：
 
-| 键 | 类型 | 说明 |
-|---|---|---|
-| `id` | string | 页签 id |
-| `title` | string | 页签标题 |
-| `type` | string | 渲染类型：`moves` / `extension` / `tags` / `search` |
-| `groups` | array | 内容分组数组（仅 moves/extension） |
-| `articles` | string | 文章数据键名（仅 extension） |
+| 键 | 类型 | 必需 | 说明 |
+|---|---|---|---|
+| `id` | string | 是 | 页签 ID，对应 `reference[id]` |
+| `title` | string | 是 | 页签标题 |
+| `type` | string | 是 | 页签类型：`moves` / `tags` / `search` |
+| `importArea` | string | 否 | 仅 `moves` 类型：默认导入目标区域 |
+| `importGroup` | string | 否 | 仅 `moves` 类型：默认导入分组 key |
 
-#### type: moves
+**type 说明**：
 
-动作列表渲染。
+- `moves`：动作列表，支持导入到角色卡
+- `tags`：标签库
+- `search`：搜索页签
 
-**groups 配置**：
+**示例**：
 
-| 键 | 类型 | 说明 |
-|---|---|---|
-| `key` | string | 顶层数据键名（支持点分路径如 `spells.wizard`） |
-| `label` | string | 分组标题 |
-| `kind` | string | 可选：导入目标区域 key（指定可导入到哪个 moveList 区域） |
-
-**顶层数据格式**：
-
-```json
-[
+```jsonc
+"refSections": [
   {
-    "name": "动作名",
-    "text": "动作描述",
-    "group": "二级分组名（可选，如法术环位）"
+    "id": "basicMoves",
+    "title": "基本动作",
+    "type": "moves"
+  },
+  {
+    "id": "wizard_spells",
+    "title": "法师法术",
+    "type": "moves",
+    "importArea": "wizard",
+    "importGroup": "wizard-spells"
+  },
+  {
+    "id": "tags",
+    "title": "标签",
+    "type": "tags"
+  },
+  {
+    "id": "search",
+    "title": "搜索",
+    "type": "search"
   }
 ]
 ```
 
-**行为**：
-- 按 `groups` 声明的顺序渲染各分组
-- 条目带 `group` 字段时按其值再分小节（如法术的环位）
-- 条目可导入到角色卡的 moveList 区域（编辑模式下显示「+ 导入」按钮），有group的动作会自动创建并强制导入到此group内
+### reference 对象
 
-#### type: extension
+资料边栏的实际内容，键名对应 `refSections[].id`。
 
-动作 + 文章混合渲染（扩展内容页签）。
+#### moves 类型
 
-**section 配置**：
+**结构**：
 
-| 键 | 类型 | 说明 |
-|---|---|---|
-| `groups` | array | 动作分组（同 `moves` 类型） |
-| `articles` | string | 顶层数据键名，指向文章数组 |
-
-**articles 数据格式**：
-
-```json
-[
-  {
-    "title": "文章标题",
-    "importGroup": "默认导入分组 key（可选）",
-    "blocks": [
+```jsonc
+"reference": {
+  "basicMoves": {
+    "moves": [
+      "纯文本说明，支持 Markdown。",
       {
-        "kind": "目标区域 key（可选）",
-        "name": "块标题（可选）",
-        "text": "内容（支持 markdown）",
-        "importGroup": "导入分组 key（可选，覆盖文章级）"
+        "name": "砍劈",
+        "text": "动作描述...",
+        "importArea": "starting",
+        "importGroup": "combat"
+      }
+    ],
+    "groups": [
+      {
+        "key": "advanced",
+        "title": "进阶动作",
+        "importArea": "advanced",
+        "importGroup": "special",
+        "moves": [...]
       }
     ]
   }
-]
-```
-
-**行为**：
-- 先渲染 `groups` 的动作，再渲染 `articles` 的文章
-- 块的 `kind` 指向 moveList 区域时可导入（显示「+ 导入」按钮）
-- 块的 `kind` 指向 bonds 区域时按羁绊行渲染
-- 其他情况按普通 markdown 渲染
-
-#### type: tags
-
-标签术语表渲染。
-
-**section 配置**：
-
-| 键 | 类型 | 说明 |
-|---|---|---|
-| `id` | string | 同时作为顶层数据键名 |
-
-**顶层数据格式**：
-
-```json
-{
-  "分类名1": [
-    {"name": "标签名", "description": "说明（可选）"}
-  ],
-  "分类名2": [...]
 }
 ```
 
-**行为**：
-- 按分类折叠显示标签列表
-- 标签名自动渲染为高亮样式（`{标签名}`）
+**moves 数组元素**：字符串（纯文本）或动作对象。
 
-#### type: search
+**动作对象字段**：
 
-搜索页签，无需配置。
+| 键 | 类型 | 必需 | 说明 |
+|---|---|---|---|
+| `name` | string | 是 | 动作名称 |
+| `text` | string | 是 | 动作描述 |
+| `importArea` | string | 否 | 导入目标区域（move 级） |
+| `importGroup` | string | 否 | 导入分组 key（move 级） |
 
-**行为**：
-- 自动生成搜索界面
-- 搜索范围：所有职业动作 + 所有 refSections 的 groups 内容 + extension 的 articles
-- 支持按职业名、分组名、动作名、动作正文搜索
+**groups 数组**：
+
+`groups` 是折叠块分组，渲染为 `<details>` 折叠元素。
+
+| 键 | 类型 | 必需 | 说明 |
+|---|---|---|---|
+| `key` | string | 是 | 分组 key |
+| `title` | string | 是 | 分组标题 |
+| `importArea` | string | 否 | 导入目标区域（group 级） |
+| `importGroup` | string | 否 | 导入分组 key（group 级） |
+| `moves` | array | 是 | 动作数组 |
+
+**导入控制优先级**（从高到低）：
+
+1. move 级：`move.importArea` / `move.importGroup`
+2. group 级：`group.importArea` / `group.importGroup`
+3. section 级：`refSection.importArea` / `refSection.importGroup`
+
+**importGroup 说明**：
+
+- 填写的是目标区域 group 的 **key**（不是 label）
+- 如果目标职业没有该 group，导入时会自动创建（key 和 label 都等于 importGroup 的值）
+
+#### tags 类型
+
+**结构**：
+
+```jsonc
+"reference": {
+  "tags": {
+    "tags": [
+      {
+        "name": "近战",
+        "color": "#e74c3c",
+        "textColor": "#fff",
+        "description": "需要近距离接触敌人"
+      }
+    ],
+    "groups": [
+      {
+        "key": "weapon_tags",
+        "title": "武器标签",
+        "tags": [...]
+      }
+    ]
+  }
+}
+```
+
+**tag 对象字段**：
+
+| 键 | 类型 | 必需 | 说明 |
+|---|---|---|---|
+| `name` | string | 是 | 标签名称 |
+| `color` | string | 否 | 背景色（CSS 颜色值） |
+| `textColor` | string | 否 | 文字颜色 |
+| `description` | string | 否 | 标签说明 |
+
+**groups 数组**：
+
+tags 的 `groups` 也是折叠块分组。
+
+| 键 | 类型 | 必需 | 说明 |
+|---|---|---|---|
+| `key` | string | 是 | 分组 key |
+| `title` | string | 是 | 分组标题 |
+| `tags` | array | 是 | 标签数组 |
+
+#### search 类型
+
+search 类型不需要 `reference` 数据，只是一个搜索界面页签。
 
 ---
 
@@ -870,5 +931,45 @@
       }
     }
   ]
+}
+```
+
+#### 添加边栏资料章节
+
+```json
+{
+  "meta": {
+    "refSections": [
+      {
+        "id": "wizard_spells",
+        "title": "法师法术书",
+        "type": "moves",
+        "importArea": "wizard"
+      }
+    ]
+  },
+  "reference": {
+    "wizard_spells": {
+      "moves": [],
+      "groups": [
+        {
+          "key": "cantrips",
+          "title": "戏法",
+          "importGroup": "wizard-0",
+          "moves": [
+            {"name": "光亮术", "text": "创造光源"}
+          ]
+        },
+        {
+          "key": "level1",
+          "title": "一环法术",
+          "importGroup": "wizard-1",
+          "moves": [
+            {"name": "魔法飞弹", "text": "自动命中"}
+          ]
+        }
+      ]
+    }
+  }
 }
 ```
