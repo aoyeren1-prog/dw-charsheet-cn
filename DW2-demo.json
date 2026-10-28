@@ -103,7 +103,7 @@
         ]
       },
       "metrics": {
-        "columns": 2,
+        "columns": 3,
         "fields": [
           {
             "id": "hpCur",
@@ -186,7 +186,6 @@
             "type": "track",
             "key": "treasure",
             "view": "editable",
-            "label": "财富",
             "value": [
               {
                 "label": "破产"

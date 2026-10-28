@@ -3,7 +3,7 @@
 纯前端、可离线使用的 TRPG 角色卡工具（简体中文），通过规则 JSON 支持《地城世界》(Dungeon World) 与《无限地城》(Unlimited Dungeons) 两种规则。单个 HTML 文件，`file://` 双击打开即可。
 
 - 左侧角色卡 + 右侧资料边栏
-- 编辑 / 查看双模式，浏览器打印导出 PDF
+- 编辑 / 查看双模式（导出 PDF 功能暂不可用）
 - 规则分层：底层规则 + 支持房规 JSON 叠加，上层覆盖下层
 - 全部板块名、动作分类、属性模型等由规则 JSON 的 `meta` 驱动（去硬编码）
 
@@ -30,14 +30,14 @@
 
 ## 构建流程
 
-环境需 Python 3。
+环境需 Python 3 与 Node.js。
 
 ```powershell
 # 1) 把模板组装成最终 HTML
 python builder\build.py
 
 # 2) 把底层 + 规则包深合并成一份稳定规则
-python builder\merge_rules.py DW.json my-classpack.json -o merged.json
+node builder\merge_rules.js DW.json my-classpack.json -o merged.json
 ```
 
 ---
@@ -48,7 +48,7 @@ python builder\merge_rules.py DW.json my-classpack.json -o merged.json
 ├─ builder\                     ← 源码与脚本
 │   ├─ app_template.html        ← UI 与逻辑
 │   ├─ build.py                 ← 模板 → 成品 转换脚本
-│   └─ merge_rules.py           ← 合并规则包脚本
+│   └─ merge_rules.js           ← 合并规则脚本（deepMerge 与 app_template.html 同步）
 ├─ document\                    ← 文档
 │   └─ rules-format.md          ← 规则 JSON 格式完整参考
 ├─ 地城世界车卡工具.html         ← 成品工具
@@ -120,3 +120,10 @@ https://github.com/rfkeepers/dw-playbooks-tex
 - 现状：装备（gear）和笔记（notes）栏是 textarea 直出、**不做 markdown 渲染**，因此其中的 `{标签名}` 语法不生效——而在动作、羁绊等做渲染的地方，`{标签名}` 会变成高亮标签（见 `markdownToHtml` 里的 `\{([^{}]+)\}`）。
 - 难点：装备/笔记要求**编辑模式下仍可直接编辑文本**，如何在「可编辑 textarea」前提下渲染出标签样式，二者冲突。
 - 影响不大，但装备描述里不会渲染标签，因此输入“{1 重量}”也没有任何用。把文本框改成富文本格式有点费时费力，而且对实时修改是否真的友好还有待商榷，可能短期内这个问题解决不了。
+
+### 4. 导出 PDF 功能（按钮已暂时隐藏）
+
+- 现状：「导出 PDF」按钮（`btnPrint`）已加 `hidden` 类暂时隐藏，待重新设计后再恢复。
+- 问题 1：导出的 PDF 常被截断成多页，分页/排版不对。
+- 问题 2：导出走的是**查看模式**渲染（`window.print()` 前把 `mode` 临时切到 `view`），查看模式会隐藏未选中项、置灰等，导致大量内容丢失；应改为按编辑模式（或专门为打印准备的视图）渲染。
+- 后续：需要重新设计 `btnPrint` 的导出/打印逻辑（`bind()` 里对应的事件处理一并调整）。

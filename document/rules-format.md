@@ -275,6 +275,8 @@
 | 键 | 类型 | 说明 |
 |---|---|---|
 | `tip` | string | 输入框 placeholder |
+| `prefix` | string | 默认值：该键尚无存储值时显示的回退值（可选） |
+| `hint` | string | 编辑模式下输入框下方的提示文本（可选） |
 
 **type: track** —— 分段轨道
 
@@ -410,23 +412,20 @@
 
 #### type: heritage
 
-血统区域。
+血统区域（UD 专用：一组血统格 + 等量文本行 + 一张说明卡，可整区折叠）。
 
 > TODO：为 UD 特别适配，由于过于特殊暂时未并入 plain 类型，后续可能也会并入。
 
 | 键 | 类型 | 说明 |
 |---|---|---|
-| `elements` | array | 元素配置数组 |
+| `boxes` | number | 血统格数量 |
+| `boxesUpgraded` | number | 升级后的血统格数量（勾选「升级」后生效，可选） |
+| `movePlaceholder` | string | 文本行输入框 placeholder（可选） |
+| `description` | string | 说明卡正文（支持文本标记，可选） |
+| `upgradePrompt` | string | 升级提示文本（支持文本标记，可选） |
+| `upgradeEffect` | string | 升级效果说明，渲染为带「升级」勾选框的行（支持文本标记，可选） |
 
-**elements 配置**：
-
-| 键 | 类型 | 说明 |
-|---|---|---|
-| `id` | string | 元素 id |
-| `label` | string | 标签文本 |
-| `type` | string | `text` / `select` / `track` / `number` |
-| `options` | string[] | 仅 `select`：候选项 |
-| `slots` | number | 仅 `track`：格数 |
+数据存入 `char.areaData[areaKey]`，格式：`{boxes: boolean[], moves: string[], upgraded: boolean, hidden: boolean}`。
 
 ### meta.areaLayout
 
@@ -439,7 +438,7 @@
 
 对 `meta.areas` **只渲染列入的区域**，未列入的不渲染
 
-**合并规则**：职业层定义 `areaLayout` 时**完全覆盖**通用层。`left`/`right` 数组按序列合并——保留下层顺序，上层新增的 key 插入到适当位置（详见「公共语法 · 分层合并」）。
+**合并规则**：上层定义 `areaLayout` 时**完全覆盖**下层，未写的一侧视为空。
 
 **示例**：
 
@@ -627,6 +626,7 @@ search 类型不需要 `reference` 数据，只是一个搜索界面页签。
 |---|---|---|---|
 | `id` | string | 是 | 职业 id |
 | `name` | string | 是 | 职业名称 |
+| `intro` | string | 否 | 职业简介（支持文本标记），仅资料边栏搜索命中该职业时显示 |
 
 **覆盖字段**：职业可定义 `header`、`areas`、`areaLayout` 等字段，按分层合并规则覆盖 `meta` 中的同名配置。
 
@@ -707,7 +707,6 @@ search 类型不需要 `reference` 数据，只是一个搜索界面页签。
 | `**粗体**` | 粗体文本 |
 | `*斜体*` | 斜体文本 |
 | `{标签名}` | 高亮标签样式 |
-| `[链接文本](url)` | 超链接 |
 | 连续两个换行 | 段落分隔 |
 
 **注意**：装备（gear）和笔记（notes）区域是 textarea 直出，**不做标记渲染**。
@@ -772,7 +771,7 @@ search 类型不需要 `reference` 数据，只是一个搜索界面页签。
 
 ```jsonc
 // 删除字段
-{"meta": {"showFormula": null}}
+{"meta": {"classLabel": null}}
 
 // 删除数组条目
 {"classes": [{"id": "barbarian", "$delete": true}]}
@@ -784,20 +783,18 @@ search 类型不需要 `reference` 数据，只是一个搜索界面页签。
 
 #### areaLayout 特殊规则
 
-`meta.areaLayout` 的 `left` / `right` 按**序列合并**：保留下层顺序，把上层新增的 key 插进去（插在「它后面第一个两边都有的 key」之前，没有锚点则接到末尾）。
+`areaLayout` 的 `left` / `right` 不像普通对象那样深度合并，而是**整体覆盖**：上层一旦定义 `areaLayout`，就完全替换下层的整个对象，未写的一侧视为空。
 
 ```jsonc
 // 下层
-{"areaLayout": {"left": ["look", "gear", "bonds"]}}
+{"areaLayout": {"left": ["look", "gear", "bonds"], "right": ["starting"]}}
 
-// 上层（插入 heritage 到 gear 之前）
-{"areaLayout": {"left": ["heritage", "gear"]}}
+// 上层
+{"areaLayout": {"left": ["heritage", "look"]}}
 
-// 结果
-{"areaLayout": {"left": ["look", "heritage", "gear", "bonds"]}}
+// 结果（right 被清空）
+{"areaLayout": {"left": ["heritage", "look"]}}
 ```
-
-要彻底重排，先用 `null` 删掉该侧再重写。
 
 ---
 

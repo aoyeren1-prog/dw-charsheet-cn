@@ -106,7 +106,7 @@ body{background:var(--bg);color:var(--text);font-family:"Segoe UI","Microsoft Ya
 
 /* ===== 页头：职业名 + charInfo ===== */
 .pb-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:12px}
-.pb-class{font-size:26px;font-weight:800;letter-spacing:1px;line-height:1.1}
+.pb-class{font-size:32px;font-weight:800;letter-spacing:1px;line-height:1.1}
 
 /* --info-w 是字段基准宽；字段的 flex 声明按它的倍数折算成显式宽度，
    不走 flex-grow，否则 basis:0 的那一格会把全部剩余空间吃掉 */
@@ -235,7 +235,6 @@ input.mbox:disabled:hover{border-color:var(--ink-5)}
 .md p{margin:3px 0}
 .md ul{margin:3px 0;padding-left:18px}
 .md li{margin:1px 0}
-.notes-md{font-size:12.5px;color:var(--ink-2);padding:2px 0;line-height:1.5}
 .mv .tag{background:var(--tag-bg);color:var(--tag-ink);border-radius:3px;padding:0 4px;font-size:12px}
 .mv .del{position:absolute;top:4px;right:4px;border:none;background:transparent;color:var(--line-3);cursor:pointer;font-size:13px;line-height:1;padding:2px 4px;border-radius:3px;z-index:2}
 .mv .del:hover{color:var(--danger);background:var(--danger-bg)}
@@ -267,8 +266,6 @@ input.mbox:disabled:hover{border-color:var(--ink-5)}
 
 /* ===== 空白/文本 ===== */
 .fillbox{width:100%;min-height:34px;border:1px solid var(--line-5);border-radius:3px;padding:5px 7px;font-size:12px;background:var(--paper);color:var(--ink);resize:none;overflow:hidden;font-family:inherit;line-height:1.5}
-.gear-line{font-size:12.5px;padding:2px 0}
-.gear-line.pre{white-space:pre-wrap}
 .gear-group{margin-top:6px}
 .gear-prompt{font-size:12px;color:var(--ink-4)}
 .gear-prompt .tag{background:var(--paper-2);color:var(--ink-4);border:1px solid var(--ink-5);border-radius:3px;padding:0 3px;font-size:12px}
@@ -359,7 +356,7 @@ input.mbox:disabled:hover{border-color:var(--ink-5)}
   <button id="btnNew" title="清空并新建角色">新建角色</button>
   <button id="btnImport">导入角色</button>
   <button id="btnExport">导出角色</button>
-  <button class="primary" id="btnPrint">🖨 导出 PDF</button>
+  <button class="primary hidden" id="btnPrint">🖨 导出 PDF</button>
   <input type="file" id="fileImport" accept=".json,application/json,.js,application/javascript,text/javascript" class="hidden">
 </div>
 
@@ -382,14 +379,13 @@ input.mbox:disabled:hover{border-color:var(--ink-5)}
 </div>
 
 <script>
-let DW_DATA = null, META = {}, HEADER = {charInfo:[], stats:{}, metrics:{}}, REF_SECTIONS = [], SHOW_FORMULA = true, AREAS = {}, AREA_LAYOUT = {left:[], right:[]};
+let DW_DATA = null, META = {}, HEADER = {charInfo:[], stats:{}, metrics:{}}, REF_SECTIONS = [], AREAS = {}, AREA_LAYOUT = {left:[], right:[]};
 function applyData(data){
   DW_DATA = data || {};
   META = DW_DATA.meta || {};
   // 页首三个区块全由 meta.header 声明，代码不预设任何属性名、状态名或字段名
   HEADER = resolveHeader(META.header);
   HEADER_CACHE = {};
-  SHOW_FORMULA = META.showFormula !== false;
   AREAS = META.areas || {};
   AREA_LAYOUT = resolveAreaLayout(META.areaLayout);
   // 边栏内容全由 refSections 声明；没声明就没有页签
@@ -520,7 +516,7 @@ function uid(){ return "c"+Math.random().toString(36).slice(2,9); }
 //   states —— 状态档位，按 stats.conditions[].id 存，0 即初始档
 function defaultChar(){
   const c = {classId:"", fields:{}, stats:{}, states:{},
-    areaData:{}, plainAreas:{}, moveListSelections:{}, moveListGroupNames:{}, moveListNames:{}, moveListTexts:{}};
+    areaData:{}, moveListSelections:{}, moveListGroupNames:{}, moveListNames:{}, moveListTexts:{}};
   seedChar(c, HEADER);
   return c;
 }
@@ -669,21 +665,11 @@ function inlineMarkdown(t){
 function markdownToHtml(md){
   const lines=String(md||"").split("\n");
   const out=[]; let list=[]; let para=[];
-  const inline=t=>esc(t).replace(/\{([^{}]+)\}/g, (match, tagName) => {
-    const tagStyle = getTagColor(tagName);
-    let style = '';
-    if (tagStyle) {
-      const bg = tagStyle.color;
-      const fg = tagStyle.textColor;
-      style = fg ? ` style="background:${bg};color:${fg};"` : ` style="background:${bg};"`;
-    }
-    return `<span class="tag"${style}>${tagName}</span>`;
-  }).replace(/\*\*([^*]+)\*\*/g,"<strong>$1</strong>").replace(/\*([^*]+)\*/g,"<em>$1</em>");
   const flushList=()=>{ if(list.length){ out.push("<ul>"+list.map(x=>"<li>"+x+"</li>").join("")+"</ul>"); list=[]; } };
-  const flushPara=()=>{ if(para.length){ out.push("<p>"+para.map(inline).join("<br>")+"</p>"); para=[]; } };
+  const flushPara=()=>{ if(para.length){ out.push("<p>"+para.map(inlineMarkdown).join("<br>")+"</p>"); para=[]; } };
   for(const line of lines){
     const m=line.match(/^\s*[-*]\s+(.*)$/);
-    if(m){ flushPara(); list.push(inline(m[1])); continue; }
+    if(m){ flushPara(); list.push(inlineMarkdown(m[1])); continue; }
     if(line.trim()===""){ flushList(); flushPara(); continue; }
     flushList(); para.push(line.trim());
   }
@@ -794,7 +780,6 @@ function normalizeChar(){
   char.stats = char.stats || {};
   char.states = char.states || {};
   char.areaData = char.areaData || {};
-  char.plainAreas = char.plainAreas || {};
   char.moveListSelections = char.moveListSelections || {};
   char.moveListGroupNames = char.moveListGroupNames || {};
   char.moveListNames = char.moveListNames || {};
@@ -884,14 +869,14 @@ function renderAreaHeader(areaKey, cls, extraRight) {
 
 /* ============ Plain 区域模板 ============ */
 function plainGet(areaKey, key, dflt){
-  const a = char.plainAreas && char.plainAreas[areaKey];
+  const a = char.areaData && char.areaData[areaKey];
   const v = a ? a[key] : undefined;
   return v === undefined ? dflt : v;
 }
 function plainSet(areaKey, key, val){
-  if(!char.plainAreas) char.plainAreas = {};
-  if(!char.plainAreas[areaKey]) char.plainAreas[areaKey] = {};
-  char.plainAreas[areaKey][key] = val;
+  if(!char.areaData) char.areaData = {};
+  if(!char.areaData[areaKey]) char.areaData[areaKey] = {};
+  char.areaData[areaKey][key] = val;
 }
 // 获取元素的渲染策略（中心化判断）
 function getPlainRenderStrategy(el){
@@ -1405,7 +1390,7 @@ function renderCharInfo(header){
     const w = (n > 0 && f.type !== "track")
       ? ` style="width:calc(var(--info-w) * ${n})"` : "";
     const cls = f.type === "track" ? "it it-track" : "it";
-    return `<div class="${cls}"${w}><span class="k">${esc(f.label || f.id)}</span>${renderFieldControl(f, "char", val)}</div>`;
+    return `<div class="${cls}"${w}><span class="k">${esc(f.label || f.id)}</span>${renderFieldControl(f, val)}</div>`;
   }).join("");
   return `<div class="pb-info">${items}</div>`;
 }
@@ -1421,7 +1406,7 @@ function numberControl(f, val, target){
 }
 
 // charInfo 与 metrics 共用的字段控件：text / number / select / track
-function renderFieldControl(f, scope, val){
+function renderFieldControl(f, val){
   if(f.type === "track") return renderFieldTrack(f, val);
   if(!fieldEditable(f)) return `<span class="v">${esc(val === "" ? "—" : val)}</span>`;
 
@@ -1501,11 +1486,11 @@ function renderMetricsBlock(header){
 // 与 charInfo 的区别：空值回退到公式或 default 算出的默认值，
 // 这样职业给了 hpMax 公式、角色还没填时也显示算好的数
 function renderMetricControl(f){
-  return renderFieldControl(f, "metric", shownFieldValue(f, f.id));
+  return renderFieldControl(f, shownFieldValue(f, f.id));
 }
 
 function formulaHint(txt, setter){
-  if(!SHOW_FORMULA || !txt) return "";
+  if(!txt) return "";
   const body = esc(txt);
   if(setter && mode==="edit"){
     return `<span class="formula-hint">（<button type="button" class="formula-link" data-setformula="${esc(setter)}" title="设为默认值">${body}</button>）</span>`;
@@ -1959,12 +1944,12 @@ function onClassChange(){
   if(newId!==char.classId){
     const prevHeader = headerFor(getClass(char.classId));
     char.classId=newId;
-    char.plainAreas={}; char.moveListSelections={}; char.moveListGroupNames={}; char.moveListNames={}; char.moveListTexts={};
-    // 内容来自职业的区域（声明 resetOnClassChange）换职业时清空，其余保留
+    char.moveListSelections={}; char.moveListGroupNames={}; char.moveListNames={}; char.moveListTexts={};
+    // 内容来自职业的区域换职业时清空：plain 区一律清空，其余按 resetOnClassChange
     const cls=getClass(newId);
     Object.keys(char.areaData||{}).forEach(k => {
       const a = cls ? getAreaHeader(k, cls) : {};
-      if(a.resetOnClassChange) delete char.areaData[k];
+      if(a.type === "plain" || a.resetOnClassChange) delete char.areaData[k];
     });
     // metrics 与区域 rightStat 都是逐职业的数值，换职业一律丢掉重算；
     // charInfo（姓名/等级/XP）属于角色本身，保留
