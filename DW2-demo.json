@@ -31,7 +31,6 @@
           {
             "id": "STR",
             "label": "STR",
-            "type": "modifier",
             "min": -4,
             "max": 4,
             "default": 0
@@ -39,7 +38,6 @@
           {
             "id": "DEX",
             "label": "DEX",
-            "type": "modifier",
             "min": -4,
             "max": 4,
             "default": 0
@@ -47,7 +45,6 @@
           {
             "id": "INT",
             "label": "INT",
-            "type": "modifier",
             "min": -4,
             "max": 4,
             "default": 0
@@ -55,7 +52,6 @@
           {
             "id": "WIS",
             "label": "WIS",
-            "type": "modifier",
             "min": -4,
             "max": 4,
             "default": 0
@@ -63,7 +59,6 @@
           {
             "id": "CHA",
             "label": "CHA",
-            "type": "modifier",
             "min": -4,
             "max": 4,
             "default": 0
@@ -203,6 +198,7 @@
             "type": "track",
             "key": "treasure",
             "view": "editable",
+            "label": "财富",
             "value": [
               {
                 "label": "破产"
@@ -248,7 +244,6 @@
           {
             "type": "choices",
             "key": "group0",
-            "layout": "break",
             "value": []
           },
           {
@@ -259,7 +254,6 @@
           {
             "type": "choices",
             "key": "group1",
-            "layout": "break",
             "value": []
           },
           {

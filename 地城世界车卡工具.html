@@ -60,8 +60,9 @@ body{background:var(--bg);color:var(--text);font-family:"Segoe UI","Microsoft Ya
 .wrap{max-width:1440px;margin:0 auto;padding:18px 14px 60px}
 .main-cols{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:16px;align-items:start}
 @media(max-width:1120px){.main-cols{grid-template-columns:1fr}}
-/* 规则没声明 refSections：边栏整个不存在，角色卡独占整行 */
-.main-cols.no-ref{grid-template-columns:minmax(0,1fr)}
+/* 规则没声明 refSections：边栏整个不存在，角色卡保持宽度居中 */
+.main-cols.no-ref{display:block}
+.main-cols.no-ref .playbook{max-width:900px;margin:0 auto}
 .playbook{background:var(--paper);color:var(--ink);border-radius:6px;padding:20px 22px;min-height:600px;box-shadow:0 4px 24px rgba(0,0,0,.4)}
 
 /* ===== 参考资料边栏 (浅色) ===== */
@@ -110,7 +111,7 @@ body{background:var(--bg);color:var(--text);font-family:"Segoe UI","Microsoft Ya
 .pb-info .it .track .trc{width:18px;height:18px}
 
 /* ===== 属性 + 数值 ===== */
-.pb-stats{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:start;margin-bottom:12px}
+.pb-stats{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;margin-bottom:12px}
 /* 属性块按内容收窄后整体居中，这样 prompt 能与最左侧属性卡左沿对齐 */
 .stat-block{display:inline-flex;flex-direction:column;gap:4px;max-width:100%}
 .pb-stats > .stat-block{justify-self:center}
@@ -237,6 +238,11 @@ input.mbox:disabled:hover{border-color:var(--ink-5)}
 .opt{display:flex;align-items:flex-start;gap:7px;padding:3px 0;font-size:12.5px}
 .opt.gap{margin-top:3px}
 .opt .chk{flex:none;margin-top:0;vertical-align:middle}
+/* choices 元素的布局容器 */
+.choices-line{display:flex;align-items:center;flex-wrap:wrap;margin-top:0}
+.choices-line-items{display:flex;gap:6px;flex-wrap:wrap}
+.choices-break{display:flex;align-items:flex-start}
+.choices-break .choices-label{white-space:nowrap;margin-right:0;padding-top:3px}
 .chk{appearance:none;-webkit-appearance:none;width:15px;height:15px;border:1.6px solid var(--ink-4);border-radius:3px;cursor:pointer;background:var(--paper);position:relative;flex:none}
 .chk:hover{border-color:var(--accent)}
 .chk:checked{background:var(--ink);border-color:var(--ink)}
@@ -925,20 +931,36 @@ function plainChoices(areaKey, el){
   }
   // 默认（readonly）、grey、greyUnselected: 显示所有选项
   
+  // 默认 layout 为 line，只有显式设为 break 才换行
+  const useLineLayout = el.layout !== "break";
+  
   const boxes = visible.map(o => {
     const checked = selected.includes(o);
     const dis = strategy.isEditable ? "" : " disabled";
     const itemGrey = (strategy.greyUnselected && !checked) ? " grey" : "";
+    // line 模式：去掉 .opt 容器，直接用 label 包裹，避免 padding 导致的对齐问题
+    if(useLineLayout){
+      return `<label class="${itemGrey}" style="display:inline-flex;align-items:center;gap:4px;font-size:12.5px"><input type="checkbox" class="chk" value="${esc(o)}" data-plain="choice:${areaKey}:${el.key}"${checked ? " checked" : ""}${dis}> ${esc(o)}</label>`;
+    }
+    // break 模式：保持原有的 .opt 容器
     return `<div class="opt${itemGrey}"><label class="optt"><input type="checkbox" class="chk" value="${esc(o)}" data-plain="choice:${areaKey}:${el.key}"${checked ? " checked" : ""}${dis}> ${esc(o)}</label></div>`;
   }).join("");
   
-  const html = el.layout === "line" ? `<div class="addrow">${boxes}</div>` : boxes;
-  if(strategy.addGreyClass && el.layout === "line"){
-    return html.replace(/^<div/, '<div class="grey"');
-  } else if(strategy.addGreyClass){
-    return `<div class="grey">${html}</div>`;
+  if(!el.label){
+    const html = useLineLayout ? `<div class="addrow" style="margin-top:0">${boxes}</div>` : boxes;
+    return strategy.addGreyClass ? `<div class="grey">${html}</div>` : html;
   }
-  return html;
+  
+  // 有 label 时
+  if(useLineLayout){
+    // line 模式：label 紧贴选项，选项之间有间距
+    const content = `<div class="choices-line"><b style="white-space:nowrap">${esc(el.label)}：</b><div class="choices-line-items">${boxes}</div></div>`;
+    return strategy.addGreyClass ? `<div class="grey">${content}</div>` : content;
+  } else {
+    // break 模式：label 与第一个选项对齐，其余选项缩进
+    const content = `<div class="choices-break"><b class="choices-label">${esc(el.label)}：</b><div>${boxes}</div></div>`;
+    return strategy.addGreyClass ? `<div class="grey">${content}</div>` : content;
+  }
 }
 
 function plainInput(areaKey, el){
@@ -990,8 +1012,13 @@ function plainTrack(areaKey, el){
     }
   }
   
-  const content = `<div class="track">${html}</div>`;
-  return strategy.addGreyClass ? content.replace(/^<div/, '<div class="grey"') : content;
+  const trackHtml = `<div class="track">${html}</div>`;
+  if(!el.label){
+    if(strategy.addGreyClass) return `<div class="grey">${trackHtml}</div>`;
+    return trackHtml;
+  }
+  const content = `<div style="display:flex;align-items:center"><b style="white-space:nowrap">${esc(el.label)}：</b>${trackHtml}</div>`;
+  return strategy.addGreyClass ? `<div class="grey">${content}</div>` : content;
 }
 
 const PLAIN_RENDERERS = { text: plainText, hint: plainHint, choices: plainChoices, input: plainInput, track: plainTrack };

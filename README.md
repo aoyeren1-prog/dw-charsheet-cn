@@ -21,10 +21,10 @@
 
 ## 规则 JSON 格式
 
-规则数据是一个 JSON 文件，顶层含 `meta`（配置）、`classes`（职业）、`basicMoves` / `specialMoves`（动作）、`spells`（法术）。所有板块名、动作分类、属性模型都由 `meta` 驱动。
+规则数据是一个 JSON 文件，顶层含 `meta`（配置）、`classes`（职业）、资料内容键（如 `basicMoves`、`spells` 等）。所有板块名、动作分类、属性模型都由 `meta` 驱动。
 
 - 只想**改几个字段**：看 `DW-HouseRuleTest.json` 示例即可。
-- 想**导入 / 定制整套规则**：见 [`RULES_FORMAT.md`](RULES_FORMAT.md)（完整字段、类型、标记语法、公式、分层合并）。
+- 想**导入 / 定制整套规则**：见 [`document/规则JSON参考.md`](document/规则JSON参考.md)（完整字段、类型、标记语法、公式、分层合并）。
 
 ---
 
@@ -49,12 +49,13 @@ python builder\merge_rules.py DW.json my-classpack.json -o merged.json
 │   ├─ app_template.html        ← UI 与逻辑
 │   ├─ build.py                 ← 模板 → 成品 转换脚本
 │   └─ merge_rules.py           ← 合并规则包脚本
+├─ document\                    ← 文档
+│   └─ 规则JSON参考.md          ← 规则 JSON 格式完整参考
 ├─ 地城世界车卡工具.html         ← 成品工具
 ├─ DW.json                      ← 地城世界 Dungeon World 规则
 ├─ DW-HouseRuleTest.json        ← 房规示例
 ├─ UD.json                      ← 无限地城 Unlimited Dungeons 规则
 ├─ UD-DistantShoresPack.json    ← 远岸风景补充包 Distant Shores Pack 规则
-├─ RULES_FORMAT.md              ← 规则 json 结构说明
 ├─ README.md / LICENSE / .gitignore / ...
 ```
 
@@ -106,12 +107,18 @@ https://github.com/rfkeepers/dw-playbooks-tex
 
 ### 1. 装备内容
 
-- 已经支持标签术语页，并导入了DW的装备标签内容，但是对应的装备和冒险装备示例还没找到地方存放。此外，UD中引入的追随者机制也可能需要引入更多功能
+- 已经支持标签术语页，并导入了DW的装备标签内容，但是对应的装备和冒险装备示例还没找到地方存放。此外，UD中引入的追随者机制也可能需要引入更多功能。
 
 ### 2. 继续去硬编码化
 
-- 现状：经过艰苦卓绝的重构，Playbook的下方areas已经实现了代码模板化，内容下放给数据json。
-- 然而，refSections的模板化不优雅（见RULES_FORMAT.md的一堆TODO），属性与状态，各数值（血量、伤害、护甲），顶层数据（名字，等级，XP）干脆完全写死。当初写的时候谁知道会这样啊……
+- 现状：经过重构，角色卡头部（header）已完全数据驱动，areas 区域系统已实现模板化，内容下放给规则 JSON。
+- 待改进：
+  - 顶层加 `reference` 对象装资料内容，使结构更清晰（当前资料键如 `basicMoves` 直接放在顶层，与 `meta`/`classes` 平级）
+  - `meta` 中增加 `classLabel` / `classLabelPlural` 字段，允许规则 JSON 自定义「职业」术语在 UI 中的显示名称（当前「职业」一词是为《地城世界》硬编码的，不同 PbtA 规则对角色类别有不同命名）
+  - `extension` 并回 `moves` 并重构 `refSections`：当前 `moves` 与 `extension` 有行为差异需统一。设计方案：
+    - `extension` 区域的动作列表应支持与 `moves` 相同的渲染模式
+    - 合并时需保留 `extension` 的「职业专属扩展」语义
+    - `refSections` 应支持更灵活的内容组织方式，允许混合不同来源的动作分组
 
 ### 3. 微调资料边栏样式
 
