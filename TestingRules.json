@@ -55,7 +55,13 @@
       "areas": {
         "description": {
           "elements": [
-            {"type": "text", "value": "你是**战士**。"}
+            {"type": "text", "value": "你是[[testInput:输入你要填的内容]]。"},
+            {"type": "hint", "value": "提示。"},
+            {"key": "abcd", "type": "choices", "layout": "line", "value": ["a", "b", "[[optionC:C!]]", "d"]},
+            {"key": "diy", "type": "input", "label": "我[[qwerty]]"},
+            {"key": "testTrack", "type": "track", "label": "[[money:货币名]]", "value": [
+              {"slots": 5}, {"label": "5"}
+            ]}
           ]
         }
       }

@@ -205,6 +205,9 @@ body{background:var(--bg);color:var(--text);font-family:"Segoe UI","Microsoft Ya
 .pb-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 @media(max-width:680px){.pb-cols{grid-template-columns:1fr}}
 .pb-sec{margin-bottom:12px}
+/* plain 元素之间统一间隔（首个贴标题，其后每个间隔 6px） */
+.plain-el + .plain-el{margin-top:6px}
+.plain-el > .hint{margin-top:0}
 .pb-sec h3{margin:0 0 6px;font-size:13px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;border-bottom:1px solid var(--ink);padding-bottom:3px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
 .pb-sec h3 small{font-weight:400;color:var(--ink-4);font-size:11px;text-transform:none;margin-left:4px}
 .pb-sec h3 .h3r{font-weight:400;font-size:11px;color:var(--ink-5);text-transform:none;letter-spacing:0;white-space:nowrap}
@@ -272,6 +275,11 @@ input.mbox:disabled:hover{border-color:var(--ink-5)}
 .gear-add{border:1px solid var(--accent);background:transparent;color:var(--tag-ink);border-radius:4px;width:18px;height:18px;padding:0;font-size:12px;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;flex:none}
 .gear-add:hover{background:var(--accent);color:var(--accent-ink)}
 .coins-input{width:80px;border:1px solid var(--line-5);border-radius:3px;padding:3px 6px;background:var(--paper);color:var(--ink);font-size:13px}
+
+/* 内联填空位 [[key]] / [[key:内容]] */
+.blank-wrap{display:inline-block;position:relative}
+.blank{min-width:5em;max-width:10em;border:none;border-bottom:1px dashed var(--ink-5);background:transparent;font:inherit;color:var(--ink);padding:0;vertical-align:baseline}
+.blank-sizer{position:absolute;visibility:hidden;white-space:pre;font:inherit;top:0;left:0;pointer-events:none}
 
 .mv.spell-off{opacity:.5}
 .bond-line{display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px dotted var(--line-4);font-size:12.5px}
@@ -631,6 +639,35 @@ function applyBoxes(html, key){
     return box;
   });
 }
+// 渲染单个填空位 [[key]] / [[key:内容]]，绑定 char.areaData[areaKey][key]。
+// 编辑模式：原生 input，内容作 placeholder（纯文本）；查看模式：已存值走 inlineMarkdown 渲染。
+function renderBlank(key, content, areaKey, editable){
+  const val = plainGet(areaKey, key, "");
+  if(!editable) return val ? inlineMarkdown(val) : (content ? esc(content) : "＿");
+  return `<span class="blank-wrap"><input class="blank" data-plain="blank:${areaKey}:${key}" value="${esc(val)}" placeholder="${esc(content||"")}"><span class="blank-sizer" aria-hidden="true"></span></span>`;
+}
+// 先把 [[...]] 换成占位符，markdown 处理完再用 restore 还原，避免内容里的标记被外层 markdown 吃掉。
+function protectBlanks(text){
+  const blanks = [];
+  const t = String(text||"").replace(/\[\[([^:\]]+)(?::([^\]]*))?\]\]/g, (m, key, content) => {
+    blanks.push({key, content});
+    return `\uE000${blanks.length - 1}\uE001`;
+  });
+  return {
+    text: t,
+    restore(html, areaKey, editable){
+      return String(html).replace(/\uE000(\d+)\uE001/g, (m, i) => {
+        const b = blanks[+i];
+        return b ? renderBlank(b.key, b.content, areaKey, editable) : "";
+      });
+    }
+  };
+}
+// 内联渲染（choices 选项 / track 标签）：保护 [[...]] 后其余文本走 inlineMarkdown，再还原填空位。
+function renderInline(text, areaKey, editable){
+  const pb = protectBlanks(text);
+  return pb.restore(inlineMarkdown(pb.text), areaKey, editable);
+}
 function toggleTextBox(md, index){
   let i = 0;
   return String(md||"").replace(/\[([ xX])\]/g, (m, c)=>{
@@ -844,20 +881,23 @@ function plainText(areaKey, el){
   
   const stateKey = el.key || ("_text" + el._idx);
   const boxKey = "plain::" + areaKey + "::" + stateKey;
-  const content = renderFieldMarkdown(
-    plainGet(areaKey, stateKey, el.value || ""),
+  const raw = plainGet(areaKey, stateKey, el.value || "");
+  const pb = protectBlanks(raw);
+  const content = pb.restore(renderFieldMarkdown(
+    pb.text,
     boxKey,
     () => plainGet(areaKey, stateKey, el.value || ""),
     t => plainSet(areaKey, stateKey, t)
-  );
+  ), areaKey, strategy.isEditable);
   
-  return strategy.addGreyClass ? `<div class="grey">${content}</div>` : content;
+  const wrapped = `<div class="md">${content}</div>`;
+  return strategy.addGreyClass ? `<div class="grey">${wrapped}</div>` : wrapped;
 }
 
 function plainHint(areaKey, el){
   const strategy = getPlainRenderStrategy(el);
   if(!strategy.isEditable) return "";
-  return `<div class="hint">${markdownToHtml(el.value || "")}</div>`;
+  return `<div class="hint md">${markdownToHtml(el.value || "")}</div>`;
 }
 
 function plainChoices(areaKey, el){
@@ -885,10 +925,10 @@ function plainChoices(areaKey, el){
     const itemGrey = (strategy.greyUnselected && !checked) ? " grey" : "";
     // line 模式：去掉 .opt 容器，直接用 label 包裹，避免 padding 导致的对齐问题
     if(useLineLayout){
-      return `<label class="${itemGrey}" style="display:inline-flex;align-items:center;gap:4px;font-size:12.5px"><input type="checkbox" class="chk" value="${esc(o)}" data-plain="choice:${areaKey}:${el.key}"${checked ? " checked" : ""}${dis}> ${esc(o)}</label>`;
+      return `<label class="${itemGrey}" style="display:inline-flex;align-items:center;gap:4px;font-size:12.5px"><input type="checkbox" class="chk" value="${esc(o)}" data-plain="choice:${areaKey}:${el.key}"${checked ? " checked" : ""}${dis}> ${renderInline(o, areaKey, strategy.isEditable)}</label>`;
     }
     // break 模式：保持原有的 .opt 容器
-    return `<div class="opt${itemGrey}"><label class="optt"><input type="checkbox" class="chk" value="${esc(o)}" data-plain="choice:${areaKey}:${el.key}"${checked ? " checked" : ""}${dis}> ${esc(o)}</label></div>`;
+    return `<div class="opt${itemGrey}"><label class="optt"><input type="checkbox" class="chk" value="${esc(o)}" data-plain="choice:${areaKey}:${el.key}"${checked ? " checked" : ""}${dis}> ${renderInline(o, areaKey, strategy.isEditable)}</label></div>`;
   }).join("");
   
   if(!el.label){
@@ -899,11 +939,11 @@ function plainChoices(areaKey, el){
   // 有 label 时
   if(useLineLayout){
     // line 模式：label 紧贴选项，选项之间有间距
-    const content = `<div class="choices-line"><b style="white-space:nowrap">${esc(el.label)}：</b><div class="choices-line-items">${boxes}</div></div>`;
+    const content = `<div class="choices-line"><b style="white-space:nowrap">${renderInline(el.label, areaKey, strategy.isEditable)}：</b><div class="choices-line-items">${boxes}</div></div>`;
     return strategy.addGreyClass ? `<div class="grey">${content}</div>` : content;
   } else {
     // break 模式：label 与第一个选项对齐，其余选项缩进
-    const content = `<div class="choices-break"><b class="choices-label">${esc(el.label)}：</b><div>${boxes}</div></div>`;
+    const content = `<div class="choices-break"><b class="choices-label">${renderInline(el.label, areaKey, strategy.isEditable)}：</b><div>${boxes}</div></div>`;
     return strategy.addGreyClass ? `<div class="grey">${content}</div>` : content;
   }
 }
@@ -913,7 +953,7 @@ function plainInput(areaKey, el){
   if(!strategy.shouldRender) return "";
   
   const value = plainGet(areaKey, el.key, el.prefix || "");
-  const lab = el.label ? `<b>${esc(el.label)}</b>：` : "";
+  const lab = el.label ? `<b>${renderInline(el.label, areaKey, strategy.isEditable)}</b>：` : "";
   
   if(strategy.isEditable){
     const hintHtml = el.hint ? `<div class="origin-hint">${esc(el.hint)}</div>` : "";
@@ -948,7 +988,7 @@ function plainTrack(areaKey, el){
   for(const item of (el.value || [])){
     if(item.label !== undefined){
       const on = item.label === currentLabel ? " on" : "";
-      html += `<span class="trl${on}">${esc(item.label)}</span>`;
+      html += `<span class="trl${on}">${renderInline(item.label, areaKey, strategy.isEditable)}</span>`;
     } else if(item.slots !== undefined){
       for(let i = 0; i < item.slots; i++){
         html += `<button type="button" class="trc${gi < value ? " on" : ""}" data-plain="track:${areaKey}:${el.key}:${gi}"${dis}></button>`;
@@ -962,7 +1002,7 @@ function plainTrack(areaKey, el){
     if(strategy.addGreyClass) return `<div class="grey">${trackHtml}</div>`;
     return trackHtml;
   }
-  const content = `<div style="display:flex;align-items:center"><b style="white-space:nowrap">${esc(el.label)}：</b>${trackHtml}</div>`;
+  const content = `<div style="display:flex;align-items:center"><b style="white-space:nowrap">${renderInline(el.label, areaKey, strategy.isEditable)}：</b>${trackHtml}</div>`;
   return strategy.addGreyClass ? `<div class="grey">${content}</div>` : content;
 }
 
@@ -974,7 +1014,8 @@ function renderPlainArea(areaKey, cls){
   const inner = (area.elements || []).map((el, i) => {
     el._idx = i;
     const fn = PLAIN_RENDERERS[el.type];
-    return fn ? fn(areaKey, el) : "";
+    const html = fn ? fn(areaKey, el) : "";
+    return html ? `<div class="plain-el">${html}</div>` : "";
   }).join("");
   if(!inner) return "";
   return `<div class="pb-sec">${renderAreaHeader(areaKey, cls)}${inner}</div>`;
@@ -1294,6 +1335,7 @@ function renderPlaybook(){
       <div class="pb-right">${col(AREA_LAYOUT.right)}</div>
     </div>`;
   autosizeAll();
+  autosizeBlanks();
 }
 
 // 区域路由：根据 type 字段选择渲染器
@@ -1884,6 +1926,13 @@ function mvBarStyle(areaKey){
 }
 function autosize(ta){ ta.style.height="auto"; ta.style.height=(ta.scrollHeight+2)+"px"; }
 function autosizeAll(){ document.querySelectorAll("textarea").forEach(autosize); }
+function autosizeBlank(inp){
+  const sizer = inp.parentNode.querySelector(".blank-sizer");
+  if(!sizer) return;
+  sizer.textContent = inp.value || inp.placeholder || "＿";
+  inp.style.width = (sizer.offsetWidth + 2) + "px";
+}
+function autosizeBlanks(){ document.querySelectorAll("input.blank").forEach(autosizeBlank); }
 
 /* ============ 事件 ============ */
 function onClassChange(){
@@ -1981,6 +2030,12 @@ document.addEventListener("input", e=>{
   if(d.plain && d.plain.startsWith("input:")){
     const [, areaKey, key] = d.plain.split(":");
     plainSet(areaKey, key, t.value);
+    save(); return;
+  }
+  if(d.plain && d.plain.startsWith("blank:")){
+    const [, areaKey, key] = d.plain.split(":");
+    plainSet(areaKey, key, t.value);
+    autosizeBlank(t);
     save(); return;
   }
 });
