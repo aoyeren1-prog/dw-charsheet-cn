@@ -60,7 +60,10 @@
             {"key": "abcd", "type": "choices", "layout": "line", "value": ["a", "b", "[[optionC:C!]]", "d"]},
             {"key": "diy", "type": "input", "label": "我[[qwerty]]"},
             {"key": "testTrack", "type": "track", "label": "[[money:货币名]]", "value": [
-              {"slots": 5}, {"label": "5"}
+              {"slots": 5}, {"label": "原点测试", "zero": true}, {"slots": 5}
+            ]},
+            {"key": "testTrack2", "type": "track", "dual": true, "value": [
+              {"label": "端点"}, {"slots": 5}, {"label": "原点测试", "zero": true}, {"slots": 5}, {"label": "端点"}, {"slots": 5}, {"label": "端点"}
             ]}
           ]
         }

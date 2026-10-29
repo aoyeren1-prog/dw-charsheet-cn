@@ -3634,6 +3634,30 @@
           ]
         }
       }
+    },
+    {
+      "id": "custom",
+      "name": "自定义",
+      "areas": {
+        "starting": {
+          "buttons": [
+            {
+              "label": "动作",
+              "position": "global",
+              "action": "addMove"
+            }
+          ]
+        },
+        "advanced": {
+          "buttons": [
+            {
+              "label": "动作",
+              "position": "global",
+              "action": "addMove"
+            }
+          ]
+        }
+      }
     }
   ],
   "reference": {
