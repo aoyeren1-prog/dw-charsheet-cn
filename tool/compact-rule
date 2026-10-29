@@ -1,0 +1,19 @@
+'''用 compact_json 库压缩规则 json 的行数'''
+import json
+from compact_json import Formatter
+
+
+# 1. 强制以 utf-8 格式读取你的原始文件
+with open("DW.json", "r", encoding="utf-8") as f:
+    data = json.load(f)
+
+
+# 2. 设置压缩参数（根据需要修改）
+formatter = Formatter()
+formatter.max_inline_length = 80
+formatter.ensure_ascii = False  # 关闭 ASCII 强制转义，保留原生中文
+
+
+# 3. 序列化并强制以 utf-8 格式写入新文件
+with open("formatted.json", "w", encoding="utf-8") as f:
+    f.write(formatter.serialize(data) + "\n")

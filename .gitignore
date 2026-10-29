@@ -11,6 +11,7 @@ Unlimited Dungeons CN/
 .pip-test-*/
 .pnpm*/
 .kilo*/
+.vscode*/
 acl-recovery/
 _acl-recovery/
 *.xlsx
