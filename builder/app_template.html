@@ -968,40 +968,59 @@ function plainInput(areaKey, el){
 function plainTrack(areaKey, el){
   const strategy = getPlainRenderStrategy(el);
   if(!strategy.shouldRender) return "";
-  
-  const value = plainGet(areaKey, el.key, 0);
   const dis = strategy.isEditable ? "" : " disabled";
-  
-  // 计算当前在哪个段落
-  let gi = 0, currentLabel = null, acc = 0;
-  for(const item of (el.value || [])){
+  const segs = el.value || [];
+
+  // 定位零点（zero:true 或最靠左的 label）并记录各 label 槽位下标
+  const labelIdx = [];
+  let acc = 0, zeroIndex = -1;
+  for(const item of segs){
     if(item.label !== undefined){
-      if(value >= acc) currentLabel = item.label;
-    } else if(item.slots !== undefined){
-      acc += item.slots;
-    }
+      labelIdx.push(acc);
+      if(item.zero && zeroIndex < 0) zeroIndex = acc;
+    } else if(item.slots !== undefined) acc += item.slots;
   }
-  
+  const hasZero = zeroIndex >= 0;
+  if(!hasZero) zeroIndex = labelIdx.length ? labelIdx[0] : 0;
+
+  // 左右填充数（非 dual 是有符号整数，dual 是 {left,right}）
+  const dual = el.dual === true && hasZero;
+  const raw = plainGet(areaKey, el.key, 0);
+  const o = dual ? (raw && typeof raw === 'object' ? raw : {}) : null;
+  const leftFill = dual ? (o.left || 0) : (raw < 0 ? -raw : 0);
+  const rightFill = dual ? (o.right || 0) : (raw > 0 ? raw : 0);
+
+  // 高亮 label 下标集合："all" 全亮；否则按到达
+  const firstAtLeast = x => { for(let i = 0; i < labelIdx.length; i++) if(labelIdx[i] >= x) return i; return -1; };
+  const lastAtMost = x => { for(let i = labelIdx.length - 1; i >= 0; i--) if(labelIdx[i] <= x) return i; return -1; };
+  const hl = new Set();
+  if(el.highlight === "all") labelIdx.forEach((_, i) => hl.add(i));
+  else if(dual){
+    const li = firstAtLeast(zeroIndex - leftFill), ri = lastAtMost(zeroIndex + rightFill);
+    if(labelIdx[li] === zeroIndex && labelIdx[ri] === zeroIndex) hl.add(li);
+    else { if(labelIdx[li] !== zeroIndex) hl.add(li); if(labelIdx[ri] !== zeroIndex) hl.add(ri); }
+  } else {
+    const cur = raw >= 0 ? lastAtMost(zeroIndex + raw) : firstAtLeast(zeroIndex + raw);
+    if(cur >= 0) hl.add(cur);
+  }
+
   // 渲染
-  gi = 0;
-  let html = "";
-  for(const item of (el.value || [])){
+  const slotOn = gi => (gi >= zeroIndex - leftFill && gi < zeroIndex) || (gi >= zeroIndex && gi < zeroIndex + rightFill);
+  let gi = 0, li = 0, html = "";
+  for(const item of segs){
     if(item.label !== undefined){
-      const on = item.label === currentLabel ? " on" : "";
-      html += `<span class="trl${on}">${renderInline(item.label, areaKey, strategy.isEditable)}</span>`;
+      html += `<span class="trl${hl.has(li) ? " on" : ""}">${renderInline(item.label, areaKey, strategy.isEditable)}</span>`;
+      li++;
     } else if(item.slots !== undefined){
       for(let i = 0; i < item.slots; i++){
-        html += `<button type="button" class="trc${gi < value ? " on" : ""}" data-plain="track:${areaKey}:${el.key}:${gi}"${dis}></button>`;
+        html += `<button type="button" class="trc${slotOn(gi) ? " on" : ""}" data-plain="track:${areaKey}:${el.key}:${gi}:${zeroIndex}:${dual ? 1 : 0}"${dis}></button>`;
         gi++;
       }
     }
   }
-  
+
   const trackHtml = `<div class="track">${html}</div>`;
-  if(!el.label){
-    if(strategy.addGreyClass) return `<div class="grey">${trackHtml}</div>`;
-    return trackHtml;
-  }
+  if(!el.label) return strategy.addGreyClass ? `<div class="grey">${trackHtml}</div>` : trackHtml;
   const content = `<div style="display:flex;align-items:center"><b style="white-space:nowrap">${renderInline(el.label, areaKey, strategy.isEditable)}：</b>${trackHtml}</div>`;
   return strategy.addGreyClass ? `<div class="grey">${content}</div>` : content;
 }
@@ -2177,10 +2196,23 @@ document.addEventListener("click", e=>{
     renderPlaybook(); save(); return;
   }
   if(d.plain && d.plain.startsWith("track:")){
-    const [, areaKey, key, idxStr] = d.plain.split(":");
-    const idx = parseInt(idxStr);
-    const cur = plainGet(areaKey, key, 0);
-    plainSet(areaKey, key, (idx < cur) ? idx : (idx + 1));
+    const parts = d.plain.split(":");
+    const areaKey = parts[1], key = parts[2];
+    const gi = parseInt(parts[3], 10), zeroIndex = parseInt(parts[4], 10);
+    const dual = parts[5] === "1";
+    const raw = plainGet(areaKey, key, 0);
+    const d0 = gi - zeroIndex;
+    if(dual){
+      const obj = (raw && typeof raw === 'object') ? raw : {};
+      let left = obj.left || 0, right = obj.right || 0;
+      if(d0 >= 0){ const t = d0 + 1; right = (right >= t) ? t - 1 : t; }
+      else { const t = -d0; left = (left >= t) ? t - 1 : t; }
+      plainSet(areaKey, key, {left, right});
+    } else {
+      const cur = typeof raw === 'number' ? raw : 0;
+      const nv = d0 >= 0 ? (d0 < cur ? d0 : d0 + 1) : (d0 >= cur ? d0 + 1 : d0);
+      plainSet(areaKey, key, nv);
+    }
     renderPlaybook(); save(); return;
   }
   if(d.area!==undefined){
