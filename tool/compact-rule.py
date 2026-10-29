@@ -19,7 +19,7 @@ def compact(path):
 
     # 3. 压缩参数（根据需要修改）
     formatter = Formatter()
-    formatter.max_inline_length = 80
+    formatter.max_inline_length = 100
     formatter.ensure_ascii = False  # 关闭 ASCII 强制转义，保留原生中文
 
     # 4. 就地写回（覆盖原文件）

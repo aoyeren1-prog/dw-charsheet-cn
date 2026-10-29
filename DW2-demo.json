@@ -1,532 +1,226 @@
 {
-  "meta": {
-    "source": "DW2 Beta v3 最小 demo（手写，覆盖全部新机制）",
-    "license": "demo",
-    "header": {
-      "charInfo": [
-        {
-          "id": "name",
-          "label": "姓名",
-          "type": "text",
-          "flex": 2
-        },
-        {
-          "id": "level",
-          "label": "等级",
-          "type": "number",
-          "min": 1,
-          "max": 10,
-          "default": 1
-        },
-        {
-          "id": "xp",
-          "label": "XP",
-          "type": "track",
-          "slots": 5,
-          "view": "editable"
+    "meta": {
+        "source": "DW2 Beta v3 最小 demo（手写，覆盖全部新机制）", 
+        "license": "demo", 
+        "header": {
+            "charInfo": [
+                {"id": "name", "label": "姓名", "type": "text", "flex": 2}, 
+                {"id": "level", "label": "等级", "type": "number", "min": 1, "max": 10, "default": 1}, 
+                {"id": "xp", "label": "XP", "type": "track", "slots": 5, "view": "editable"}
+            ], 
+            "stats": {
+                "items": [
+                    { "id": "STR", "label": "STR", "min": -4, "max": 4, "default": 0 }, 
+                    { "id": "DEX", "label": "DEX", "min": -4, "max": 4, "default": 0 }, 
+                    { "id": "INT", "label": "INT", "min": -4, "max": 4, "default": 0 }, 
+                    { "id": "WIS", "label": "WIS", "min": -4, "max": 4, "default": 0 }, 
+                    { "id": "CHA", "label": "CHA", "min": -4, "max": 4, "default": 0 }
+                ], 
+                "conditions": [
+                    { "id": "exhausted" , "label": "力竭", "states": 3, "boundStat": "STR", "effect": "none" }, 
+                    { "id": "frightened", "label": "受惊", "states": 3, "boundStat": "DEX", "effect": "none" }, 
+                    { "id": "angry"     , "label": "愤怒", "states": 3, "boundStat": "INT", "effect": "none" }, 
+                    { "id": "distracted", "label": "分心", "states": 3, "boundStat": "WIS", "effect": "none" }, 
+                    { "id": "insecure"  , "label": "不安", "states": 3, "boundStat": "CHA", "effect": "none" }
+                ]
+            }, 
+            "metrics": {
+                "columns": 3, 
+                "fields": [
+                    { "id": "hpCur", "label": "当前生命", "type": "number", "min": 0, "view": "editable" }, 
+                    { "id": "hpMax", "label": "最大生命", "type": "number", "min": 0                     }, 
+                    { "id": "armor", "label": "护甲"  , "type": "number", "min": 0                     }
+                ]
+            }
+        }, 
+        "refSections": [
+            { "id": "basicMoves"  , "title": "基本动作"  , "type": "moves"                            }, 
+            { "id": "struggleHelp", "title": "怎么处理心结", "type": "moves"                            }, 
+            { "id": "struggles"   , "title": "心结列表"  , "type": "moves" , "importArea": "struggle" }, 
+            { "id": "search"      , "title": "资料速查"  , "type": "search"                           }
+        ], 
+        "areas": {
+            "origins": {
+                "title": "起源", 
+                "type": "plain", 
+                "elements": [
+                    {"type": "input", "key": "ancestry", "label": "血缘", "prefix": "我是", "hint": "如：矮人、精灵、人类、猫人、构装体……"}, 
+                    {"type": "input", "key": "community", "label": "社群", "prefix": "我来自", "hint": "如：佣兵团、商队、学者团、部落……"}, 
+                    {"type": "input", "key": "background", "label": "背景", "prefix": "我曾是", "hint": "如：铁匠、佣兵、学徒、流浪者……"}
+                ]
+            }, 
+            "treasure": {
+                "title": "财富", 
+                "type": "plain", 
+                "elements": [
+                    {
+                        "type": "track", 
+                        "key": "treasure", 
+                        "view": "editable", 
+                        "value": [
+                            {"label": "破产"}, 
+                            {"slots": 4}, 
+                            {"label": "贫穷"}, 
+                            {"slots": 6}, 
+                            {"label": "适中"}, 
+                            {"slots": 8}, 
+                            {"label": "舒适"}, 
+                            {"slots": 10}, 
+                            {"label": "富有"}, 
+                            {"slots": 12}, 
+                            {"label": "贵族"}
+                        ]
+                    }
+                ]
+            }, 
+            "look": {
+                "title": "外观", 
+                "type": "plain", 
+                "elements": [
+                    { "type": "choices", "key": "group0" , "value": []                  }, 
+                    { "type": "input"  , "key": "custom0",              "tip": "自定义"    }, 
+                    { "type": "choices", "key": "group1" , "value": []                  }, 
+                    { "type": "input"  , "key": "custom1",              "tip": "自定义"    }, 
+                    { "type": "input"  , "key": "notes"  ,              "tip": "其他外观描述" }
+                ]
+            }, 
+            "starting": {
+                "title": "起始动作", 
+                "type": "moveList", 
+                "buttons": [ {"label": "动作", "position": "global", "action": "addMove"} ]
+            }, 
+            "advanced": {
+                "title": "进阶动作", 
+                "type": "moveList", 
+                "buttons": [ {"label": "动作", "position": "global", "action": "addMove", "targetGroup": "custom"} ], 
+                "features": {"selectMoves": true}
+            }, 
+            "struggle": {
+                "title": "心结", 
+                "type": "moveList", 
+                "buttons": [ {"label": "心结", "position": "global", "action": "addMove"} ]
+            }, 
+            "advancement": {
+                "title": "升级", 
+                "type": "moveList", 
+                "moves": [
+                    {
+                        "name": "升级", 
+                        "text": "当你升级时，HP +1（最多 +10），并选择以下一项：\n\n[ ] +1 任意属性（max +2）\n[ ] 获得一个 Path（含起始动作）\n[ ] 揭示一个 Struggle\n[ ] 获得一个 Path Move\n[ ] 转职\n\n从 5 级起，你还可以选择：\n[ ] +1 任意属性（max +2）\n[ ] Multiclass — 获得其他职业的 Path\n[ ] 获得一件魔法物品\n\n从 10 级起，你还可以选择：\n[ ] +1 任意属性（max +3）\n[ ] Multiclass\n[ ] 获得一件 Artifact"
+                    }
+                ]
+            }, 
+            "gear": {
+                "title": "装备", 
+                "type": "fillbox", 
+                "resetOnClassChange": true, 
+                "counters": [ {"key": "coins", "label": "金币"} ]
+            }, 
+            "bonds": {"title": "羁绊", "type": "bonds", "resetOnClassChange": true, "relations": true, "relationDepth": 3}
+        }, 
+        "areaLayout": {
+            "left": ["look", "origins", "gear", "treasure", "bonds", "struggle", "notes"], 
+            "right": ["starting", "advanced", "advancement"]
         }
-      ],
-      "stats": {
-        "items": [
-          {
-            "id": "STR",
-            "label": "STR",
-            "min": -4,
-            "max": 4,
-            "default": 0
-          },
-          {
-            "id": "DEX",
-            "label": "DEX",
-            "min": -4,
-            "max": 4,
-            "default": 0
-          },
-          {
-            "id": "INT",
-            "label": "INT",
-            "min": -4,
-            "max": 4,
-            "default": 0
-          },
-          {
-            "id": "WIS",
-            "label": "WIS",
-            "min": -4,
-            "max": 4,
-            "default": 0
-          },
-          {
-            "id": "CHA",
-            "label": "CHA",
-            "min": -4,
-            "max": 4,
-            "default": 0
-          }
-        ],
-        "conditions": [
-          {
-            "id": "exhausted",
-            "label": "力竭",
-            "states": 3,
-            "boundStat": "STR",
-            "effect": "none"
-          },
-          {
-            "id": "frightened",
-            "label": "受惊",
-            "states": 3,
-            "boundStat": "DEX",
-            "effect": "none"
-          },
-          {
-            "id": "angry",
-            "label": "愤怒",
-            "states": 3,
-            "boundStat": "INT",
-            "effect": "none"
-          },
-          {
-            "id": "distracted",
-            "label": "分心",
-            "states": 3,
-            "boundStat": "WIS",
-            "effect": "none"
-          },
-          {
-            "id": "insecure",
-            "label": "不安",
-            "states": 3,
-            "boundStat": "CHA",
-            "effect": "none"
-          }
-        ]
-      },
-      "metrics": {
-        "columns": 3,
-        "fields": [
-          {
-            "id": "hpCur",
-            "label": "当前生命",
-            "type": "number",
-            "min": 0,
-            "view": "editable"
-          },
-          {
-            "id": "hpMax",
-            "label": "最大生命",
-            "type": "number",
-            "min": 0
-          },
-          {
-            "id": "armor",
-            "label": "护甲",
-            "type": "number",
-            "min": 0
-          }
-        ]
-      }
-    },
-    "refSections": [
-      {
-        "id": "basicMoves",
-        "title": "基本动作",
-        "type": "moves"
-      },
-      {
-        "id": "struggleHelp",
-        "title": "怎么处理心结",
-        "type": "moves"
-      },
-      {
-        "id": "struggles",
-        "title": "心结列表",
-        "type": "moves",
-        "importArea": "struggle"
-      },
-      {
-        "id": "search",
-        "title": "资料速查",
-        "type": "search"
-      }
-    ],
-    "areas": {
-      "origins": {
-        "title": "起源",
-        "type": "plain",
-        "elements": [
-          {
-            "type": "input",
-            "key": "ancestry",
-            "label": "血缘",
-            "prefix": "我是",
-            "hint": "如：矮人、精灵、人类、猫人、构装体……"
-          },
-          {
-            "type": "input",
-            "key": "community",
-            "label": "社群",
-            "prefix": "我来自",
-            "hint": "如：佣兵团、商队、学者团、部落……"
-          },
-          {
-            "type": "input",
-            "key": "background",
-            "label": "背景",
-            "prefix": "我曾是",
-            "hint": "如：铁匠、佣兵、学徒、流浪者……"
-          }
-        ]
-      },
-      "treasure": {
-        "title": "财富",
-        "type": "plain",
-        "elements": [
-          {
-            "type": "track",
-            "key": "treasure",
-            "view": "editable",
-            "value": [
-              {
-                "label": "破产"
-              },
-              {
-                "slots": 4
-              },
-              {
-                "label": "贫穷"
-              },
-              {
-                "slots": 6
-              },
-              {
-                "label": "适中"
-              },
-              {
-                "slots": 8
-              },
-              {
-                "label": "舒适"
-              },
-              {
-                "slots": 10
-              },
-              {
-                "label": "富有"
-              },
-              {
-                "slots": 12
-              },
-              {
-                "label": "贵族"
-              }
+    }, 
+    "classes": [
+        {
+            "id": "fighter", 
+            "name": "战士", 
+            "look": [ ["冷酷的眼神", "锐利的目光", "疲惫的眼神"], ["干净利落的短发", "狂野的长发", "光头"] ], 
+            "racialMoves": [], 
+            "alignment": [], 
+            "areas": {
+                "gear": {
+                    "rightStats": [ {"key": "load", "formula": "10"} ], 
+                    "options": [
+                        { "prompt": "选择你的武器：", "options": ["长剑", "战斧", "战锤"] }, 
+                        { "prompt": "选择你的防具：", "options": ["链甲", "皮甲", "盾牌"] }
+                    ]
+                }, 
+                "look": {
+                    "elements": [
+                        { "key": "group0", "value": ["冷酷的眼神", "锐利的目光", "疲惫的眼神"] }, 
+                        { "key": "group1", "value": ["干净利落的短发", "狂野的长发", "光头"]  }
+                    ]
+                }, 
+                "starting": {
+                    "moves": [
+                        {
+                            "name": "弯栅破门", 
+                            "text": "当你**使用蛮力破坏无生命的障碍物**时，掷 +力量。\n\n✴掷出 10+ 时，选择 3 项。\n\n✴掷出 7-9 时，选择 2 项。\n\n- 这不需要花太长时间\n- 你没有弄坏什么有价值的东西\n- 这没有产生巨大噪音"
+                        }
+                    ]
+                }, 
+                "advanced": {
+                    "groups": [
+                        {
+                            "key": "guardian", 
+                            "label": "守护者 Path", 
+                            "note": "以血肉之躯挡在同伴身前", 
+                            "minLevel": 1, 
+                            "moves": [
+                                { "name": "守护者", "text": "Path 起始：当你**保护同伴**时……"        , "requires": null    }, 
+                                { "name": "铁壁" , "text": "Path Move：当你**以守护者姿态挡下攻击**时……", "requires": ["守护者"] }
+                            ]
+                        }, 
+                        {
+                            "key": "master", 
+                            "label": "武器大师 Path", 
+                            "note": "精通各种兵刃", 
+                            "minLevel": 1, 
+                            "moves": [
+                                { "name": "武器大师", "text": "Path 起始：当你**换上趁手的武器**时……"       , "requires": null     }, 
+                                { "name": "致命一击", "text": "Path Move：当你**用武器大师的武器致命一击**时……", "requires": ["武器大师"] }
+                            ]
+                        }, 
+                        {
+                            "key": "veteran", 
+                            "label": "百战老兵 Path", 
+                            "note": "身经百战，无所畏惧", 
+                            "minLevel": 1, 
+                            "moves": [ {"name": "百战老兵", "text": "当你**面对曾经击败过的敌人**时……", "requires": null} ]
+                        }, 
+                        {"key": "custom", "label": "其他", "moves": []}
+                    ]
+                }, 
+                "bonds": { "lines": ["____ 与我并肩作战，我欠他一条命。", "____ 曾是我的对手，如今是我的盟友。"] }
+            }, 
+            "header": {
+                "metrics": {
+                    "fields": [ {"id": "hpMax", "default": 12} ]
+                }, 
+                "stats": {"prompt": "初始分配：STR +2，选 WIS 或 CHA 也 +2，其余 0 / 0 / -1"}
+            }
+        }
+    ], 
+    "reference": {
+        "basicMoves": {
+            "moves": [ {"name": "交易打击", "text": "当你**在近战中攻击敌人**时，掷 +力量。\n\n✴10+：造成伤害。\n\n✴7-9：造成伤害，但敌人回敬你。"} ]
+        }, 
+        "struggleHelp": {
+            "moves": [
+                {
+                    "name": "揭示 Reveal", 
+                    "text": "升级、或带着 locked Condition 扎营时，你可以坦白一个可怕真相：揭示一个新 Struggle（或加深已揭示的细节），并清除一个 locked Condition。"
+                }, 
+                {
+                    "name": "解决 Resolve", 
+                    "text": "当叙事上满意时解决：**升级**（保留已标记 XP），抹掉 Struggle，失去其好处 (+) 与坏处 (-)。一次只能有一个已揭示的 Struggle。"
+                }
             ]
-          }
-        ]
-      },
-      "look": {
-        "title": "外观",
-        "type": "plain",
-        "elements": [
-          {
-            "type": "choices",
-            "key": "group0",
-            "value": []
-          },
-          {
-            "type": "input",
-            "key": "custom0",
-            "tip": "自定义"
-          },
-          {
-            "type": "choices",
-            "key": "group1",
-            "value": []
-          },
-          {
-            "type": "input",
-            "key": "custom1",
-            "tip": "自定义"
-          },
-          {
-            "type": "input",
-            "key": "notes",
-            "tip": "其他外观描述"
-          }
-        ]
-      },
-      "starting": {
-        "title": "起始动作",
-        "type": "moveList",
-        "buttons": [
-          {
-            "label": "动作",
-            "position": "global",
-            "action": "addMove"
-          }
-        ]
-      },
-      "advanced": {
-        "title": "进阶动作",
-        "type": "moveList",
-        "buttons": [
-          {
-            "label": "动作",
-            "position": "global",
-            "action": "addMove",
-            "targetGroup": "custom"
-          }
-        ],
-        "features": {
-          "selectMoves": true
-        }
-      },
-      "struggle": {
-        "title": "心结",
-        "type": "moveList",
-        "buttons": [
-          {
-            "label": "心结",
-            "position": "global",
-            "action": "addMove"
-          }
-        ]
-      },
-      "advancement": {
-        "title": "升级",
-        "type": "moveList",
-        "moves": [
-          {
-            "name": "升级",
-            "text": "当你升级时，HP +1（最多 +10），并选择以下一项：\n\n[ ] +1 任意属性（max +2）\n[ ] 获得一个 Path（含起始动作）\n[ ] 揭示一个 Struggle\n[ ] 获得一个 Path Move\n[ ] 转职\n\n从 5 级起，你还可以选择：\n[ ] +1 任意属性（max +2）\n[ ] Multiclass — 获得其他职业的 Path\n[ ] 获得一件魔法物品\n\n从 10 级起，你还可以选择：\n[ ] +1 任意属性（max +3）\n[ ] Multiclass\n[ ] 获得一件 Artifact"
-          }
-        ]
-      },
-      "gear": {
-        "title": "装备",
-        "type": "fillbox",
-        "resetOnClassChange": true,
-        "counters": [
-          {
-            "key": "coins",
-            "label": "金币"
-          }
-        ]
-      },
-      "bonds": {
-        "title": "羁绊",
-        "type": "bonds",
-        "resetOnClassChange": true,
-        "relations": true,
-        "relationDepth": 3
-      }
-    },
-    "areaLayout": {
-      "left": [
-        "look",
-        "origins",
-        "gear",
-        "treasure",
-        "bonds",
-        "struggle",
-        "notes"
-      ],
-      "right": [
-        "starting",
-        "advanced",
-        "advancement"
-      ]
-    }
-  },
-  "classes": [
-    {
-      "id": "fighter",
-      "name": "战士",
-      "look": [
-        [
-          "冷酷的眼神",
-          "锐利的目光",
-          "疲惫的眼神"
-        ],
-        [
-          "干净利落的短发",
-          "狂野的长发",
-          "光头"
-        ]
-      ],
-      "racialMoves": [],
-      "alignment": [],
-      "areas": {
-        "gear": {
-          "rightStats": [
-            {
-              "key": "load",
-              "formula": "10"
-            }
-          ],
-          "options": [
-            {
-              "prompt": "选择你的武器：",
-              "options": [
-                "长剑",
-                "战斧",
-                "战锤"
-              ]
-            },
-            {
-              "prompt": "选择你的防具：",
-              "options": [
-                "链甲",
-                "皮甲",
-                "盾牌"
-              ]
-            }
-          ]
-        },
-        "look": {
-          "elements": [
-            {
-              "key": "group0",
-              "value": [
-                "冷酷的眼神",
-                "锐利的目光",
-                "疲惫的眼神"
-              ]
-            },
-            {
-              "key": "group1",
-              "value": [
-                "干净利落的短发",
-                "狂野的长发",
-                "光头"
-              ]
-            }
-          ]
-        },
-        "starting": {
-          "moves": [
-            {
-              "name": "弯栅破门",
-              "text": "当你**使用蛮力破坏无生命的障碍物**时，掷 +力量。\n\n✴掷出 10+ 时，选择 3 项。\n\n✴掷出 7-9 时，选择 2 项。\n\n- 这不需要花太长时间\n- 你没有弄坏什么有价值的东西\n- 这没有产生巨大噪音"
-            }
-          ]
-        },
-        "advanced": {
-          "groups": [
-            {
-              "key": "guardian",
-              "label": "守护者 Path",
-              "note": "以血肉之躯挡在同伴身前",
-              "minLevel": 1,
-              "moves": [
+        }, 
+        "struggles": {
+            "moves": [
                 {
-                  "name": "守护者",
-                  "text": "Path 起始：当你**保护同伴**时……",
-                  "requires": null
-                },
+                    "name": "被背叛 BETRAYED", 
+                    "text": "一个挚爱背叛了你，你再也没法信任别人。\n\n**Questions**：谁背叛了你？他们怎么背叛的？那道伤如何愈合？\n\n**DRIVEN (+)** — 你可用 1d4 DMG 换取下一次掷骰无视所有 Condition 惩罚。\n\n**WARY (-)** — 当你与其他 PC 获得 Depth 时，标记一个 Condition。"
+                }, 
                 {
-                  "name": "铁壁",
-                  "text": "Path Move：当你**以守护者姿态挡下攻击**时……",
-                  "requires": [
-                    "守护者"
-                  ]
+                    "name": "失忆 AMNESIA", 
+                    "text": "你对过去毫无记忆。\n\n**Questions**：你在哪里醒来？什么人或地方让你感到熟悉？\n\n**SHARDS (+/-)** — 每场一次，当你本该标记最后一个 Condition 时，改为标记 Memories 并触发一次闪回。"
                 }
-              ]
-            },
-            {
-              "key": "master",
-              "label": "武器大师 Path",
-              "note": "精通各种兵刃",
-              "minLevel": 1,
-              "moves": [
-                {
-                  "name": "武器大师",
-                  "text": "Path 起始：当你**换上趁手的武器**时……",
-                  "requires": null
-                },
-                {
-                  "name": "致命一击",
-                  "text": "Path Move：当你**用武器大师的武器致命一击**时……",
-                  "requires": [
-                    "武器大师"
-                  ]
-                }
-              ]
-            },
-            {
-              "key": "veteran",
-              "label": "百战老兵 Path",
-              "note": "身经百战，无所畏惧",
-              "minLevel": 1,
-              "moves": [
-                {
-                  "name": "百战老兵",
-                  "text": "当你**面对曾经击败过的敌人**时……",
-                  "requires": null
-                }
-              ]
-            },
-            {
-              "key": "custom",
-              "label": "其他",
-              "moves": []
-            }
-          ]
-        },
-        "bonds": {
-          "lines": [
-            "____ 与我并肩作战，我欠他一条命。",
-            "____ 曾是我的对手，如今是我的盟友。"
-          ]
+            ]
         }
-      },
-      "header": {
-        "metrics": {
-          "fields": [
-            {
-              "id": "hpMax",
-              "default": 12
-            }
-          ]
-        },
-        "stats": {
-          "prompt": "初始分配：STR +2，选 WIS 或 CHA 也 +2，其余 0 / 0 / -1"
-        }
-      }
     }
-  ],
-  "reference": {
-    "basicMoves": {
-      "moves": [
-        {
-          "name": "交易打击",
-          "text": "当你**在近战中攻击敌人**时，掷 +力量。\n\n✴10+：造成伤害。\n\n✴7-9：造成伤害，但敌人回敬你。"
-        }
-      ]
-    },
-    "struggleHelp": {
-      "moves": [
-        {
-          "name": "揭示 Reveal",
-          "text": "升级、或带着 locked Condition 扎营时，你可以坦白一个可怕真相：揭示一个新 Struggle（或加深已揭示的细节），并清除一个 locked Condition。"
-        },
-        {
-          "name": "解决 Resolve",
-          "text": "当叙事上满意时解决：**升级**（保留已标记 XP），抹掉 Struggle，失去其好处 (+) 与坏处 (-)。一次只能有一个已揭示的 Struggle。"
-        }
-      ]
-    },
-    "struggles": {
-      "moves": [
-        {
-          "name": "被背叛 BETRAYED",
-          "text": "一个挚爱背叛了你，你再也没法信任别人。\n\n**Questions**：谁背叛了你？他们怎么背叛的？那道伤如何愈合？\n\n**DRIVEN (+)** — 你可用 1d4 DMG 换取下一次掷骰无视所有 Condition 惩罚。\n\n**WARY (-)** — 当你与其他 PC 获得 Depth 时，标记一个 Condition。"
-        },
-        {
-          "name": "失忆 AMNESIA",
-          "text": "你对过去毫无记忆。\n\n**Questions**：你在哪里醒来？什么人或地方让你感到熟悉？\n\n**SHARDS (+/-)** — 每场一次，当你本该标记最后一个 Condition 时，改为标记 Memories 并触发一次闪回。"
-        }
-      ]
-    }
-  }
 }
