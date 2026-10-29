@@ -441,60 +441,7 @@ function resolveAreaLayout(layout){
   return { left, right };
 }
 
-/* ============ 规则合并（分层） ============ */
-function isObj(v){ return v && typeof v === "object" && !Array.isArray(v); }
-function entryField(e){
-  if(isObj(e)){
-    if(e.id !== undefined) return "id";
-    if(e.name !== undefined) return "name";
-    if(e.key !== undefined) return "key";
-  }
-  return null;
-}
-function deepMerge(base, patch){
-  // undefined 表示「无改动」，保留 base；null 才是显式删除
-  if(patch === undefined) return base;
-  if(Array.isArray(patch)) return mergeArray(Array.isArray(base) ? base : [], patch);
-  if(!isObj(patch)) return patch;
-  const out = isObj(base) ? {...base} : {};
-  for(const k of Object.keys(patch)){
-    const pv = patch[k];
-    if(pv === null){ delete out[k]; continue; }
-    const bv = out[k];
-    if(k === "areaLayout" && isObj(pv)){ out[k] = pv; }  // 显式覆盖：上层定义就完全覆盖下层
-    else if(Array.isArray(pv)){ out[k] = mergeArray(Array.isArray(bv) ? bv : [], pv); }
-    else if(isObj(pv) && isObj(bv)){ out[k] = deepMerge(bv, pv); }
-    else { out[k] = pv; }
-  }
-  return out;
-}
-// 取不到键的项（字符串、数字、嵌套数组、无键对象）没有「同一项」的概念，
-// 只能整体覆盖——否则上层每叠一次就追加一遍，buttons 这类会翻倍
-function keyedArray(patchArr){
-  return patchArr.every(pe => entryField(pe) !== null);
-}
-function mergeArray(baseArr, patchArr){
-  // 整体覆盖：深拷贝，避免合并结果与规则 JSON 共享引用
-  if(!keyedArray(patchArr)) return patchArr.map(cloneDeep);
-  const out = baseArr.map(x => isObj(x) ? {...x} : x);
-  for(const pe of patchArr){
-    const field = entryField(pe);
-    const val = pe[field];
-    const idx = out.findIndex(x => isObj(x) && x[field] === val);
-    if(pe.$delete === true){
-      if(idx !== -1) out.splice(idx, 1);
-      continue;
-    }
-    if(idx !== -1) out[idx] = deepMerge(out[idx], pe);
-    else out.push({...pe});
-  }
-  return out;
-}
-function cloneDeep(v){
-  if(Array.isArray(v)) return v.map(cloneDeep);
-  if(isObj(v)){ const o = {}; for(const k of Object.keys(v)) o[k] = cloneDeep(v[k]); return o; }
-  return v;
-}
+/*__MERGE_RULES_JS__*/
 
 /* ============ 状态 ============ */
 let mode = "edit";

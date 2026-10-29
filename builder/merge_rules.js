@@ -1,7 +1,8 @@
 // ============ 规则合并（分层） ============
-// 命令行合并脚本：把底层规则 + 若干规则包深合并成一份稳定规则。
-// deepMerge 等函数与 app_template.html 内的实现保持一致（从那里抄来），
-// 改合并逻辑时请两边一起改。
+// 单一事实来源：本文件是 deepMerge 的唯一实现。
+//   · build.py 会把本文件内联进 app_template.html 的 <script>（运行时合并规则栈）
+//   · 命令行 node merge_rules.js ... 直接用同一份逻辑合并规则文件
+// 改合并逻辑只改这里，HTML 与命令行自动同步。
 function isObj(v){ return v && typeof v === "object" && !Array.isArray(v); }
 function entryField(e){
   if(isObj(e)){
