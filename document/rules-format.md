@@ -333,7 +333,7 @@
     {"type": "text", "text": "选择你的外观："},
     {"type": "choices", "key": "eyes", "label": "眼睛", "options": ["炯炯有神", "疲惫不堪"], "layout": "line"},
     {"type": "input", "key": "custom", "tip": "自定义外观"},
-    {"type": "track", "key": "wealth", "value": [
+    {"type": "track", "key": "wealth", "label": "[[coin:货币]]", "value": [
       {"label": "穷"}, {"slots": 3}, {"label": "还行"}, {"slots": 2}, {"label": "富"}
     ]}
   ]

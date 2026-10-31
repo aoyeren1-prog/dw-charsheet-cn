@@ -99,7 +99,7 @@ body{background:var(--bg);color:var(--text);font-family:"Segoe UI","Microsoft Ya
 .ref-grp>summary::before{content:"▸";color:var(--ref-ink-4);font-size:10px;flex:none}
 .ref-grp[open]>summary::before{content:"▾"}
 /* 边栏里的纯文本串：与动作正文 .mv-t 同字号 */
-.ref .md{font-size:12px}
+.ref .md{font-size:12px;margin:6px 0}
 .tag{background:var(--tag-bg);color:var(--tag-ink);border-radius:3px;padding:0 4px;font-size:12px;display:inline-block}
 .tag-item{margin-bottom:6px;font-size:12px;color:var(--ref-ink-2);line-height:1.6}
 .tag-item .tag{margin-right:4px}
@@ -215,7 +215,7 @@ body{background:var(--bg);color:var(--text);font-family:"Segoe UI","Microsoft Ya
 .pb-sec h3 .h3r b{color:var(--ink);font-weight:700}
 
 /* ===== 动作卡 ===== */
-.mv{border:1px solid var(--line-2);border-radius:4px;padding:7px 9px;margin-bottom:7px;background:var(--paper);position:relative}
+.mv{border:1px solid var(--line-2);border-radius:4px;padding:7px 9px;margin:6px 0;background:var(--paper);position:relative}
 .mv.disabled{opacity:.45}
 /* 动作左侧色条（--bar 由来源 class 或内联样式指定） */
 .mv::before,.rmv::before{content:"";position:absolute;left:-1px;top:-1px;bottom:-1px;width:3px;background:var(--bar,transparent);border-radius:3px 0 0 3px;pointer-events:none}
@@ -1697,16 +1697,12 @@ function renderRefTags(sec){
   
   // 顶层 tags
   if(data.tags && data.tags.length){
-    html += `<details class="rmv" open><summary>标签</summary><div class="rmv-t">`;
-    html += data.tags.map(tagItemHtml).join("");
-    html += `</div></details>`;
+    html += `<details class="ref-grp" open><summary>标签</summary>${data.tags.map(tagItemHtml).join("")}</details>`;
   }
   
   // groups
   for(const g of (data.groups || [])){
-    html += `<details class="rmv" open><summary>${esc(g.title)}</summary><div class="rmv-t">`;
-    html += (g.tags || []).map(tagItemHtml).join("");
-    html += `</div></details>`;
+    html += `<details class="ref-grp" open><summary>${esc(g.title)}</summary>${(g.tags || []).map(tagItemHtml).join("")}</details>`;
   }
   
   return html || '<div class="ref-empty">未定义标签</div>';
