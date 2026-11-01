@@ -855,7 +855,31 @@ function applyFormula(target){
 /* ============ 持久化 ============ */
 function lsGet(k){ try{return localStorage.getItem(k);}catch(e){return null;} }
 function lsSet(k,v){ try{localStorage.setItem(k,v);}catch(e){} }
-function save(){ lsSet("dw-char", JSON.stringify(char)); lsSet("dw-custom", JSON.stringify(customData)); lsSet("dw-ui", JSON.stringify({mode, refTab})); }
+// 序列化前清理空结构（空数组/空对象），减小存档体积。
+// 这些空结构在运行时会被惰性重新初始化，load 后 normalizeChar/normalizeCustomData 也会补默认值，故清理无兼容风险。
+// 注意：char 的 fields/stats/states 是 usableChar() 判定存档有效性的必需键，即使为空也不能删。
+const PRUNE_PROTECT = ["fields", "stats", "states"];
+function pruneEmpty(o, protect){
+  if(Array.isArray(o)) return o;
+  if(o && typeof o === "object"){
+    for(const k of Object.keys(o)){
+      const v = o[k];
+      if(Array.isArray(v) && v.length === 0){ delete o[k]; continue; }
+      if(v && typeof v === "object" && !Array.isArray(v)){
+        pruneEmpty(v, protect);
+        if(Object.keys(v).length === 0 && !(protect && protect.includes(k))) delete o[k];
+      }
+    }
+  }
+  return o;
+}
+function pruneChar(c){ return pruneEmpty(cloneDeep(c), PRUNE_PROTECT); }
+function pruneCustom(c){ return pruneEmpty(cloneDeep(c)); }
+function save(){
+  lsSet("dw-char", JSON.stringify(pruneChar(char)));
+  lsSet("dw-custom", JSON.stringify(pruneCustom(customData)));
+  lsSet("dw-ui", JSON.stringify({mode, refTab}));
+}
 function saveRules(){ lsSet("dw-rules-stack", JSON.stringify(ruleStack)); }
 function loadRules(){
   const s = lsGet("dw-rules-stack");
@@ -2603,7 +2627,7 @@ function charDisplayName(){
   return f ? String(char.fields[f.id]) : "";
 }
 function exportJSON(){
-  const payload={kind:"dw-card-export",version:5,character:char,custom:customData,exportedAt:new Date().toISOString()};
+  const payload={kind:"dw-card-export",version:5,character:pruneChar(char),custom:pruneCustom(customData),exportedAt:new Date().toISOString()};
   const text=JSON.stringify(payload,null,2);
   const blob=new Blob([text],{type:"application/json"});
   const a=document.createElement("a");
