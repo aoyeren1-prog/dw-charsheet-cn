@@ -135,3 +135,10 @@ https://github.com/rfkeepers/dw-playbooks-tex
 - 问题 1：导出的 PDF 常被截断成多页，分页/排版不对。
 - 问题 2：导出走的是**查看模式**渲染（`window.print()` 前把 `mode` 临时切到 `view`），查看模式会隐藏未选中项、置灰等，导致大量内容丢失；应改为按编辑模式（或专门为打印准备的视图）渲染。
 - 后续：需要重新设计 `btnPrint` 的导出/打印逻辑（`bind()` 里对应的事件处理一并调整）。
+
+### 6. header 支持 `resetOnClassChange`
+
+- 现状：header 的 `charInfo` / `stats`（以及 `metrics`）的 `default` 只在「新建角色 + 首次选职业」时种一次，之后换 playbook 不会重写——因为值已经写进 `char.stats` / `char.fields`，属于「已有值」。
+- 对比：`areas` 有 `resetOnClassChange`，能控制换 playbook 时是否清空该区域；header 没有对应机制。
+- 影响：职业固定属性（如 Root RPG 的职业能力值）想换 playbook 时重置为职业默认值，目前做不到。
+- 后续：给 header 的 `charInfo` / `stats.items` / `metrics.fields`（或整块 header）加 `resetOnClassChange` 字段，换职业时清空并按新职业 default 重种。

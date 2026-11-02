@@ -397,7 +397,7 @@ input.mbox:disabled:hover{border-color:var(--ink-5)}
 <div id="dropOverlay" class="drop-overlay hidden"><div class="drop-overlay-box">拖放角色 JSON 在此导入</div></div>
 
 <script>
-let DW_DATA = null, META = {}, HEADER = {charInfo:[], stats:{}, metrics:{}}, REF_SECTIONS = [], AREAS = {}, AREA_LAYOUT = {left:[], right:[]};
+let DW_DATA = null, META = {}, HEADER = {charInfo:[], stats:{}, metrics:{}}, REF_SECTIONS = [], AREAS = {};
 function applyData(data){
   DW_DATA = data || {};
   META = DW_DATA.meta || {};
@@ -405,7 +405,6 @@ function applyData(data){
   HEADER = resolveHeader(META.header);
   HEADER_CACHE = {};
   AREAS = META.areas || {};
-  AREA_LAYOUT = resolveAreaLayout(META.areaLayout);
   // 边栏内容全由 refSections 声明；没声明就没有页签
   REF_SECTIONS = META.refSections || [];
   if(!REF_SECTIONS.some(s => s.id === refTab)) refTab = REF_SECTIONS[0] ? REF_SECTIONS[0].id : null;
@@ -447,13 +446,17 @@ function headerFor(cls){
 }
 
 // areaLayout 显式声明哪些区域渲染及其顺序和栏位。
-// 未定义 areaLayout 时，渲染所有 areas 中的区域（按声明顺序放到左栏）。
+// 未定义 areaLayout 时，渲染所有区域（meta + 职业独有，按声明顺序放到左栏）。
 // 定义了 areaLayout 后，未列入的区域不渲染（可用于房规隐藏某个区域）。
-// 布局里列了但 areas 里没有的 key 直接跳过。
-function resolveAreaLayout(layout){
-  const keys = Object.keys(AREAS);
-  if(!layout) return { left: keys, right: [] };
-  const pick = side => (layout[side] || []).filter(k => AREAS[k]);
+// 职业级 areaLayout 整体覆盖 meta 的；cls 用于把职业独有的区域也纳入「存在」判定。
+function resolveAreaLayout(layout, cls){
+  const hasArea = k => !!AREAS[k] || !!(cls && cls.areas && cls.areas[k]);
+  const pick = side => (layout[side] || []).filter(hasArea);
+  if(!layout){
+    const keys = Object.keys(AREAS);
+    if(cls && cls.areas) Object.keys(cls.areas).forEach(k => { if(!keys.includes(k)) keys.push(k); });
+    return { left: keys, right: [] };
+  }
   const left = pick("left");
   const right = pick("right").filter(k => !left.includes(k));
   return { left, right };
@@ -482,15 +485,12 @@ function uid(){ return "c"+Math.random().toString(36).slice(2,9); }
 function defaultChar(){
   const c = {classId:"", fields:{}, stats:{}, states:{},
     areaData:{}, moveListSelections:{}, moveListGroupNames:{}, moveListNames:{}, moveListTexts:{}};
-  seedChar(c, HEADER);
   return c;
 }
 // 按 header 声明补齐字段初值。已有值不动，所以换职业时只补新出现的字段。
+// 只补 charInfo 与 stats；metrics 是逐职业数值，由 onClassChange 清空并按公式/default 重种。
 function seedChar(c, header){
   header.charInfo.forEach(f => {
-    if(c.fields[f.id] === undefined) c.fields[f.id] = fieldSeed(f);
-  });
-  header.metrics.fields.forEach(f => {
     if(c.fields[f.id] === undefined) c.fields[f.id] = fieldSeed(f);
   });
   header.stats.items.forEach(s => {
@@ -715,14 +715,15 @@ function evalFormula(formula, ctx){
   }
   return sum;
 }
-// 在 charInfo / metrics 里按 id 或 label 找字段的当前数值
+// 在 charInfo / metrics 里按 id 或 label 找字段的当前数值；空值回退到声明的 default
 function fieldValueByKey(key, header){
   const h = header || headerFor(getClass(char.classId));
   const def = h.charInfo.concat(h.metrics.fields)
     .find(f => f.id === key || f.label === key);
   if(!def) return null;
   const cur = char.fields[def.id];
-  return cur !== undefined && cur !== "" ? (parseInt(cur, 10) || 0) : 0;
+  if(cur !== undefined && cur !== "") return parseInt(cur, 10) || 0;
+  return def.default !== undefined ? (parseInt(def.default, 10) || 0) : 0;
 }
 // 按 label 在所有区域的 rightStats 里反查当前值
 function statValueByLabel(label){
@@ -862,11 +863,10 @@ function defaultFieldValue(field){
 }
 
 function getAreaHeader(areaKey, cls) {
-  const base = AREAS[areaKey];
-  if (!base) return {title: "", note: null, type: null, rightStats: []};
-
   const override = (cls && cls.areas && cls.areas[areaKey]) || {};
-
+  const base = AREAS[areaKey];
+  // 类独有的区域：没有 meta 基础，直接以职业定义为准
+  if (!base) return deepMerge({}, override);
   // 直接深度合并整个区域对象
   return deepMerge(base, override);
 }
@@ -1380,12 +1380,13 @@ function renderPlaybook(){
   btnMode.textContent = mode==="edit" ? "👁 查看模式" : "✏️ 编辑模式";
   btnMode.classList.toggle("view", mode==="view");
   if(!cls){ root.innerHTML=`<div class="empty">↑ 在左上角选择一个${esc(getClassLabel())}开始车卡</div>`; return; }
+  const layout = resolveAreaLayout((cls && isObj(cls.areaLayout)) ? cls.areaLayout : META.areaLayout, cls);
   const col = keys => keys.map(k => renderArea(k, cls)).join("");
   root.innerHTML =
     renderHeader(cls) +
     `<div class="pb-cols">
-      <div class="pb-left">${col(AREA_LAYOUT.left)}</div>
-      <div class="pb-right">${col(AREA_LAYOUT.right)}</div>
+      <div class="pb-left">${col(layout.left)}</div>
+      <div class="pb-right">${col(layout.right)}</div>
     </div>`;
   autosizeAll();
   autosizeBlanks();
@@ -2003,12 +2004,13 @@ function onClassChange(){
   }
   const cls=getClass(char.classId);
   if(!cls){ renderPlaybook(); return; }
-  // 回填：有公式的按公式算，否则取声明的 default
+  // 回填：metrics 有公式按公式、否则取 default；charInfo 与 stats 补空默认值
   headerFor(cls).metrics.fields.forEach(f => {
     if(char.fields[f.id]) return;
     const v = defaultFieldValue(f);
     if(v !== "" && v !== 0) char.fields[f.id] = v;
   });
+  seedChar(char, headerFor(cls));
   renderPlaybook(); save();
 }
 // 所有区域里声明过的 rightStat key

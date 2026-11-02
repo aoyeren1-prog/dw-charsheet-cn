@@ -147,7 +147,7 @@
 | `label` | string | 是 | 按钮文字 |
 | `states` | number | 是 | 档数，最少 2 |
 | `boundStat` | string | 否 | 绑定属性 id/label，有则显示在该属性格下方，无则独立一行 |
-| `effect` | string | 否 | 机制效果：`"modPenalty"`（离开初始档则该属性调整值 −1）；省略或其他值无效果 |
+| `effect` | string | 否 | 机制效果：`"modPenalty"`（离开初始档则该属性调整值 −1），省略或其他值无效果；仅在有 `boundStat` 时生效 |
 | `symbols` | string[] | 否 | 自定义符号数组（长度须 ≥ `states`）；不写则画圆，填充比例 = 档位 /(档数−1) |
 
 **示例**：
@@ -236,7 +236,7 @@
 | 键 | 类型 | 说明 |
 |---|---|---|
 | `type` | string | 元素类型：`text` / `hint` / `choices` / `input` / `track` |
-| `key` | string | 存储键（仅 choices/input/track），存入 `char.areaData[areaKey][key]` |
+| `key` | string | 存储键，存入 `char.areaData[areaKey][key]`。choices/input/track 必需；text/hint 可选，写后职业可按键合并覆写 |
 | `label` | string | 标签文本（仅 choices/input/track），在左边显示为“**label：**”（可选） |
 | `view` | string | 视图控制（可选） |
 
@@ -256,12 +256,14 @@
 | 键 | 类型 | 说明 |
 |---|---|---|
 | `value` | string | 显示的文本内容 |
+| `key` | string | 存储键（可选）：在职业/上层规则覆写时，必须拥有 key 才能正确覆写，否则必须从头重写整个数组，详见 “分层合并” 逻辑 |
 
 **type: hint** —— 提示文本
 
 | 键 | 类型 | 说明 |
 |---|---|---|
 | `value` | string | 提示内容 |
+| `key` | string | 储存键（可选）：同`type: text`，仅用于按键覆写，不影响显示 |
 
 **type: choices** —— 多选项按钮组
 
@@ -275,7 +277,7 @@
 | 键 | 类型 | 说明 |
 |---|---|---|
 | `tip` | string | 输入框 placeholder |
-| `prefix` | string | 默认值：该键尚无存储值时显示的回退值（可选） |
+| `prefix` | string | 默认值：该键尚无存储值（如：新建角色）时预填入卡片（可选） |
 | `hint` | string | 编辑模式下输入框下方的提示文本（可选） |
 
 **type: track** —— 分段轨道
@@ -330,7 +332,7 @@
 {
   "type": "plain",
   "elements": [
-    {"type": "text", "text": "选择你的外观："},
+    {"type": "text", "value": "选择你的外观："},
     {"type": "choices", "key": "eyes", "label": "眼睛", "options": ["炯炯有神", "疲惫不堪"], "layout": "line"},
     {"type": "input", "key": "custom", "tip": "自定义外观"},
     {"type": "track", "key": "wealth", "label": "[[coin:货币]]", "value": [
@@ -536,11 +538,69 @@
 ]
 ```
 
-### reference 对象
+---
+
+## classes
+
+职业数组，每个职业对象包含职业特有字段和对 `meta` 的覆盖。
+
+**职业特有字段**（不能在 `meta` 中定义）：
+
+| 键 | 类型 | 必需 | 说明 |
+|---|---|---|---|
+| `id` | string | 是 | 职业 id |
+| `name` | string | 是 | 职业名称 |
+| `intro` | string | 否 | 职业简介（支持文本标记），仅资料边栏搜索命中该职业时显示 |
+
+**覆盖字段**：职业可定义 `header`、`areas`、`areaLayout` 等字段，按分层合并规则覆盖 `meta` 中的同名配置。
+
+> **提示**：在 classes 数组里覆盖 areaLayout 创造的新 area 仅限在你定义的职业中使用，其他职业无法获得。如果此区域是与某个动作绑定，其他职业也能通过兼职动作等方式获得，请将其加到 meta 中，并用 boundMove 控制其显示。
+
+### classes[].header
+
+职业级头部覆盖，结构同 `meta.header`，按深度合并。
+
+**示例**：覆盖属性分配提示
+
+```json
+{
+  "id": "wizard",
+  "name": "法师",
+  "header": {
+    "stats": {
+      "prompt": "智力最高，体质最低"
+    }
+  }
+}
+```
+
+### classes[].areas
+
+职业级区域覆盖，结构同 `meta.areas`，按键深度合并。
+
+**示例**：修改职业负载公式
+
+```json
+{
+  "id": "fighter",
+  "name": "战士",
+  "areas": {
+    "gear": {
+      "rightStats": [
+        {"key": "load", "formula": "12+力量"}
+      ]
+    }
+  }
+}
+```
+
+---
+
+## reference 对象
 
 资料边栏的实际内容，键名对应 `refSections[].id`。
 
-#### moves 类型
+### moves 类型
 
 **结构**：
 
@@ -603,7 +663,7 @@
 - 填写的是目标区域 group 的 **key**（不是 label）
 - 如果目标职业没有该 group，导入时会自动创建（key 和 label 都等于 importGroup 的值）
 
-#### tags 类型
+### tags 类型
 
 **结构**：
 
@@ -648,71 +708,9 @@ tags 的 `groups` 也是折叠块分组。
 | `title` | string | 是 | 分组标题 |
 | `tags` | array | 是 | 标签数组 |
 
-#### search 类型
+### search 类型
 
 search 类型不需要 `reference` 数据，只是一个搜索界面页签。
-
----
-
-## classes
-
-职业数组，每个职业对象包含职业特有字段和对 `meta` 的覆盖。
-
-**职业特有字段**（不能在 `meta` 中定义）：
-
-| 键 | 类型 | 必需 | 说明 |
-|---|---|---|---|
-| `id` | string | 是 | 职业 id |
-| `name` | string | 是 | 职业名称 |
-| `intro` | string | 否 | 职业简介（支持文本标记），仅资料边栏搜索命中该职业时显示 |
-
-**覆盖字段**：职业可定义 `header`、`areas`、`areaLayout` 等字段，按分层合并规则覆盖 `meta` 中的同名配置。
-
-### classes[].header
-
-职业级头部覆盖，结构同 `meta.header`，按深度合并。
-
-**示例**：覆盖属性分配提示
-
-```json
-{
-  "id": "wizard",
-  "name": "法师",
-  "header": {
-    "stats": {
-      "prompt": "智力最高，体质最低"
-    }
-  }
-}
-```
-
-### classes[].areas
-
-职业级区域覆盖，结构同 `meta.areas`，按键深度合并。
-
-**示例**：修改职业负载公式
-
-```json
-{
-  "id": "fighter",
-  "name": "战士",
-  "areas": {
-    "gear": {
-      "rightStats": [
-        {"key": "load", "formula": "12+力量"}
-      ]
-    }
-  }
-}
-```
-
----
-
-## 资料内容顶层键
-
-由 `meta.refSections[].groups[].key` 指向的顶层字段，存储资料边栏的实际内容。
-
-**数据格式**：根据对应 `refSection.type` 而定，见「meta.refSections」一节。
 
 ---
 
