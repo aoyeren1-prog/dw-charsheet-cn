@@ -53,6 +53,7 @@ node builder\merge_rules.js DW.json my-classpack.json -o merged.json
 │   └─ merge_rules.js           ← 合并规则脚本（deepMerge 与 app_template.html 同步）
 ├─ document\                    ← 文档
 │   └─ rules-format.md          ← 规则 JSON 格式完整参考
+│   └─ rule-empty-template.json ← 规则 JSON 模板
 ├─ 地城世界车卡工具.html         ← 成品工具
 ├─ DW.json                      ← 地城世界 Dungeon World 规则
 ├─ DW-HouseRuleTest.json        ← 房规示例
