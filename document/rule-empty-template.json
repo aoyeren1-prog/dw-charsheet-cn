@@ -1,6 +1,6 @@
 {
     "meta": {
-        "source": "以 DW 为基础的空规则模板。此模板应随代码更新保持维护，上次更新时间：26.11.03",
+        "source": "此空规则模板应随代码更新保持维护，上次更新时间：26.11.03",
         "classLabel": "Playbook",
         "header": {
             "charInfo": [
@@ -105,7 +105,7 @@
                 "note": "请回答每个问题", 
                 "type": "plain", 
                 "elements": [
-                    {"type": "input", "key": "question0", "label": "问题1", "hint": "Input 元素允许你在底下带个提示，但其实也能写个 {\"type\": \"hint\"} 来达成差不多的效果。"},
+                    {"type": "input", "key": "question0", "label": "问题1", "hint": "提示也可以做成独立元素。"},
                     {"type": "input", "key": "question1", "label": "问题2"},
                     {"type": "track", "key": "prestige", "label": "在[[faction:阵营]]的声望", "value": [{"label": "很坏"}, {"slots": 3}, {"label": "一般", "zero": true}, {"slots": 5}, {"label": "很好"}]}
                 ]
@@ -156,31 +156,28 @@
             "name": "角色书1", 
             "intro": "", 
             "areas": {
-                "gear": {
-                    "rightStats": [ {"key": "load", "formula": "5+等级"} ], 
-                    "options": [
-                        {
-                            "prompt": "你起始拥有 10 块钱，但很不幸写在这里的只是个提示文本，不能帮你填。\n\n但至少下面的选项是能用来帮你填的：", 
-                            "options": ["装备A", "装备B"]
-                        }
-                    ]
-                }, 
                 "look": {
                     "elements": [
                         { "key": "look0", "value": ["男性", "女性", "[[customlook0:其他性别]]"]}, 
                         { "key": "look1", "value": ["外观α", "外观β", "外观γ", "[[customlook1:自定义]]"]}
+                    ]
+                },
+                "background": {
+                    "note": "请回答每个问题，并初始标记一点在阵营甲的正面声望",
+                    "elements": [
+                        {"key": "question0", "prefix": "预填内容"}
+                    ]
+                },
+                "drive": {
+                    "moves": [
+                        { "name": "规则 json 设计者", "text": "当你遇到一个模棱两可的区域时，不要犹豫，做成 moveList 是最方便的选择。如果你非要做成 plain，后面有得是你享福的。"}, 
+                        { "name": "动机2", "text": "占位文本。"}
                     ]
                 }, 
                 "starting": {
                     "moves": [
                         {"name": "起始动作1", "text": "占位文本。"},
                         {"name": "起始动作2", "text": "占位文本。"}
-                    ]
-                }, 
-                "drive": {
-                    "moves": [
-                        { "name": "动机1", "text": "占位文本。"}, 
-                        { "name": "动机2", "text": "占位文本。"}
                     ]
                 }, 
                 "advanced": {
@@ -193,17 +190,20 @@
                             ]
                         }
                     ]
-                }, 
-                "background": {
-                    "note": "请回答每个问题，并初始标记一点在阵营甲的正面声望",
-                    "elements": [
-                        {"key": "question0", "prefix": "预填内容"}
-                    ]
-                }, 
+                },
                 "bonds": {
                     "lines": [
                         "和 _______________ 的关系。",
                         "和 _______________ 的关系。"
+                    ]
+                },
+                "gear": {
+                    "rightStats": [ {"key": "load", "formula": "5+等级"} ], 
+                    "options": [
+                        {
+                            "prompt": "你起始拥有 10 块钱，但写在这里的只是个提示文本，不能帮你填。\n\n下面的选项是能用来帮你填的：", 
+                            "options": ["装备A", "装备B"]
+                        }
                     ]
                 }
             }, 
