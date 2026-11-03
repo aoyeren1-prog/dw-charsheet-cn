@@ -1730,9 +1730,9 @@ function renderRefTags(sec){
   
   let html = "";
   
-  // 顶层 tags
+  // 顶层 tags：无类别标签平铺，不套折叠块
   if(data.tags && data.tags.length){
-    html += `<details class="ref-grp" open><summary>标签</summary>${data.tags.map(tagItemHtml).join("")}</details>`;
+    html += data.tags.map(tagItemHtml).join("");
   }
   
   // groups
