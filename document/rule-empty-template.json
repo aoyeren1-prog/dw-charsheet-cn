@@ -95,8 +95,8 @@
                 "note": "每行选择一个", 
                 "type": "plain", 
                 "elements": [
-                    {"type": "choices", "key": "look0", "label": "外观1", "layout": "line", "view": "hideUnselect"}, 
-                    {"type": "choices", "key": "look1", "label": "外观2", "layout": "line", "view": "hideUnselect"}, 
+                    {"type": "choices", "key": "look0", "label": "性别", "layout": "line", "view": "hideUnselect"}, 
+                    {"type": "choices", "key": "look1", "layout": "line", "view": "hideUnselect"}, 
                     {"type": "input", "key": "notes", "tip": "其他外观描述"}
                 ]
             }, 

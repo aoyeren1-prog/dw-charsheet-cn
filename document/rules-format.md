@@ -13,7 +13,7 @@
 ```jsonc
 {
   "meta": { /* 全局配置 */ },
-  "classes": [ /* 职业数组 */ ],
+  "classes": [ /* Playbook 数组 */ ],
   "reference": { /* 资料边栏内容 */ }
 }
 ```
@@ -21,7 +21,7 @@
 **三类顶层字段**：
 
 1. **`meta`**：全局配置（属性、区域、资料边栏定义）
-2. **`classes`**：职业数组，除 `id`/`name` 外，其余字段覆盖 `meta`
+2. **`classes`**：Playbook 数组，除 `id`/`name` 外，其余字段覆盖 `meta`
 3. **`reference`**：资料边栏内容对象，键名由 `meta.refSections[].id` 定义
 
 ### 规则栈合并

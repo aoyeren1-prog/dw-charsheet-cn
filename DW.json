@@ -347,8 +347,7 @@
         }, 
         "areaLayout": {
             "left": [
-                "look", "race", "alignment", "heritage", "gear", "bonds", "notes", "wizard", 
-                "cleric"
+                "look", "race", "alignment", "gear", "bonds", "notes", "wizard", "cleric"
             ], 
             "right": ["starting", "advanced"]
         }
