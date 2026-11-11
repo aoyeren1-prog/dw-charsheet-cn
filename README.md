@@ -143,3 +143,11 @@ https://github.com/rfkeepers/dw-playbooks-tex
 - 对比：`areas` 有 `resetOnClassChange`，能控制换 playbook 时是否清空该区域；header 没有对应机制。
 - 影响：职业固定属性（如 Root RPG 的职业能力值）想换 playbook 时重置为职业默认值，目前做不到。
 - 后续：给 header 的 `charInfo` / `stats.items` / `metrics.fields`（或整块 header）加 `resetOnClassChange` 字段，换职业时清空并按新职业 default 重种。
+
+### 7. 换 playbook 清空数据：clear/preserve 语义是旧代码残留 bug
+
+- 现状：`onClassChange` 里有两处"一刀切"清空，语义与文档相矛盾、且无法精确控制哪些内容该随 playbook 清空、哪些属于角色本身应保留：
+  - `app_template.html` 第 1993 行：换职业时**整表清空** `moveListSelections` / `moveListGroupNames` / `moveListNames` / `moveListTexts`——玩家手改的动作名与正文（含任何"文字里手填"的内容）一律丢失，无法按区域豁免。
+  - 第 1998 行：`if(a.type === "plain" || a.resetOnClassChange) delete char.areaData[k]`——**所有 `plain` 区域无条件清空**，即使写了 `resetOnClassChange: false` 也无法保留；这与 `rules-format.md` 中 `resetOnClassChange` "默认 false" 的描述相悖。
+- 影响：任何"角色属性而非 playbook 属性"的内容（例如血统、与角色绑定的长期关系）在换 playbook 时被误清空；反之也可能有本应清空却保留的边界。
+- 后续：在厘清 bonds / heritage 的迁移方案（哪些内容属于角色、哪些属于 playbook）之前，**不要假定**任何区域在切换 playbook 时应当清空或保留；先统一 clear/preserve 语义（让 `resetOnClassChange` 对 plain 也真正生效，并给 moveList 的覆写文本提供按区域豁免），再据此回填各规则。

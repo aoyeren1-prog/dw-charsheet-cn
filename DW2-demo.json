@@ -116,7 +116,7 @@
                 "resetOnClassChange": true, 
                 "counters": [ {"key": "coins", "label": "金币"} ]
             }, 
-            "bonds": {"title": "羁绊", "type": "bonds", "resetOnClassChange": true, "relations": true, "relationDepth": 3}
+            "bonds": {"title": "关系", "type": "plain", "resetOnClassChange": true, "elements": [{"type": "inputGroup", "key": "bonds", "addLabel": "关系"}]}
         }, 
         "areaLayout": {
             "left": ["look", "origins", "gear", "treasure", "bonds", "struggle", "notes"], 
@@ -184,7 +184,7 @@
                         {"key": "custom", "label": "其他", "moves": []}
                     ]
                 }, 
-                "bonds": { "lines": ["____ 与我并肩作战，我欠他一条命。", "____ 曾是我的对手，如今是我的盟友。"] }
+                "bonds": {"elements": [{"key": "bonds", "value": ["角色名：______ 关系：______ 深度：[ ][ ][ ]", "____ 与我并肩作战，我欠他一条命。", "____ 曾是我的对手，如今是我的盟友。"]}]}
             }, 
             "header": {
                 "metrics": {

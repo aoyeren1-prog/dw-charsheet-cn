@@ -209,7 +209,7 @@
 
 | 键 | 类型 | 说明 |
 |---|---|---|
-| `type` | string | 区域类型：`plain` / `moveList` / `fillbox` / `bonds` / `heritage` |
+| `type` | string | 区域类型：`plain` / `moveList` / `fillbox` |
 | `title` | string | 区域标题 |
 | `note` | string | 区域标题右侧的小字说明（可选） |
 | `rightStats` | array | 右侧统计字段（如负载、伤害骰） |
@@ -225,20 +225,20 @@
 
 #### type: plain
 
-最灵活（也是最复杂）的区域类型，支持多种元素混排（文本、提示、选项、输入框、轨道）。
+最灵活（也是最复杂）的区域类型，支持多种元素混排（文本、提示、选项、输入框、轨道、可增删文本行组）。
 
 | 键 | 类型 | 说明 |
 |---|---|---|
 | `elements` | array | 元素配置数组 |
 
-**elements 配置**（支持 5 种类型）：
+**elements 配置**（支持 6 种类型）：
 
 **通用字段**：
 
 | 键 | 类型 | 说明 |
 |---|---|---|
-| `type` | string | 元素类型：`text` / `hint` / `choices` / `input` / `track` |
-| `key` | string | 存储键，存入 `char.areaData[areaKey][key]`。choices/input/track 必需；text/hint 可选，写后职业可按键合并覆写 |
+| `type` | string | 元素类型：`text` / `hint` / `choices` / `input` / `track` / `inputGroup` |
+| `key` | string | 存储键。choices/input/track/inputGroup 必需；text/hint 可选，写后职业可按键合并覆写 |
 | `label` | string | 标签文本（仅 choices/input/track），在左边显示为“**label：**”（可选） |
 | `view` | string | 视图控制（可选） |
 
@@ -313,6 +313,16 @@
 - 有 `zero`：存有符号整数，负 = 向左填、正 = 向右填。
 - `dual: true`：存 `{left, right}` 两个非负计数，从零点分别向左/向右独立填；无 `zero` 时按纯向右单向轨道处理。
 - 多个 `zero`：取第一个（最靠左的）。
+
+**type: inputGroup** —— 可增删的文本行组
+
+| 键 | 类型 | 说明 |
+|---|---|---|
+| `value` | string[] | 种子文本行数组（无键数组，分层合并时整体覆盖） |
+| `addLabel` | string | 「＋」按钮文字（可选，默认「添加」） |
+| `tip` | string | 每行输入框 placeholder（可选，默认取 `addLabel`） |
+
+编辑模式下每行是一个输入框 + 右侧删除按钮，底部有「＋」按钮追加；查看模式下每行按 markdown 渲染，`[ ]` 会变成可交互勾选框（可用于「关系深度：[ ] [ ] [ ]」这类标记）。
 
 **内联填空位**
 
@@ -437,38 +447,6 @@
 }
 ```
 
-#### type: bonds
-
-羁绊区域。
-
-> TODO：relations 为 DW2 实验性内容，待形式固定下来后，可能连带 bonds 这一类别一起并入 plain 类型。
-
-
-| 键 | 类型 | 说明 |
-|---|---|---|
-| `lines` | string[] | 羁绊模板数组 |
-| `relations` | boolean | 是否启用关系功能（DW2 实验性功能） |
-| `relationDepth` | number | 关系深度档数 |
-
-关系数据存入 `char.areaData[areaKey].relations`，格式：`[{target, description, depth}]`。
-
-#### type: heritage
-
-血统区域（UD 专用：一组血统格 + 等量文本行 + 一张说明卡，可整区折叠）。
-
-> TODO：为 UD 特别适配，由于过于特殊暂时未并入 plain 类型，后续可能也会并入。
-
-| 键 | 类型 | 说明 |
-|---|---|---|
-| `boxes` | number | 血统格数量 |
-| `boxesUpgraded` | number | 升级后的血统格数量（勾选「升级」后生效，可选） |
-| `movePlaceholder` | string | 文本行输入框 placeholder（可选） |
-| `description` | string | 说明卡正文（支持文本标记，可选） |
-| `upgradePrompt` | string | 升级提示文本（支持文本标记，可选） |
-| `upgradeEffect` | string | 升级效果说明，渲染为带「升级」勾选框的行（支持文本标记，可选） |
-
-数据存入 `char.areaData[areaKey]`，格式：`{boxes: boolean[], moves: string[], upgraded: boolean, hidden: boolean}`。
-
 ### meta.areaLayout
 
 区域布局配置，指定哪些区域渲染及其左右栏归属。
@@ -556,7 +534,7 @@
 
 **覆盖字段**：职业可定义 `header`、`areas`、`areaLayout` 等字段，按分层合并规则覆盖 `meta` 中的同名配置。
 
-> **提示**：在 classes 数组里覆盖 areaLayout 创造的新 area 仅限在你定义的职业中使用，其他职业无法获得。如果此区域是与某个动作绑定，其他职业也能通过兼职动作等方式获得，请将其加到 meta 中，并用 boundMove 控制其显示。
+> **提示**：在 classes 数组里覆盖 areaLayout 定义的 area 仅限在你定义的职业中使用，其他职业无法获得。**不推荐用此方法创建新区域。**如果此区域是与某个动作绑定，其他职业也能通过兼职动作等方式获得，请将其加到 meta 中，并用 boundMove 控制其显示。
 
 ### classes[].header
 
@@ -790,17 +768,17 @@ search 类型不需要 `reference` 数据，只是一个搜索界面页签。
 
 存在取不到键的项（字符串、数字、嵌套数组、无键对象）时，上层**整体覆盖**下层。
 
-适用于：`look`、`bonds.lines`、`gear.options`、`symbols` 等。
+适用于：`inputGroup` 的 `value`、`gear.options`、`symbols` 等。
 
 ```jsonc
 // 下层
-{"bonds": {"lines": ["___ 欠我人情", "___ 是我导师"]}}
+{"type": "inputGroup", "key": "bonds", "value": ["___ 欠我人情", "___ 是我导师"]}
 
 // 上层
-{"bonds": {"lines": ["___ 是我队友"]}}
+{"type": "inputGroup", "key": "bonds", "value": ["___ 是我队友"]}
 
-// 结果（整体覆盖）
-{"bonds": {"lines": ["___ 是我队友"]}}
+// 结果（value 整体覆盖）
+{"type": "inputGroup", "key": "bonds", "value": ["___ 是我队友"]}
 ```
 
 #### 删除操作

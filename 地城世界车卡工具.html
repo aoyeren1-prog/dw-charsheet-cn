@@ -50,7 +50,6 @@ body{background:var(--bg);color:var(--text);font-family:"Segoe UI","Microsoft Ya
 .rule-layer{display:flex;align-items:center;gap:8px;background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:6px 10px;font-size:13px}
 .rule-layer-name{flex:1;color:var(--text);word-break:break-all}
 .rule-tag{font-size:10px;color:var(--accent2);border:1px solid var(--accent2);border-radius:4px;padding:0 5px;white-space:nowrap}
-.rule-layer .xbtn{flex:none}
 .rules-actions{display:flex;gap:8px}
 .rules-actions button{background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:6px;padding:6px 12px;cursor:pointer;font-size:12px}
 .rules-actions button:hover{background:var(--panel3)}
@@ -282,42 +281,23 @@ input.mbox:disabled:hover{border-color:var(--ink-5)}
 .blank-sizer{position:absolute;visibility:hidden;white-space:pre;font:inherit;top:0;left:0;pointer-events:none}
 
 .mv.spell-off{opacity:.5}
-.bond-line{display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px dotted var(--line-4);font-size:12.5px}
-.bond-line input{flex:1;border:none;border-bottom:1px dashed var(--ink-5);background:transparent;font-size:12.5px;color:var(--ink)}
-.bond-line .x{border:none;background:transparent;color:var(--line-3);cursor:pointer;font-size:13px;padding:2px 4px;border-radius:3px;line-height:1}
-.bond-line .x:hover{color:var(--danger);background:var(--danger-bg)}
-.bond-line.rel input[data-area^="rtarget:"]{flex:0 0 90px}
-.bond-line.rel input[data-area^="rdesc:"]{flex:1}
-.rel-depth{display:inline-flex;align-items:center;gap:2px}
-.rel-depth .trc{width:14px;height:14px}
-.rel-depth-v{font-size:10px;letter-spacing:1px;color:var(--ink-4)}
+/* 通用行内删除按钮（✕） */
+.x{flex:none;border:none;background:transparent;color:var(--line-3);cursor:pointer;font-size:13px;padding:2px 4px;border-radius:3px;line-height:1}
+.x:hover{color:var(--danger);background:var(--danger-bg)}
 .origin-line{padding:2px 0 3px;border-bottom:1px dotted var(--line-4);font-size:12.5px}
 .origin-row{display:flex;align-items:center;gap:2px}
 .origin-row b{font-weight:700;white-space:nowrap}
-.origin-row input{flex:1;min-width:0;border:none;border-bottom:1px dashed var(--ink-5);background:transparent;font-size:12.5px;color:var(--ink)}
+.origin-row input:not([type="checkbox"]){flex:1;min-width:0;border:none;border-bottom:1px dashed var(--ink-5);background:transparent;font-size:12.5px;color:var(--ink)}
 .origin-hint{font-size:11px;color:var(--ink-5);margin-top:2px}
-.heritage-boxes{display:flex;gap:6px;padding:4px 0 6px}
-.heritage-box{display:inline-flex;align-items:center;cursor:pointer}
-.heritage-box .chk{width:18px;height:18px;border-width:1.5px;border-radius:3px}
-.heritage-box .chk:checked::after{content:none}
-.heritage-up{position:relative;text-indent:16px}
-.heritage-up .chk{position:absolute;left:-2px;top:0;width:12px;height:12px;border-width:1.2px;border-radius:2px}
-.heritage-up .chk:checked::after{font-size:8px}
-.heritage-up .chk:disabled{opacity:1;cursor:default;pointer-events:none}
-.h-toggle{border:1px solid var(--line-3);background:var(--paper);color:var(--ink);border-radius:3px;padding:2px 6px;font-size:11px;cursor:pointer}
-.h-toggle:hover{border-color:var(--accent);color:var(--accent)}
 .question-hint{font-size:12px;color:var(--ink-4);margin-top:6px;line-height:1.5}
 .counters{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
-.counters .bond-line input{flex:1;min-width:0}
-.counters .bond-line .coins-input{flex:none;width:52px;border:none;border-bottom:1px dashed var(--ink-5);background:transparent;text-align:center;padding:0}
-.counters .bond-line .x{flex:none}
+.counters .origin-row input{flex:1;min-width:0}
+.counters .origin-row .coins-input{flex:none;width:52px;border:none;border-bottom:1px dashed var(--ink-5);background:transparent;text-align:center;padding:0}
 /* 固定计数器：名字宽度由文本决定，后面留一点间隙再接输入框 */
-.counters .bond-line.fixed{gap:0}
+.counters .origin-row.fixed{gap:0}
 /* 输入框只有下边框，居中时文字偏高 1px，这里把名字下移同样的量抵掉 */
-.counters .bond-line .cnt-name{flex:none;margin-right:5px;font-size:12.5px;position:relative;top:1px}
+.counters .origin-row .cnt-name{flex:none;margin-right:5px;font-size:12.5px;position:relative;top:1px}
 .counters-add{margin-bottom:8px}
-.xbtn{border:none;background:transparent;color:var(--line-3);cursor:pointer;font-size:13px;line-height:1;padding:2px 4px;border-radius:3px}
-.xbtn:hover{color:var(--danger);background:var(--danger-bg)}
 .empty{color:var(--ink-5);text-align:center;padding:70px 20px;font-size:14px}
 .hint{font-size:12px;color:var(--ink-4);margin-top:4px}
 .addrow{margin-top:6px;display:flex;gap:6px;flex-wrap:wrap}
@@ -330,8 +310,6 @@ input.mbox:disabled:hover{border-color:var(--ink-5)}
 .adv-tier.sel{display:flex;align-items:center;gap:6px}
 .adv-tier.sel input[type=text]{flex:1;min-width:0;border:none;border-bottom:1px dashed transparent;background:transparent;font:inherit;color:inherit}
 .adv-tier.sel input[type=text]:focus{border-bottom-color:var(--accent);outline:none}
-.adv-tier.sel .x{flex:none;border:none;background:transparent;color:var(--line-3);cursor:pointer;font-size:13px;padding:2px 4px;border-radius:3px;line-height:1}
-.adv-tier.sel .x:hover{color:var(--danger);background:var(--danger-bg)}
 .faint{color:var(--ink-5)}
 
 /* plain 元素的 view 模式样式 */
@@ -1163,7 +1141,31 @@ function plainTrack(areaKey, el){
   return strategy.addGreyClass ? `<div class="grey">${content}</div>` : content;
 }
 
-const PLAIN_RENDERERS = { text: plainText, hint: plainHint, choices: plainChoices, input: plainInput, track: plainTrack };
+// inputGroup：一组可增删的文本行（存 string[]），复用 .origin-line / .addrow 外观。
+// 行内容在查看模式走 markdown 渲染，因此 [ ] 会变成可交互勾选框（如“关系深度：[ ] [ ] [ ]”）。
+function plainInputGroup(areaKey, el){
+  const strategy = getPlainRenderStrategy(el);
+  if(!strategy.shouldRender) return "";
+  let list = plainGet(areaKey, el.key, undefined);
+  if(list === undefined){
+    list = (el.value || []).slice();
+    plainSet(areaKey, el.key, list);
+  }
+  if(!Array.isArray(list)) list = [];
+  const tip = el.tip || el.addLabel || "";
+  const rows = list.map((v, i) => {
+    if(strategy.isEditable){
+      return `<div class="origin-line"><div class="origin-row"><input data-plain="ig:${areaKey}:${el.key}:${i}" value="${esc(v||"")}" placeholder="${esc(tip)}"><button class="x" data-plain="igdel:${areaKey}:${el.key}:${i}" title="删除">✕</button></div></div>`;
+    }
+    if(!v) return "";
+    return `<div class="origin-line md">${renderFieldMarkdown(String(v), "ig::"+areaKey+"::"+el.key+"::"+i, ()=> list[i]||"", t=>{ list[i]=t; })}</div>`;
+  }).join("");
+  const add = strategy.isEditable ? `<div class="addrow"><button data-plain="igadd:${areaKey}:${el.key}">＋ ${esc(el.addLabel || "添加")}</button></div>` : "";
+  const html = rows + add;
+  return strategy.addGreyClass ? `<div class="grey">${html}</div>` : html;
+}
+
+const PLAIN_RENDERERS = { text: plainText, hint: plainHint, choices: plainChoices, input: plainInput, track: plainTrack, inputGroup: plainInputGroup };
 
 function renderPlainArea(areaKey, cls){
   const area = getAreaHeader(areaKey, cls);
@@ -1506,8 +1508,6 @@ const AREA_RENDERERS = {
   plain: renderPlainArea,
   moveList: renderMoveListArea,
   fillbox: renderFillboxArea,
-  bonds: renderBondsArea,
-  heritage: renderHeritageArea,
 };
 
 /* ============ 页首：charInfo / stats / metrics ============ */
@@ -1645,8 +1645,8 @@ function formulaHint(txt, setter){
   return `<span class="formula-hint">（${body}）</span>`;
 }
 
-/* ============ fillbox / bonds / heritage 区域模板 ============ */
-// 这三类区域的角色数据统一按 areaKey 存放，于是同一 type 可以有任意多个区域
+/* ============ fillbox 区域模板 ============ */
+// 区域角色数据统一按 areaKey 存放，于是同一 type 可以有任意多个区域
 function areaData(areaKey, init){
   if(!char.areaData) char.areaData = {};
   if(!char.areaData[areaKey]) char.areaData[areaKey] = init;
@@ -1658,10 +1658,10 @@ function areaData(areaKey, init){
 function renderCounters(areaKey, declared, data){
   const rows = (declared || []).map(c => {
     const v = (data.counters[c.key] !== undefined) ? data.counters[c.key] : (c.value || 0);
-    return `<div class="bond-line fixed"><span class="cnt-name">${esc(c.label || c.key)}</span><input type="number" class="coins-input" data-area="cnt:${areaKey}:${esc(c.key)}" value="${v}" min="0"></div>`;
+    return `<div class="origin-line"><div class="origin-row fixed"><span class="cnt-name">${esc(c.label || c.key)}</span><input type="number" class="coins-input" data-area="cnt:${areaKey}:${esc(c.key)}" value="${v}" min="0"></div></div>`;
   });
   (data.extra || []).forEach((c, i) => {
-    rows.push(`<div class="bond-line"><input data-area="xname:${areaKey}:${i}" value="${esc(c.name||"")}" placeholder="计数器名"><input type="number" class="coins-input" data-area="xval:${areaKey}:${i}" value="${c.value||0}" min="0"><button class="x" data-area="xdel:${areaKey}:${i}" title="删除">✕</button></div>`);
+    rows.push(`<div class="origin-line"><div class="origin-row"><input data-area="xname:${areaKey}:${i}" value="${esc(c.name||"")}" placeholder="计数器名"><input type="number" class="coins-input" data-area="xval:${areaKey}:${i}" value="${c.value||0}" min="0"><button class="x" data-area="xdel:${areaKey}:${i}" title="删除">✕</button></div></div>`);
   });
   return rows.length ? `<div class="counters">${rows.join("")}</div>` : "";
 }
@@ -1688,64 +1688,6 @@ function renderFillboxArea(areaKey, cls){
   const hints = (area.hints || []).map(h => `<div class="question-hint">${markdownToHtml(h)}</div>`).join("");
 
   return `<div class="pb-sec">${renderAreaHeader(areaKey, cls)}${counters}${addCounter}<textarea class="fillbox" data-area="text:${areaKey}">${esc(data.text||"")}</textarea>${opts}${hints}</div>`;
-}
-
-// bonds：若干可增删的文本行，可挂「关系」（目标 + 描述 + 深度轨道）
-function renderBondsArea(areaKey, cls){
-  const area = getAreaHeader(areaKey, cls);
-  if(!area || area.type !== "bonds") return "";
-  const data = areaData(areaKey, {lines:(area.lines||[]).slice(), relations:[]});
-  if(!data.lines) data.lines = [];
-  if(!data.relations) data.relations = [];
-
-  const label = area.title || "";
-  const depth = area.relationDepth || 3;
-  const rels = area.relations ? (mode === "edit"
-    ? data.relations.map((r,i)=>`<div class="bond-line rel">
-        <input data-area="rtarget:${areaKey}:${i}" value="${esc(r.target||"")}" placeholder="关系目标">
-        <input data-area="rdesc:${areaKey}:${i}" value="${esc(r.description||"")}" placeholder="关系描述">
-        <span class="rel-depth">${Array.from({length:depth},(_,d)=>`<button type="button" class="trc${d<(r.depth||0)?" on":""}" data-area="rdepth:${areaKey}:${i}:${d}"></button>`).join("")}</span>
-        <button class="x" data-area="rdel:${areaKey}:${i}" title="删除">✕</button></div>`).join("")
-    : data.relations.filter(r=>r.target).map(r=>`<div class="bond-line"><b>${esc(r.target)}</b>${r.description?` <span class="faint">${esc(r.description)}</span>`:""} <span class="rel-depth-v">${Array.from({length:depth},(_,d)=>(r.depth||0)>d?"●":"○").join("")}</span></div>`).join("")
-  ) : "";
-
-  if(mode === "view"){
-    const lines = data.lines.map((b,i)=>b?`<div class="bond-line md">${renderFieldMarkdown(b, "bond::"+areaKey+"::"+i, ()=>data.lines[i]||"", t=>{data.lines[i]=t;})}</div>`:"").join("");
-    return `<div class="pb-sec">${renderAreaHeader(areaKey, cls)}${rels}${lines||`<div class="hint">无${esc(label)}</div>`}</div>`;
-  }
-  const lines = data.lines.map((b,i)=>`<div class="bond-line"><input data-area="bond:${areaKey}:${i}" value="${esc(b)}" placeholder="${esc(label)}"><button class="x" data-area="bdel:${areaKey}:${i}" title="删除">✕</button></div>`).join("");
-  const btns = [`<button data-area="badd:${areaKey}">＋ ${esc(label)}</button>`];
-  if(area.relations) btns.push(`<button data-area="radd:${areaKey}">＋ 关系</button>`);
-  return `<div class="pb-sec">${renderAreaHeader(areaKey, cls)}${rels}${lines}<div class="addrow">${btns.join("")}</div></div>`;
-}
-
-// heritage：一组格子 + 等量的文本行 + 一张说明卡，可整区折叠
-function renderHeritageArea(areaKey, cls){
-  const area = getAreaHeader(areaKey, cls);
-  if(!area || area.type !== "heritage") return "";
-  const data = areaData(areaKey, {boxes:[], moves:[], upgraded:false, hidden:false});
-  if(!data.boxes) data.boxes = [];
-  if(!data.moves) data.moves = [];
-
-  const toggle = `<button type="button" class="h-toggle" data-area="hide:${areaKey}" title="显示 / 隐藏">${data.hidden ? "显示" : "隐藏"}</button>`;
-  const hdr = renderAreaHeader(areaKey, cls, toggle);
-  if(data.hidden) return `<div class="pb-sec">${hdr}</div>`;
-
-  const n = data.upgraded ? (area.boxesUpgraded || area.boxes || 0) : (area.boxes || 0);
-  const boxes = Array.from({length:n}, (_,i) =>
-    `<label class="heritage-box"><input type="checkbox" class="chk" data-area="hbox:${areaKey}:${i}"${data.boxes[i]?" checked":""}></label>`).join("");
-  const lines = Array.from({length:n}, (_,i) => mode === "edit"
-    ? `<div class="bond-line"><input data-area="hmove:${areaKey}:${i}" value="${esc(data.moves[i]||"")}" placeholder="${esc(area.movePlaceholder||"")}"></div>`
-    : `<div class="bond-line md">${renderFieldMarkdown(data.moves[i]||"", "heritage::"+areaKey+"::"+i, ()=>data.moves[i]||"", t=>{data.moves[i]=t;})}</div>`).join("");
-
-  const card = [];
-  if(area.description) card.push(markdownToHtml(area.description));
-  if(area.upgradePrompt) card.push(markdownToHtml(area.upgradePrompt));
-  if(area.upgradeEffect){
-    card.push(`<p class="heritage-up"><input type="checkbox" class="chk" data-area="hup:${areaKey}"${data.upgraded?" checked":""}${mode==="view"?" disabled":""}>${inlineMarkdown(area.upgradeEffect)}</p>`);
-  }
-  const cardHtml = card.length ? `<div class="mv"${mvBarStyle(areaKey)}><div class="mv-t">${card.join("")}</div></div>` : "";
-  return `<div class="pb-sec">${hdr}<div class="heritage-boxes">${boxes}</div>${lines}${cardHtml}</div>`;
 }
 
 /* ============ 参考资料边栏 ============ */
@@ -2157,10 +2099,6 @@ document.addEventListener("input", e=>{
     else if(op === "cnt"){ data.counters[i] = num(); }
     else if(op === "xname"){ data.extra[+i].name = t.value; }
     else if(op === "xval"){ data.extra[+i].value = num(); }
-    else if(op === "bond"){ data.lines[+i] = t.value; }
-    else if(op === "rtarget"){ data.relations[+i].target = t.value; }
-    else if(op === "rdesc"){ data.relations[+i].description = t.value; }
-    else if(op === "hmove"){ data.moves[+i] = t.value; }
     else return;
     save(); return;
   }
@@ -2193,6 +2131,12 @@ document.addEventListener("input", e=>{
     autosizeBlank(t);
     save(); return;
   }
+  if(d.plain && d.plain.startsWith("ig:")){
+    const [, areaKey, key, i] = d.plain.split(":");
+    const arr = plainGet(areaKey, key, []);
+    if(Array.isArray(arr)) arr[+i] = t.value;
+    save(); return;
+  }
 });
 
 document.addEventListener("change", e=>{
@@ -2212,15 +2156,6 @@ document.addEventListener("change", e=>{
     else { arr = arr.filter(x => x !== t.value); }
     plainSet(areaKey, key, arr);
     save(); return;
-  }
-
-  if(d.area!==undefined){
-    const [op, areaKey, i] = d.area.split(":");
-    const data = char.areaData && char.areaData[areaKey];
-    if(!data) return;
-    if(op === "hbox"){ data.boxes[+i] = t.checked; renderPlaybook(); save(); return; }
-    if(op === "hup"){ data.upgraded = t.checked; renderPlaybook(); save(); return; }
-    return;
   }
 
   // moveList toggle 事件
@@ -2351,9 +2286,21 @@ document.addEventListener("click", e=>{
     }
     renderPlaybook(); save(); return;
   }
+  if(d.plain && d.plain.startsWith("igadd:")){
+    const [, areaKey, key] = d.plain.split(":");
+    const arr = plainGet(areaKey, key, []);
+    if(Array.isArray(arr)) arr.push("");
+    renderPlaybook(); save(); return;
+  }
+  if(d.plain && d.plain.startsWith("igdel:")){
+    const [, areaKey, key, i] = d.plain.split(":");
+    const arr = plainGet(areaKey, key, []);
+    if(Array.isArray(arr)) arr.splice(+i, 1);
+    renderPlaybook(); save(); return;
+  }
   if(d.area!==undefined){
     const parts = d.area.split(":");
-    const op = parts[0], areaKey = parts[1], j = parts[3];
+    const op = parts[0], areaKey = parts[1];
     // 选项文本可能含冒号，整段取回
     const i = op === "opt" ? parts.slice(2).join(":") : parts[2];
     const data = char.areaData && char.areaData[areaKey];
@@ -2361,12 +2308,6 @@ document.addEventListener("click", e=>{
     if(op === "opt"){ data.text = (data.text ? data.text + "\n" : "") + i; }
     else if(op === "xadd"){ (data.extra = data.extra || []).push({name:"", value:0}); }
     else if(op === "xdel"){ data.extra.splice(+i, 1); }
-    else if(op === "badd"){ data.lines.push(""); }
-    else if(op === "bdel"){ data.lines.splice(+i, 1); }
-    else if(op === "radd"){ data.relations.push({target:"", description:"", depth:0}); }
-    else if(op === "rdel"){ data.relations.splice(+i, 1); }
-    else if(op === "rdepth"){ const r = data.relations[+i]; const k = +j; r.depth = (k < (r.depth||0)) ? k : (k+1); }
-    else if(op === "hide"){ data.hidden = !data.hidden; }
     else return;
     renderPlaybook(); save(); return;
   }
@@ -2805,7 +2746,7 @@ function renderRulesPanel(){
     list.innerHTML = '<div class="hint">（空）尚无规则，请点「📥 导入规则」导入底层规则。</div>';
   } else {
     list.innerHTML = ruleStack.map((layer, i) => ({layer, i})).reverse().map(({layer, i}) =>
-      `<div class="rule-layer"><span class="rule-layer-name">${esc(layer.name)}</span>${i===0?'<span class="rule-tag">底层</span>':''}<button class="xbtn" data-rule-reload="${i}" title="重新加载该层">⟳</button><button class="xbtn" data-rule-del="${i}" title="撤销该层">✕</button></div>`
+      `<div class="rule-layer"><span class="rule-layer-name">${esc(layer.name)}</span>${i===0?'<span class="rule-tag">底层</span>':''}<button class="x" data-rule-reload="${i}" title="重新加载该层">⟳</button><button class="x" data-rule-del="${i}" title="撤销该层">✕</button></div>`
     ).join("");
   }
 }

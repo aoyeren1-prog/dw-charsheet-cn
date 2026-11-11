@@ -124,7 +124,7 @@
                 "resetOnClassChange": true, 
                 "counters": [ {"key": "coins", "label": "货币"} ]
             }, 
-            "bonds": {"title": "关系", "type": "bonds", "resetOnClassChange": true, "relations": false}, 
+            "bonds": {"title": "关系", "type": "plain", "resetOnClassChange": true, "elements": [{"type": "inputGroup", "key": "bonds", "addLabel": "关系"}]}, 
             "notes": {"title": "笔记", "type": "fillbox", "addCounter": true}, 
             "starting": {"title": "起始动作", "type": "moveList"}, 
             "advanced": {
@@ -191,12 +191,7 @@
                         }
                     ]
                 },
-                "bonds": {
-                    "lines": [
-                        "和 _______________ 的关系。",
-                        "和 _______________ 的关系。"
-                    ]
-                },
+                "bonds": {"elements": [{"key": "bonds", "value": ["和 _______________ 的关系。", "和 _______________ 的关系。"]}]},
                 "gear": {
                     "rightStats": [ {"key": "load", "formula": "5+等级"} ], 
                     "options": [

@@ -1,57 +1,6 @@
 {
     "meta": {
         "source": "Unlimited Dungeons (CC BY-SA 4.0)，简体译稿 Unlimited Dungeons CN", 
-        "areas": {
-            "look": {
-                "title": "外观", 
-                "type": "plain", 
-                "elements": [
-                    {"type": "choices", "key": "group0", "layout": "break", "value": []}, 
-                    {"type": "input", "key": "custom0", "tip": "自定义"}, 
-                    {"type": "choices", "key": "group1", "layout": "break", "value": []}, 
-                    {"type": "input", "key": "custom1", "tip": "自定义"}, 
-                    {"type": "choices", "key": "group2", "layout": "break", "value": []}, 
-                    {"type": "input", "key": "custom2", "tip": "自定义"}, 
-                    {"type": "choices", "key": "group3", "layout": "break", "value": []}, 
-                    {"type": "input", "key": "custom3", "tip": "自定义"}, 
-                    {"type": "input", "key": "notes", "tip": "其他外观描述"}
-                ]
-            }, 
-            "starting": {
-                "title": "起始动作", 
-                "type": "moveList", 
-                "buttons": [ {"label": "动作", "position": "global", "action": "addMove"} ]
-            }, 
-            "alignment": {
-                "title": "阵营动作", 
-                "type": "moveList", 
-                "buttons": [ {"label": "阵营", "position": "global", "action": "addMove"} ], 
-                "selectMoves": true
-            }, 
-            "advanced": {
-                "title": "进阶动作", 
-                "type": "moveList", 
-                "buttons": [ {"label": "动作", "position": "global", "action": "addMove", "targetGroup": "custom"} ], 
-                "selectMoves": true
-            }, 
-            "race": {
-                "title": "种族动作", 
-                "type": "moveList", 
-                "buttons": [
-                    { "label": "种族", "position": "global" , "action": "addGroup" }, 
-                    { "label": "动作", "position": "inGroup", "action": "addMove"  }
-                ], 
-                "selectGroups": true
-            }, 
-            "gear": {
-                "title": "装备", 
-                "type": "fillbox", 
-                "resetOnClassChange": true, 
-                "counters": [ {"key": "coins", "label": "金币"} ]
-            }, 
-            "notes": {"title": "笔记", "type": "fillbox", "addCounter": true}, 
-            "bonds": {"title": "羁绊", "type": "bonds", "resetOnClassChange": true, "relations": true}
-        }, 
         "refSections": [
             { "id": "compendium"  , "title": "概略职业", "type": "moves" }, 
             { "id": "dungeonMoves", "title": "地城探索", "type": "moves" }
@@ -158,7 +107,7 @@
                 "notes": {
                     "hints": ["你是如何学会炼金术这门手艺的？", "有朝一日，你希望用炼金术创造出什么？", "你认为科学能让世界变得更好吗？还是更糟？", "是什么促使你去冒险，而非安静地做研究？"]
                 }, 
-                "bonds": { "lines": ["你们中谁最可能成为我研究的对象？", "你们中谁最可能在我的项目上帮我？", "谁需要被证明，科学与理性胜过他们自己的那一套？"] }
+                "bonds": {"elements": [{"type": "inputGroup", "key": "bonds", "value": ["你们中谁最可能成为我研究的对象？", "你们中谁最可能在我的项目上帮我？", "谁需要被证明，科学与理性胜过他们自己的那一套？"]}]}
             }
         }, 
         {
@@ -266,7 +215,7 @@
                         "是谁教会了你手艺，为什么？你又是如何报答他们的？"
                     ]
                 }, 
-                "bonds": { "lines": ["我欠你们中谁一条命债？", "谁知道我那见不得人的秘密？", "你们中谁的先辈曾认识我的一位先辈？", "谁配得上做我的酒友？"] }
+                "bonds": {"elements": [{"type": "inputGroup", "key": "bonds", "value": ["我欠你们中谁一条命债？", "谁知道我那见不得人的秘密？", "你们中谁的先辈曾认识我的一位先辈？", "谁配得上做我的酒友？"]}]}
             }
         }, 
         {
@@ -372,7 +321,7 @@
                         "歌曲对精灵为何重要？对你个人而言呢？"
                     ]
                 }, 
-                "bonds": { "lines": ["你们中谁曾帮我追猎过敌人？", "你们中谁在我的族人中最有名？", "谁知道我心中背负的重担？", "你们中谁的灵魂里有一丝美的火花？"] }
+                "bonds": {"elements": [{"type": "inputGroup", "key": "bonds", "value": ["你们中谁曾帮我追猎过敌人？", "你们中谁在我的族人中最有名？", "谁知道我心中背负的重担？", "你们中谁的灵魂里有一丝美的火花？"]}]}
             }
         }, 
         {
@@ -476,12 +425,7 @@
                         "半身人一直遵循、而人类会觉得奇怪的传统是什么？人类常见的哪种传统，任何半身人都不屑为之？", "你的族人在人类中有多出名？你的族人是否有一段历史，无论友好与否？", "你最可能因为什么而惹上麻烦？"
                     ]
                 }, 
-                "bonds": {
-                    "lines": [
-                        "你们中谁把我从家里拖出来、走上冒险之路？", "你们中谁真正懂得享受生活中的美好事物？", "如果谁不把我从这个烂摊子里弄出来，谁就会惹上最大的麻烦？", "谁觉得我不适合艰苦的冒险？", 
-                        "我以前把手伸进过谁的口袋？"
-                    ]
-                }
+                "bonds": {"elements": [{"type": "inputGroup", "key": "bonds", "value": ["你们中谁把我从家里拖出来、走上冒险之路？", "你们中谁真正懂得享受生活中的美好事物？", "如果谁不把我从这个烂摊子里弄出来，谁就会惹上最大的麻烦？", "谁觉得我不适合艰苦的冒险？", "我以前把手伸进过谁的口袋？"]}]}
             }
         }, 
         {
@@ -585,9 +529,7 @@
                 "notes": {
                     "hints": ["你习练武艺的地方是什么样的？你的师父是谁？", "其他人通常如何对待武僧？", "你的外表或随身之物中，有什么象征你的誓言？", "什么最能诱惑你打破、背叛或背弃你的誓言？"]
                 }, 
-                "bonds": {
-                    "lines": ["我把我教团的哪个秘密教给了谁？", "我师父不会赞成我与你们中谁同行？", "你们中谁需要我的帮助来寻得内心的平静？", "尽管我们之间存在差异，你们中谁能教给我最多的东西？"]
-                }
+                "bonds": {"elements": [{"type": "inputGroup", "key": "bonds", "value": ["我把我教团的哪个秘密教给了谁？", "我师父不会赞成我与你们中谁同行？", "你们中谁需要我的帮助来寻得内心的平静？", "尽管我们之间存在差异，你们中谁能教给我最多的东西？"]}]}
             }
         }, 
         {
@@ -701,9 +643,7 @@
                     ]
                 }, 
                 "notes": { "hints": ["你的家在哪里，它是什么样子？", "你对平民百姓怎么看，他们又怎么看你？", "你的哪种举止习惯让你与平民截然不同？", "你的家族名以什么最闻名？"] }, 
-                "bonds": {
-                    "lines": ["你们中谁曾帮助我走到今天？", "在正常情况下（冒险当然不算正常），我绝不会愿意与你们中谁一起被人撞见？", "你们中谁与我的家族有段复杂的过往？", "你们中谁的建议我最可能听进去？"]
-                }
+                "bonds": {"elements": [{"type": "inputGroup", "key": "bonds", "value": ["你们中谁曾帮助我走到今天？", "在正常情况下（冒险当然不算正常），我绝不会愿意与你们中谁一起被人撞见？", "你们中谁与我的家族有段复杂的过往？", "你们中谁的建议我最可能听进去？"]}]}
             }
         }, 
         {
@@ -809,7 +749,7 @@
                 "notes": {
                     "hints": ["你的宗主在他人眼里被称为什么？你也用那个名字吗？", "你的宗主如何标记了你？你是否因为你的宗主与力量而保持低调？为什么或为什么不？", "你的宗主向你许诺了什么？", "你的宗主如何对待你？"]
                 }, 
-                "bonds": { "lines": ["我的宗主渴望你们中谁的灵魂？", "谁以为这里由他们说了算？", "我了解过你们中谁内心最深处的渴望？", "无论是否自知，谁将帮助我实现我宗主的目标？"] }
+                "bonds": {"elements": [{"type": "inputGroup", "key": "bonds", "value": ["我的宗主渴望你们中谁的灵魂？", "谁以为这里由他们说了算？", "我了解过你们中谁内心最深处的渴望？", "无论是否自知，谁将帮助我实现我宗主的目标？"]}]}
             }
         }, 
         {

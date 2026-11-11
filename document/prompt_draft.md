@@ -25,12 +25,14 @@
 - `rules-format.md`：字段完整参考，查具体语法（字段、文本标记、合并规则）。
 - 相关规则 json ：当为某个已有规则编写上层规则时，参阅当前任务所依赖的规则，并按照分层合并机制写作。
 
+**你不应阅读此范围之外的无关资料。**
+
 ## rules_format 摘要
 
 - 顶层三块：`meta`（全局）、`classes`（playbook 数组，覆盖 meta 的 header/areas）、`reference`（边栏内容）。
 - `meta.header`：`charInfo`（字段）、`stats`（`items`+`conditions`+`modTable`+`prompt`）、`metrics`（`fields`+`columns`）；字段/属性带 `id`/`type`/`default`。
-- `meta.areas`：常用 `plain`/`moveList`/`fillbox`/`bonds` 四种（`heritage` 是硬编码残留，勿复用），通用字段 `title`/`note`/`rightStats`/`resetOnClassChange`。
-- `plain` 元素：`text`/`hint`/`choices`/`input`/`track`，有键元素用 `key` 存值。
+- `meta.areas`：常用 `plain`/`moveList`/`fillbox` 三种，通用字段 `title`/`note`/`rightStats`/`resetOnClassChange`。
+- `plain` 元素：`text`/`hint`/`choices`/`input`/`track`/`inputGroup`，有键元素用 `key` 存值。
 - `moveList`：`groups`（`key`/`label`/`minLevel`/`moves`）与 `moves`（`name`/`text`/`requires`/`replaces`/`importArea`/`importGroup`）。
 - `meta.areaLayout`：`{left,right}`，列全所有区域。
 - `meta.refSections`：`{id,title,type}`（`moves`/`tags`/`search`），`reference[id]` 放内容。
@@ -46,17 +48,38 @@
 | 外观 | `plain` 的 `choices` |
 | 物品栏 | `fillbox` + `rightStats`（负载）+ `counters`（货币） |
 | 升级选项 | `moveList`（把升级本身做成一个动作） |
-| 关系 | `bonds`（暂时只用纯文本 input，提供 prefix 指引玩家填写） |
+| 关系 | `plain` 的 `inputGroup` |
 | 笔记 | `fillbox`，即使规则没要求，也必须添加这个区域 |
 | 行动列表 | `moveList` |
 
 ## 约束
 
-- 先定布局：header 有哪些字段、areas 有哪些区域、areaLayout 左右栏怎么分，先想清楚再写。
-- areaLayout 在 meta 里列全所有区域。playbook 可以覆盖它（整体覆盖），但仅限于在隐藏某些固定用不到的区域时使用，但**不要用于添加任何新区域**。*常见错误：将一个“默认”仅被某 playbook 使用的区域写死在该 playbook 层，导致其他 playbook 兼职时，可以获得该 playbook 的动作，却无法因此获得对应的区域（正确做法是写入 meta 并用 boundMove 控制，或编写为 refSection）。*
-- 能做 moveList 就做 moveList，把复杂、难表达的东西塞进动作 text。*常见错误：将 “升级选项” 做成 10+ 元素的超长 plain 区域。*
-- 非必要不用 plain：不写复杂 plain，不把任何 playbook 专属机制写成 plain。*常见错误：将一个明显应写为动作形式的文本块写成区域，并援引规则书中“此机制在排版时采用动作的形式，但它不是动作”的原文和用户抬杠。*
-- 严禁自编内容：不要写入任何原 Playbook 中没有的内容。*常见错误：当填写 “外观” 选项时，给原本无标签的 choices 添加标签。*
+### 1. areaLayout 全局定义
+
+**应在 meta 里列全所有区域**。原则上 playbook 可以覆盖它（整体覆盖），但通常不会被使用，尤其**不要用于添加任何新区域**。
+
+*常见错误：将一个“默认”仅被某 playbook 使用的区域写死在该 playbook 层，导致其他 playbook 兼职时，可以获得该 playbook 的动作，却无法因此获得对应的区域（正确做法是写入 meta 并用 boundMove 控制，或编写为 refSection）。*
+
+*例外：当某规则明确规定某 playbook **绝对**不会用到某区域，可以用它来隐藏**确定**用不到的区域。*
+
+### 2. moveList 优先，慎用 plain
+
+一切以独立文本块形式存在的区域都可以被做成 moveList，不限于它是否被称为“动作”。复杂、难表达的东西直接塞进动作 text。
+
+*常见错误：把“升级选项”区域做成一个有 10+ 元素的巨大 plain。*
+
+plain 用于结构化各 playbook 通用的简单结构化内容，对任何复杂结构和新机制的适配都非常糟糕，因此：
+- 非必要不使用plain
+- 不写复杂 plain
+- 不把任何 playbook 专属机制写成 plain。
+
+*常见错误：将一个明显应写为动作形式的文本块写成区域，并援引规则书中“此机制在排版时采用动作的形式，但它不是动作”的原文和用户抬杠。*
+
+### 3. 严禁自编内容
+
+不要写入任何原 Playbook 中没有的内容。
+
+*常见错误：当填写 “外观” 选项时，给原本无标签的 choices 元素添加标签。*
 
 ## 输出要求
 
