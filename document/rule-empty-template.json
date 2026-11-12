@@ -221,7 +221,7 @@
                 }
             ],
             "moves": [
-                {"name": "可导入动作", "importArea": "advanced", "importGroup": "custom", "text": "如果你没有在 meta.areas 下定义一个key为 custom 的 group，并为其起名的话，那么导入它将会创建一个名叫 custom 的组。如果你不想做预定义，请直接把 importGroup 改成你想要的名字（而不是 key）。"}
+                {"name": "可导入动作", "importArea": "advanced", "importGroup": "custom", "text": "如果你没有在 meta.areas 下定义一个 advanced 的 key 为 custom 的 group，并为其起名的话，那么导入它将会自动创建一个名叫 custom 的组。如果你不想做预定义，请直接把 importGroup 改成你想要的组名本身。"}
             ]
         }, 
         "tags": {
@@ -231,7 +231,7 @@
                     "title": "类名", 
                     "tags": [
                         {"name": "标签2", "description": "目前标签页暂时不支持任何导入行为，所以只能拿来看。"}, 
-                        {"name": "标签3", "color": "#66ccff", "textColor": "#fff", "description": "如果你在支持渲染的框，例如一个动作的占位文本里用大括号包裹\"标签3\"，然后切查看模式，会发现它也变成洛天依色。"}
+                        {"name": "标签3", "color": "#66ccff", "textColor": "#fff", "description": "如果你在支持渲染的地方（例如一个动作的占位文本里）用大括号包裹\"标签3\"，然后切查看模式，会发现它也变成洛天依色。"}
                     ]
                 }
             ],

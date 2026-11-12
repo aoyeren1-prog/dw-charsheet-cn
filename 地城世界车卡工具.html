@@ -103,9 +103,13 @@ body{background:var(--bg);color:var(--text);font-family:"Segoe UI","Microsoft Ya
 .tag-item{margin-bottom:6px;font-size:12px;color:var(--ref-ink-2);line-height:1.6}
 .tag-item .tag{margin-right:4px}
 
-/* ===== 页头：职业名 + charInfo ===== */
+/* ===== 页头：职业名 + intro + charInfo ===== */
 .pb-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:12px}
 .pb-class{font-size:32px;font-weight:800;letter-spacing:1px;line-height:1.1}
+.intro-toggle{border:none;background:transparent;color:var(--ink-2);cursor:pointer;font-size:32px;line-height:1;padding:0 2px;vertical-align:middle}
+.intro-toggle:hover{color:var(--accent)}
+.pb-intro{font-size:12.5px;color:var(--ink-2);line-height:1.6;margin:-6px 0 12px}
+.pb-intro.collapsed{display:none}
 
 /* --info-w 是字段基准宽；字段的 flex 声明按它的倍数折算成显式宽度，
    不走 flex-grow，否则 basis:0 的那一格会把全部剩余空间吃掉 */
@@ -551,6 +555,7 @@ if (typeof module !== "undefined" && typeof require !== "undefined" && module.ex
 /* ============ 状态 ============ */
 let mode = "edit";
 let refTab = null;   // 实际值由 refSections 的第一个页签决定
+let introCollapsed = false;   // playbook 名下的 intro 是否折叠
 let searchKw = "";
 let lastSearchItems = [];
 let boxReg = {};
@@ -865,7 +870,7 @@ function pruneCustom(c){ return pruneEmpty(cloneDeep(c)); }
 function save(){
   lsSet("dw-char", JSON.stringify(pruneChar(char)));
   lsSet("dw-custom", JSON.stringify(pruneCustom(customData)));
-  lsSet("dw-ui", JSON.stringify({mode, refTab}));
+  lsSet("dw-ui", JSON.stringify({mode, refTab, introCollapsed}));
 }
 function saveRules(){ lsSet("dw-rules-stack", JSON.stringify(ruleStack)); }
 function loadRules(){
@@ -908,7 +913,7 @@ function load(){
       if(usableChar(saved)) char = Object.assign(defaultChar(), saved);
     }
     const cu=lsGet("dw-custom"); if(cu) customData=JSON.parse(cu);
-    const ui=lsGet("dw-ui"); if(ui){ const u=JSON.parse(ui); if(u.mode==="view"||u.mode==="edit") mode=u.mode; if(u.refTab && REF_SECTIONS.some(s=>s.id===u.refTab)) refTab=u.refTab; }
+    const ui=lsGet("dw-ui"); if(ui){ const u=JSON.parse(ui); if(u.mode==="view"||u.mode==="edit") mode=u.mode; if(u.refTab && REF_SECTIONS.some(s=>s.id===u.refTab)) refTab=u.refTab; if(typeof u.introCollapsed === "boolean") introCollapsed = u.introCollapsed; }
   }catch(e){}
   normalizeCustomData();
   normalizeChar();
@@ -1522,10 +1527,17 @@ const AREA_RENDERERS = {
 // 页首布局固定（不参与 areaLayout），但三个区块的内容全由 header 声明
 function renderHeader(cls){
   const header = headerFor(cls);
+  const intro = cls.intro
+    ? `<div class="pb-intro${introCollapsed ? " collapsed" : ""}">${markdownToHtml(cls.intro)}</div>`
+    : "";
+  const toggle = cls.intro
+    ? `<button type="button" class="intro-toggle" data-intro-toggle title="${introCollapsed ? "展开简介" : "折叠简介"}">${introCollapsed ? "▸" : "▾"}</button>`
+    : "";
   return `<div class="pb-head">
-    <div class="pb-class">${esc(cls.name)}</div>
+    <div class="pb-class">${esc(cls.name)}${toggle}</div>
     ${renderCharInfo(header)}
   </div>
+  ${intro}
   <div class="pb-stats">
     ${renderStatsBlock(header)}
     ${renderMetricsBlock(header)}
@@ -2257,6 +2269,7 @@ document.addEventListener("click", e=>{
   const t=e.target, d=t.dataset||{};
   // 点到弹层外面就收起来（点 caret 或选项时在 .sel-wrap 内，不受影响）
   if(!t.closest(".sel-wrap")) closeSelectMenus();
+  if(d.introToggle!==undefined){ introCollapsed = !introCollapsed; renderPlaybook(); save(); return; }
   if(d.fieldMenu!==undefined){
     const menu = t.parentNode.querySelector(".sel-menu");
     if(menu){
