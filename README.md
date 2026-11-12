@@ -108,46 +108,36 @@ https://github.com/rfkeepers/dw-playbooks-tex
 
 - 由于 UD 内容尚未校对完，数据 json 格式尚未完全做好，目前只是预览。
 
-### 1. 资料边栏导入的动作丢失 `requires` / `replaces`
-
-- 现状：`refSections`（资料边栏）里的 move 若写了 `requires` / `replaces`，从边栏「＋ 导入」到角色卡后，这两个字段被丢弃、不生效。
-- 原因：导入链路三处都未透传——`createMoveItem`（边栏渲染建立条目）、`sectionSearchItems` 的 `addMove`（搜索建立条目）只提取 `importArea/name/text/importGroup`；`importSearchItem` 导入时只写 `{id, name, text, group}`。
-- 影响：导入后动作不显示「需 / 替」标记，也不触发「前置未满足禁用」「勾选时移除被替代动作」的行为。
-
-### 2. 装备内容
+### 1. 装备内容
 
 - 已经支持标签术语页，并导入了DW的装备标签内容，但是对应的装备和冒险装备示例还没找到地方存放。此外，UD中引入的追随者机制也可能需要引入更多功能。
 
-### 3. 微调资料边栏样式
+### 2. 微调资料边栏样式
 
 - 现状：资料边栏的所有动作、组合全都是同一配色，看起来容易眼花，这一点在“扩展”页面中尤其明显。
 - 后续有空时应该修改配色，让各种条目之间有些许差别，降低阅读负担。
 - （已分离部分动作样式，不过没有修改配色）
 
-### 4. 装备 / 笔记栏支持 `{标签名}` 标签样式
+### 3. fillbox 支持富文本
 
 - 现状：装备（gear）和笔记（notes）栏是 textarea 直出、**不做 markdown 渲染**，因此其中的 `{标签名}` 语法不生效——而在动作、羁绊等做渲染的地方，`{标签名}` 会变成高亮标签（见 `markdownToHtml` 里的 `\{([^{}]+)\}`）。
 - 难点：装备/笔记要求**编辑模式下仍可直接编辑文本**，如何在「可编辑 textarea」前提下渲染出标签样式，二者冲突。
 - 影响不大，但装备描述里不会渲染标签，因此输入“{1 重量}”也没有任何用。把文本框改成富文本格式有点费时费力，而且对实时修改是否真的友好还有待商榷，可能短期内这个问题解决不了。
 
-### 5. 导出 PDF 功能（按钮已暂时隐藏）
+### 4. 导出 PDF 功能（按钮已暂时隐藏）
 
 - 现状：「导出 PDF」按钮（`btnPrint`）已加 `hidden` 类暂时隐藏，待重新设计后再恢复。
 - 问题 1：导出的 PDF 常被截断成多页，分页/排版不对。
 - 问题 2：导出走的是**查看模式**渲染（`window.print()` 前把 `mode` 临时切到 `view`），查看模式会隐藏未选中项、置灰等，导致大量内容丢失；应改为按编辑模式（或专门为打印准备的视图）渲染。
 - 后续：需要重新设计 `btnPrint` 的导出/打印逻辑（`bind()` 里对应的事件处理一并调整）。
 
-### 6. header 支持 `resetOnClassChange`
+### 5. flags.effect 追加行为
 
-- 现状：header 的 `charInfo` / `stats`（以及 `metrics`）的 `default` 只在「新建角色 + 首次选职业」时种一次，之后换 playbook 不会重写——因为值已经写进 `char.stats` / `char.fields`，属于「已有值」。
-- 对比：`areas` 有 `resetOnClassChange`，能控制换 playbook 时是否清空该区域；header 没有对应机制。
-- 影响：职业固定属性（如 Root RPG 的职业能力值）想换 playbook 时重置为职业默认值，目前做不到。
-- 后续：给 header 的 `charInfo` / `stats.items` / `metrics.fields`（或整块 header）加 `resetOnClassChange` 字段，换职业时清空并按新职业 default 重种。
+目前 effect 只有 modPenalty 一种行为。追加行为 colorRep，支持输入一个颜色代码，把 boundStat 属性的字体颜色覆盖为该颜色。此效果用于适配那些“状态使该属性掷骰具有劣势”的规则。
 
-### 7. 换 playbook 清空数据：clear/preserve 语义是旧代码残留 bug
+### 6. 其他笔记
 
-- 现状：`onClassChange` 里有两处"一刀切"清空，语义与文档相矛盾、且无法精确控制哪些内容该随 playbook 清空、哪些属于角色本身应保留：
-  - `app_template.html` 第 1993 行：换职业时**整表清空** `moveListSelections` / `moveListGroupNames` / `moveListNames` / `moveListTexts`——玩家手改的动作名与正文（含任何"文字里手填"的内容）一律丢失，无法按区域豁免。
-  - 第 1998 行：`if(a.type === "plain" || a.resetOnClassChange) delete char.areaData[k]`——**所有 `plain` 区域无条件清空**，即使写了 `resetOnClassChange: false` 也无法保留；这与 `rules-format.md` 中 `resetOnClassChange` "默认 false" 的描述相悖。
-- 影响：任何"角色属性而非 playbook 属性"的内容（例如血统、与角色绑定的长期关系）在换 playbook 时被误清空；反之也可能有本应清空却保留的边界。
-- 后续：在厘清 bonds / heritage 的迁移方案（哪些内容属于角色、哪些属于 playbook）之前，**不要假定**任何区域在切换 playbook 时应当清空或保留；先统一 clear/preserve 语义（让 `resetOnClassChange` 对 plain 也真正生效，并给 moveList 的覆写文本提供按区域豁免），再据此回填各规则。
+以下内容在现状下不会对使用造成严重影响，但可能在后续开发时遇到，记录下来作为备忘：
+
+- **资料边栏导入的动作丢失 `requires` / `replaces`**。现状：`refSections`（资料边栏）里的 move 若写了 `requires` / `replaces`，从边栏「＋ 导入」到角色卡后，这两个字段被丢弃、不生效。（导入链路三处都未透传——`createMoveItem`（边栏渲染建立条目）、`sectionSearchItems` 的 `addMove`（搜索建立条目）只提取 `importArea/name/text/importGroup`；`importSearchItem` 导入时只写 `{id, name, text, group}`）导入后动作不显示「需 / 替」标记，也不触发「前置未满足禁用」「勾选时移除被替代动作」的行为。
+- **moveList 的 group 的 minLevel 和 maxLevel 写死只提取一个字段**。如果一个动作类别有复数个变量前置条件，则本工具暂时无法满足其自动化需求。

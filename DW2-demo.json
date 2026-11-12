@@ -16,7 +16,7 @@
                     { "id": "WIS", "label": "WIS", "min": -4, "max": 4, "default": 0 }, 
                     { "id": "CHA", "label": "CHA", "min": -4, "max": 4, "default": 0 }
                 ], 
-                "conditions": [
+                "flags": [
                     { "id": "exhausted" , "label": "力竭", "states": 3, "boundStat": "STR", "effect": "none" }, 
                     { "id": "frightened", "label": "受惊", "states": 3, "boundStat": "DEX", "effect": "none" }, 
                     { "id": "angry"     , "label": "愤怒", "states": 3, "boundStat": "INT", "effect": "none" }, 
@@ -113,13 +113,13 @@
             "gear": {
                 "title": "装备", 
                 "type": "fillbox", 
-                "resetOnClassChange": true, 
                 "counters": [ {"key": "coins", "label": "金币"} ]
             }, 
-            "bonds": {"title": "关系", "type": "plain", "resetOnClassChange": true, "elements": [{"type": "inputGroup", "key": "bonds", "addLabel": "关系"}]}
+            "bonds": {"title": "关系", "type": "plain", "elements": [{"type": "inputGroup", "key": "bonds", "addLabel": "关系"}]},
+            "notes": {"title": "笔记", "type": "fillbox", "addCounter": true, "resetOnClassChange": false}
         }, 
         "areaLayout": {
-            "left": ["look", "origins", "gear", "treasure", "bonds", "struggle", "notes"], 
+            "left": ["look", "origins", "gear", "struggle", "treasure", "bonds", "notes"], 
             "right": ["starting", "advanced", "advancement"]
         }
     }, 

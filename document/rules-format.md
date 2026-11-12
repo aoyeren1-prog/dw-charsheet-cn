@@ -2,7 +2,7 @@
 
 面向**导入 / 定制整套规则**的进阶用法。只想改几个字段的，直接看 `DW-HouseRuleTest.json` 即可。
 
-> 备注：此文档应随代码更新保持维护，上次更新时间：**26.11.02**
+> 备注：此文档应随代码更新保持维护，上次更新时间：**26.11.12**
 
 ---
 
@@ -56,7 +56,7 @@
 
 ### meta.header
 
-角色卡顶部结构，包含三个子部分。
+角色卡顶部结构，包含三个子部分（charInfo / stats / metrics）。
 
 #### header.charInfo
 
@@ -76,6 +76,9 @@
 | `slots` | number | 否 | 仅 `track` 类型：格数 |
 | `options` | string[] | 否 | 仅 `select` 类型：候选项，下拉不限制输入任意值 |
 | `tip` | string | 否 | 输入框 placeholder |
+| `resetOnClassChange` | boolean | 否 | 换 playbook 是否重置（默认 `true`；`false` 保留） |
+
+> **提示**：**`resetOnClassChange`**可写在两个层级——**子块级**（`stats.resetOnClassChange`、`metrics.resetOnClassChange`，作用于整块；`charInfo` 是数组，暂不支持，后续重构时可能会改）与**字段/属性级**（各 charInfo 字段、各 stats item、各 metrics field 自身）。字段级覆盖子块级，皆无则退回默认 `true`。
 
 **示例**：
 
@@ -89,7 +92,7 @@
 
 #### header.stats
 
-属性系统配置，包含 `items`（属性列表）和 `conditions`（状态条件）。
+属性系统配置，包含 `items`（属性列表）和 `flags`（标记）。
 
 ##### stats 顶层配置
 
@@ -98,7 +101,8 @@
 | `prompt` | string | 初始属性分配提示文本（纯展示，职业级可覆盖） |
 | `modTable` | object | 属性值 → 调整值映射表（仅 `type: "score"` 时使用） |
 | `items` | array | 属性项数组（见下节） |
-| `conditions` | array | 状态条件数组（见下节） |
+| `flags` | array | 标记数组（见下节） |
+| `resetOnClassChange` | boolean | 子块级：换 playbook 是否重置整块属性与标记（默认 `true`；`false` 保留；属性/标记级可覆盖） |
 
 **modTable 示例**：
 
@@ -127,6 +131,7 @@
 | `type` | string | 是 | `score`（显示数值 + 调整值，查 `modTable`）/ `modifier`（自身即调整值） |
 | `min` / `max` | number | 否 | 范围限制（只约束步进箭头） |
 | `default` | number | 否 | 初值 |
+| `resetOnClassChange` | boolean | 否 | 换 playbook 是否重置该属性（覆盖子块级；默认 `true`） |
 
 **公式引用**：`id` 或 `label` 均可在公式中引用，返回**属性当前值**（`score` 模式下是原值，不是调整值）。
 
@@ -139,9 +144,9 @@
 ]
 ```
 
-##### stats.conditions
+##### stats.flags
 
-状态条件配置（如虚弱、颤抖）。
+标记配置（默认用法是存放如虚弱、颤抖等异常状态）。
 
 | 键 | 类型 | 必需 | 说明 |
 |---|---|---|---|
@@ -151,11 +156,12 @@
 | `boundStat` | string | 否 | 绑定属性 id/label，有则显示在该属性格下方，无则独立一行 |
 | `effect` | string | 否 | 机制效果：`"modPenalty"`（离开初始档则该属性调整值 −1），省略或其他值无效果；仅在有 `boundStat` 时生效 |
 | `symbols` | string[] | 否 | 自定义符号数组（长度须 ≥ `states`）；不写则画圆，填充比例 = 档位 /(档数−1) |
+| `resetOnClassChange` | boolean | 否 | 换 playbook 是否重置该标记（覆盖子块级；默认 `true`） |
 
 **示例**：
 
 ```json
-"conditions": [
+"flags": [
   {"id": "weak", "label": "虚弱", "states": 2, "boundStat": "STR", "effect": "modPenalty"},
   {"id": "exhausted", "label": "力竭", "states": 5, "symbols": ["□", "◔", "◐", "◕", "■"]}
 ]
@@ -169,6 +175,7 @@
 |---|---|---|
 | `columns` | number | 网格列数（默认 2） |
 | `fields` | array | 指标字段数组 |
+| `resetOnClassChange` | boolean | 子块级：换 playbook 是否重置整块指标（默认 `true`；`false` 保留；字段级可覆盖） |
 
 **fields 配置**：
 
@@ -184,6 +191,7 @@
 | `slots` | number | 否 | 仅 `track` 类型：格数 |
 | `options` | string[] | 否 | 仅 `select` 类型：候选项 |
 | `tip` | string | 否 | 输入框 placeholder |
+| `resetOnClassChange` | boolean | 否 | 换 playbook 是否重置该指标（覆盖子块级；默认 `true`） |
 
 **与 charInfo 的差异**：metrics 空值回退到 `formula` / `default` 算出的默认值，charInfo 只回退到 `default`。
 
@@ -213,7 +221,7 @@
 | `title` | string | 区域标题 |
 | `note` | string | 区域标题右侧的小字说明（可选） |
 | `rightStats` | array | 右侧统计字段（如负载、伤害骰） |
-| `resetOnClassChange` | boolean | 切换职业时清空该区域数据（默认 false） |
+| `resetOnClassChange` | boolean | 切换职业时清空该区域数据（默认 true） |
 
 **rightStats 配置**：
 

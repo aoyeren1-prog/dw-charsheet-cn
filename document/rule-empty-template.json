@@ -1,10 +1,10 @@
 {
     "meta": {
-        "source": "此空规则模板应随代码更新保持维护，上次更新时间：26.11.03",
+        "source": "此空规则模板应随代码更新保持维护，上次更新时间：26.11.12",
         "classLabel": "Playbook",
         "header": {
             "charInfo": [
-                {"id": "name", "label": "姓名", "type": "text", "flex": 2}, 
+                {"id": "name", "label": "姓名", "type": "text", "flex": 2, "resetOnClassChange": false}, 
                 {
                     "id": "level", 
                     "label": "等级", 
@@ -49,27 +49,27 @@
                         "default": 0
                     }
                 ], 
-                "conditions": [
+                "flags": [
                     {
-                        "id": "boundcondition1", 
+                        "id": "boundCond1", 
                         "label": "状态A", 
                         "states": 2, 
                         "boundStat": "stat1"
                     },
                     {
-                        "id": "boundcondition2", 
+                        "id": "boundCond2", 
                         "label": "状态B", 
                         "states": 2, 
                         "boundStat": "stat2"
                     },
                     {
-                        "id": "boundcondition3", 
+                        "id": "boundCond3", 
                         "label": "状态C", 
                         "states": 2, 
                         "boundStat": "stat3"
                     },
                     {
-                        "id": "indepcondition", 
+                        "id": "indepCond", 
                         "label": "独立状态", 
                         "states": 3
                     }
@@ -120,12 +120,11 @@
             "gear": {
                 "title": "装备", 
                 "rightStats": [ {"key": "load", "label": "负载上限", "type": "number", "min": 0} ], 
-                "type": "fillbox", 
-                "resetOnClassChange": true, 
+                "type": "fillbox",  
                 "counters": [ {"key": "coins", "label": "货币"} ]
             }, 
-            "bonds": {"title": "关系", "type": "plain", "resetOnClassChange": true, "elements": [{"type": "inputGroup", "key": "bonds", "addLabel": "关系"}]}, 
-            "notes": {"title": "笔记", "type": "fillbox", "addCounter": true}, 
+            "bonds": {"title": "关系", "type": "plain", "elements": [{"type": "inputGroup", "key": "bonds", "addLabel": "关系"}]}, 
+            "notes": {"title": "笔记", "type": "fillbox", "addCounter": true, "resetOnClassChange": false}, 
             "starting": {"title": "起始动作", "type": "moveList"}, 
             "advanced": {
                 "title": "进阶动作", 
@@ -191,7 +190,7 @@
                         }
                     ]
                 },
-                "bonds": {"elements": [{"key": "bonds", "value": ["和 _______________ 的关系。", "和 _______________ 的关系。"]}]},
+                "bonds": {"elements": [{"key": "bonds", "value": ["和 ______ 的 ______ 关系。深度：[ ][ ][ ]", "______ 是我的重要之人。"]}]},
                 "gear": {
                     "rightStats": [ {"key": "load", "formula": "5+等级"} ], 
                     "options": [

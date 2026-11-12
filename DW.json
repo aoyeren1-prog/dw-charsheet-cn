@@ -4,7 +4,7 @@
         "license": "CC-BY 3.0 + OGL", 
         "header": {
             "charInfo": [
-                {"id": "name", "label": "姓名", "type": "text", "flex": 2}, 
+                {"id": "name", "label": "姓名", "type": "text", "flex": 2, "resetOnClassChange": false}, 
                 {
                     "id": "level", 
                     "label": "等级", 
@@ -75,7 +75,7 @@
                         "default": 10
                     }
                 ], 
-                "conditions": [
+                "flags": [
                     {
                         "id": "weak", 
                         "label": "虚弱", 
@@ -159,13 +159,9 @@
                 "type": "plain", 
                 "elements": [
                     {"type": "choices", "key": "group0", "layout": "line", "view": "hideUnselect"}, 
-                    {"type": "input", "key": "custom0", "tip": "自定义"}, 
                     {"type": "choices", "key": "group1", "layout": "line", "view": "hideUnselect"}, 
-                    {"type": "input", "key": "custom1", "tip": "自定义"}, 
                     {"type": "choices", "key": "group2", "layout": "line", "view": "hideUnselect"}, 
-                    {"type": "input", "key": "custom2", "tip": "自定义"}, 
                     {"type": "choices", "key": "group3", "layout": "line", "view": "hideUnselect"}, 
-                    {"type": "input", "key": "custom3", "tip": "自定义"}, 
                     {"type": "input", "key": "notes", "tip": "其他外观描述"}
                 ]
             }, 
@@ -191,11 +187,10 @@
                 "title": "装备", 
                 "rightStats": [ {"key": "load", "label": "负载上限", "type": "number", "min": 0} ], 
                 "type": "fillbox", 
-                "resetOnClassChange": true, 
                 "counters": [ {"key": "coins", "label": "金币"} ]
             }, 
-            "bonds": {"title": "羁绊", "type": "plain", "resetOnClassChange": true, "elements": [{"type": "inputGroup", "key": "bonds", "addLabel": "羁绊"}]}, 
-            "notes": {"title": "笔记", "type": "fillbox", "addCounter": true}, 
+            "bonds": {"title": "羁绊", "type": "plain", "elements": [{"type": "inputGroup", "key": "bonds", "addLabel": "羁绊"}]}, 
+            "notes": {"title": "笔记", "type": "fillbox", "addCounter": true, "resetOnClassChange": false}, 
             "starting": {"title": "起始动作", "type": "moveList"}, 
             "advanced": {
                 "title": "进阶动作", 
@@ -389,10 +384,10 @@
                 }, 
                 "look": {
                     "elements": [
-                        { "key": "group0", "value": ["痛苦的眼神", "着魔的眼神", "狂野的眼神", "被遮蔽的双眼"] }, 
-                        { "key": "group1", "value": ["强壮肌肉", "长腿", "骨瘦如柴的身躯", "柔软的身躯"]    }, 
-                        { "key": "group2", "value": ["怪异的刺青", "罕见珠宝装饰", "未经装饰"]           }, 
-                        { "key": "group3", "value": ["破布", "丝绸", "拾荒者装束", "不合时节的衣装"]      }
+                        { "key": "group0", "value": ["痛苦的眼神", "着魔的眼神", "狂野的眼神", "被遮蔽的双眼", "[[custom0:自定义]]"]}, 
+                        { "key": "group1", "value": ["强壮肌肉", "长腿", "骨瘦如柴的身躯", "柔软的身躯", "[[custom1:自定义]]"]}, 
+                        { "key": "group2", "value": ["怪异的刺青", "罕见珠宝装饰", "未经装饰", "[[custom2:自定义]]"]}, 
+                        { "key": "group3", "value": ["破布", "丝绸", "拾荒者装束", "不合时节的衣装", "[[custom3:自定义]]"]}
                     ]
                 }, 
                 "starting": {
@@ -609,10 +604,10 @@
                 }, 
                 "look": {
                     "elements": [
-                        { "key": "group0", "value": ["世故的眼神", "炽热的眼神", "欢快的眼神"] }, 
-                        { "key": "group1", "value": ["花俏的发型", "狂野的发型", "时尚的帽子"] }, 
-                        { "key": "group2", "value": ["华丽服饰", "旅行衣装", "粗劣衣装"]    }, 
-                        { "key": "group3", "value": ["健美的体型", "肥胖的体型", "消瘦的体型"] }
+                        { "key": "group0", "value": ["世故的眼神", "炽热的眼神", "欢快的眼神", "[[custom0:自定义]]"] }, 
+                        { "key": "group1", "value": ["花俏的发型", "狂野的发型", "时尚的帽子", "[[custom1:自定义]]"] }, 
+                        { "key": "group2", "value": ["华丽服饰", "旅行衣装", "粗劣衣装", "[[custom2:自定义]]"]    }, 
+                        { "key": "group3", "value": ["健美的体型", "肥胖的体型", "消瘦的体型", "[[custom3:自定义]]"] }
                     ]
                 }, 
                 "starting": {
@@ -824,10 +819,10 @@
                 }, 
                 "look": {
                     "elements": [
-                        { "key": "group0", "value": ["和蔼的眼神", "锐利的眼神", "忧愁的眼神"] }, 
-                        { "key": "group1", "value": ["修士削发", "怪异的发型", "光头"]     }, 
-                        { "key": "group2", "value": ["飘逸长袍", "神职服装", "寻常装束"]    }, 
-                        { "key": "group3", "value": ["消瘦的体型", "圆润的体型", "松弛的体型"] }
+                        { "key": "group0", "value": ["和蔼的眼神", "锐利的眼神", "忧愁的眼神", "[[custom0:自定义]]"] }, 
+                        { "key": "group1", "value": ["修士削发", "怪异的发型", "光头", "[[custom1:自定义]]"]     }, 
+                        { "key": "group2", "value": ["飘逸长袍", "神职服装", "寻常装束", "[[custom2:自定义]]"]    }, 
+                        { "key": "group3", "value": ["消瘦的体型", "圆润的体型", "松弛的体型", "[[custom3:自定义]]"] }
                     ]
                 }, 
                 "starting": {
@@ -1059,9 +1054,10 @@
                 }, 
                 "look": {
                     "elements": [
-                        { "key": "group0", "value": ["睿智的眼神", "狂野的眼神", "着魔的眼神"] }, 
-                        { "key": "group1", "value": ["毛皮兜帽", "凌乱的发型", "辫子发型"]   }, 
-                        { "key": "group2", "value": ["仪式祭服", "实用革衣", "饱经风霜的兽皮"] }
+                        { "key": "group0", "value": ["睿智的眼神", "狂野的眼神", "着魔的眼神", "[[custom0:自定义]]"] }, 
+                        { "key": "group1", "value": ["毛皮兜帽", "凌乱的发型", "辫子发型", "[[custom1:自定义]]"]   }, 
+                        { "key": "group2", "value": ["仪式祭服", "实用革衣", "饱经风霜的兽皮", "[[custom2:自定义]]"] },
+                        { "key": "group3", "$delete": true}
                     ]
                 }, 
                 "starting": {
@@ -1273,10 +1269,10 @@
                 }, 
                 "look": {
                     "elements": [
-                        { "key": "group0", "value": ["坚毅的眼神", "死沉的眼神", "热切的眼神"]   }, 
-                        { "key": "group1", "value": ["狂野的发型", "剃短的发型", "破旧头盔"]    }, 
-                        { "key": "group2", "value": ["粗硬的肌肤", "晒黑的肌肤", "满布疤痕的肌肤"] }, 
-                        { "key": "group3", "value": ["健壮的体型", "轻盈的体型", "经过摧残的身躯"] }
+                        { "key": "group0", "value": ["坚毅的眼神", "死沉的眼神", "热切的眼神", "[[custom0:自定义]]"]   }, 
+                        { "key": "group1", "value": ["狂野的发型", "剃短的发型", "破旧头盔", "[[custom1:自定义]]"]    }, 
+                        { "key": "group2", "value": ["粗硬的肌肤", "晒黑的肌肤", "满布疤痕的肌肤", "[[custom2:自定义]]"] }, 
+                        { "key": "group3", "value": ["健壮的体型", "轻盈的体型", "经过摧残的身躯", "[[custom3:自定义]]"] }
                     ]
                 }, 
                 "starting": {
@@ -1462,10 +1458,10 @@
                 }, 
                 "look": {
                     "elements": [
-                        { "key": "group0", "value": ["熏烧的眼神", "温暖的眼神", "炽热的眼神"]   }, 
-                        { "key": "group1", "value": ["怪异的烙印", "仪式疤痕", "无暇的肌肤"]    }, 
-                        { "key": "group2", "value": ["专横的举止", "狂躁的态度", "毫不掩饰的愤怒"] }, 
-                        { "key": "group3", "value": ["劈啪爆裂的声音", "低语的声音", "咆哮的声音"] }
+                        { "key": "group0", "value": ["熏烧的眼神", "温暖的眼神", "炽热的眼神", "[[custom0:自定义]]"]   }, 
+                        { "key": "group1", "value": ["怪异的烙印", "仪式疤痕", "无暇的肌肤", "[[custom1:自定义]]"]    }, 
+                        { "key": "group2", "value": ["专横的举止", "狂躁的态度", "毫不掩饰的愤怒", "[[custom2:自定义]]"] }, 
+                        { "key": "group3", "value": ["劈啪爆裂的声音", "低语的声音", "咆哮的声音", "[[custom3:自定义]]"] }
                     ]
                 }, 
                 "starting": {
@@ -1640,10 +1636,10 @@
                 }, 
                 "look": {
                     "elements": [
-                        { "key": "group0", "value": ["仁慈的眼神", "炽热的眼神", "明亮的眼神"] }, 
-                        { "key": "group1", "value": ["头盔", "时尚的发型", "光头"]       }, 
-                        { "key": "group2", "value": ["磨损的圣徽", "华丽的圣徽"]          }, 
-                        { "key": "group3", "value": ["健美的体型", "魁梧的体型", "消瘦的体型"] }
+                        { "key": "group0", "value": ["仁慈的眼神", "炽热的眼神", "明亮的眼神", "[[custom0:自定义]]"] }, 
+                        { "key": "group1", "value": ["头盔", "时尚的发型", "光头", "[[custom1:自定义]]"]       }, 
+                        { "key": "group2", "value": ["磨损的圣徽", "华丽的圣徽", "[[custom2:自定义]]"]          }, 
+                        { "key": "group3", "value": ["健美的体型", "魁梧的体型", "消瘦的体型", "[[custom3:自定义]]"] }
                     ]
                 }, 
                 "starting": {
@@ -1836,10 +1832,10 @@
                 }, 
                 "look": {
                     "elements": [
-                        { "key": "group0", "value": ["狂野的眼神", "锐利的眼神", "野兽的眼神"]   }, 
-                        { "key": "group1", "value": ["兜帽", "狂野的发型", "光头"]         }, 
-                        { "key": "group2", "value": ["斗篷", "自然伪装", "旅行衣装"]        }, 
-                        { "key": "group3", "value": ["轻盈的体型", "野性的体型", "轮廓鲜明的体型"] }
+                        { "key": "group0", "value": ["狂野的眼神", "锐利的眼神", "野兽的眼神", "[[custom0:自定义]]"]   }, 
+                        { "key": "group1", "value": ["兜帽", "狂野的发型", "光头", "[[custom1:自定义]]"]         }, 
+                        { "key": "group2", "value": ["斗篷", "自然伪装", "旅行衣装", "[[custom2:自定义]]"]        }, 
+                        { "key": "group3", "value": ["轻盈的体型", "野性的体型", "轮廓鲜明的体型", "[[custom3:自定义]]"] }
                     ]
                 }, 
                 "starting": {
@@ -2051,10 +2047,10 @@
                 }, 
                 "look": {
                     "elements": [
-                        { "key": "group0", "value": ["诡诈的眼神", "罪犯的眼神"]          }, 
-                        { "key": "group1", "value": ["兜帽", "杂乱的发型", "裁短的发型"]    }, 
-                        { "key": "group2", "value": ["暗色衣装", "华美衣装", "寻常衣装"]    }, 
-                        { "key": "group3", "value": ["轻盈的体型", "圆润的体型", "松弛的体型"] }
+                        { "key": "group0", "value": ["诡诈的眼神", "罪犯的眼神", "[[custom0:自定义]]"]          }, 
+                        { "key": "group1", "value": ["兜帽", "杂乱的发型", "裁短的发型", "[[custom1:自定义]]"]    }, 
+                        { "key": "group2", "value": ["暗色衣装", "华美衣装", "寻常衣装", "[[custom2:自定义]]"]    }, 
+                        { "key": "group3", "value": ["轻盈的体型", "圆润的体型", "松弛的体型", "[[custom3:自定义]]"] }
                     ]
                 }, 
                 "starting": {
@@ -2246,10 +2242,10 @@
                 }, 
                 "look": {
                     "elements": [
-                        { "key": "group0", "value": ["着魔的眼神", "锐利的眼神", "疯狂的眼神"] }, 
-                        { "key": "group1", "value": ["时尚的发型", "狂乱的发型", "巫师尖帽"]  }, 
-                        { "key": "group2", "value": ["老旧长袍", "漂亮长袍", "古怪长袍"]    }, 
-                        { "key": "group3", "value": ["矮胖的体型", "诡异的体型", "消瘦的体型"] }
+                        { "key": "group0", "value": ["着魔的眼神", "锐利的眼神", "疯狂的眼神", "[[custom0:自定义]]"] }, 
+                        { "key": "group1", "value": ["时尚的发型", "狂乱的发型", "巫师尖帽", "[[custom1:自定义]]"]  }, 
+                        { "key": "group2", "value": ["老旧长袍", "漂亮长袍", "古怪长袍", "[[custom2:自定义]]"]    }, 
+                        { "key": "group3", "value": ["矮胖的体型", "诡异的体型", "消瘦的体型", "[[custom3:自定义]]"] }
                     ]
                 }, 
                 "starting": {
@@ -2435,6 +2431,15 @@
             "id": "custom", 
             "name": "自定义", 
             "areas": {
+                "look": {
+                    "elements": [
+                        {"key": "group0", "$delete": true},
+                        {"key": "group1", "$delete": true},
+                        {"key": "group2", "$delete": true},
+                        {"key": "group3", "$delete": true},
+                        {"type": "input", "key": "notes", "tip": "外观描述"}
+                    ]
+                },
                 "starting": {
                     "buttons": [ {"label": "动作", "position": "global", "action": "addMove"} ]
                 }, 

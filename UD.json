@@ -4,7 +4,7 @@
         "license": "CC BY-SA 4.0", 
         "header": {
             "charInfo": [
-                {"id": "name", "label": "姓名", "type": "text", "flex": 2}, 
+                {"id": "name", "label": "姓名", "type": "text", "flex": 2, "resetOnClassChange": false}, 
                 {"id": "level", "label": "等级", "type": "number", "min": 1, "max": 10, "default": 1}, 
                 {"id": "xp", "label": "XP", "type": "number", "min": 0, "default": 0, "view": "editable"}
             ], 
@@ -18,7 +18,7 @@
                     { "id": "WIS", "label": "睿知", "type": "modifier", "min": -1, "max": 3, "default": 0 }, 
                     { "id": "CHA", "label": "魅力", "type": "modifier", "min": -1, "max": 3, "default": 0 }
                 ], 
-                "conditions": [
+                "flags": [
                     { "id": "weak"    , "label": "虚弱", "states": 2, "boundStat": "STR" }, 
                     { "id": "shaken"  , "label": "动摇", "states": 2, "boundStat": "DEX" }, 
                     { "id": "sick"    , "label": "病弱", "states": 2, "boundStat": "CON" }, 
@@ -31,9 +31,9 @@
                 "columns": 2, 
                 "fields": [
                     { "id": "hpCur" , "label": "当前生命", "type": "number", "min": 0, "view": "editable" }, 
-                    { "id": "hpMax" , "label": "最大生命", "type": "number", "min": 0                     }, 
-                    { "id": "armor" , "label": "护甲"  , "type": "number", "min": 0                     }, 
-                    { "id": "damage", "label": "伤害"  , "type": "text"                                 }
+                    { "id": "hpMax" , "label": "最大生命", "type": "number", "min": 0 }, 
+                    { "id": "armor" , "label": "护甲"  , "type": "number", "min": 0 }, 
+                    { "id": "damage", "label": "伤害"  , "type": "text" }
                 ]
             }
         }, 
@@ -63,14 +63,10 @@
                 "title": "外观", 
                 "type": "plain", 
                 "elements": [
-                    {"type": "choices", "key": "group0", "layout": "break", "value": []}, 
-                    {"type": "input", "key": "custom0", "tip": "自定义"}, 
-                    {"type": "choices", "key": "group1", "layout": "break", "value": []}, 
-                    {"type": "input", "key": "custom1", "tip": "自定义"}, 
-                    {"type": "choices", "key": "group2", "layout": "break", "value": []}, 
-                    {"type": "input", "key": "custom2", "tip": "自定义"}, 
-                    {"type": "choices", "key": "group3", "layout": "break", "value": []}, 
-                    {"type": "input", "key": "custom3", "tip": "自定义"}, 
+                    {"type": "choices", "key": "group0", "layout": "line", "value": []}, 
+                    {"type": "choices", "key": "group1", "layout": "line", "value": []}, 
+                    {"type": "choices", "key": "group2", "layout": "line", "value": []}, 
+                    {"type": "choices", "key": "group3", "layout": "line", "value": []}, 
                     {"type": "input", "key": "notes", "tip": "其他外观描述"}
                 ]
             }, 
@@ -82,17 +78,21 @@
             "advanced": {
                 "title": "进阶动作", 
                 "type": "moveList", 
-                "buttons": [ {"label": "动作", "position": "global", "action": "addMove", "targetGroup": "custom"} ], 
+                "buttons": [ {"label": "动作", "position": "global", "action": "addMove", "targetGroup": "custom"} ],
+                "groups": [
+                    {"key": "adv", "label": "起始时从以下进阶动作中选择一项：", "minLevel": 1, "moves": []}, 
+                    {"key": "capstone", "label": "巅峰动作", "minLevel": 6, "moves": []}, 
+                    {"key": "custom", "label": "其他", "moves": []}
+                ],
                 "selectMoves": true
             }, 
             "gear": {
                 "title": "装备", 
                 "type": "fillbox", 
-                "rightStats": [ {"key": "load", "label": "负载上限", "type": "number", "min": 0} ], 
-                "resetOnClassChange": true
+                "rightStats": [ {"key": "load", "label": "负载上限", "type": "number", "min": 0} ]
             }, 
-            "notes": {"title": "笔记", "type": "fillbox", "addCounter": true}, 
-            "bonds": {"title": "羁绊", "type": "plain", "resetOnClassChange": true, "elements": [{"type": "inputGroup", "key": "bonds", "addLabel": "羁绊"}]}, 
+            "notes": {"title": "笔记", "type": "fillbox", "addCounter": true, "resetOnClassChange": false}, 
+            "bonds": {"title": "羁绊", "type": "plain", "elements": [{"type": "inputGroup", "key": "bonds", "addLabel": "羁绊"}]}, 
             "heritage": {
                 "title": "血统", 
                 "type": "moveList", 
@@ -127,10 +127,10 @@
                 }, 
                 "look": {
                     "elements": [
-                        { "key": "group0", "value": ["痛苦的眼睛", "阴郁的眼睛", "狂野的眼睛", "阴翳的眼睛"]  }, 
-                        { "key": "group1", "value": ["强壮的肌肉", "修长的腿", "骨瘦如柴的身躯", "柔软的身躯"] }, 
-                        { "key": "group2", "value": ["奇怪的刺青", "奇特的珠宝", "朴素无饰"]            }, 
-                        { "key": "group3", "value": ["破布", "丝绸", "拾荒者的装束", "粗陋的毛皮"]       }
+                        { "key": "group0", "value": ["痛苦的眼睛", "阴郁的眼睛", "狂野的眼睛", "阴翳的眼睛", "[[custom0:自定义]]"]  }, 
+                        { "key": "group1", "value": ["强壮的肌肉", "修长的腿", "骨瘦如柴的身躯", "柔软的身躯", "[[custom1:自定义]]"] }, 
+                        { "key": "group2", "value": ["奇怪的刺青", "奇特的珠宝", "朴素无饰", "[[custom2:自定义]]"]            }, 
+                        { "key": "group3", "value": ["破布", "丝绸", "拾荒者的装束", "粗陋的毛皮", "[[custom3:自定义]]"]       }
                     ]
                 }, 
                 "starting": {
@@ -155,8 +155,6 @@
                     "groups": [
                         {
                             "key": "adv", 
-                            "label": "起始时从以下进阶动作中选择一项：", 
-                            "minLevel": 1, 
                             "moves": [
                                 {
                                     "name": "战争先锋", 
@@ -187,8 +185,6 @@
                         }, 
                         {
                             "key": "capstone", 
-                            "label": "巅峰动作", 
-                            "minLevel": 6, 
                             "moves": [
                                 {
                                     "name": "巅峰动作", 
@@ -245,10 +241,10 @@
                 }, 
                 "look": {
                     "elements": [
-                        { "key": "group0", "value": ["慧黠的眼睛", "炽热的眼睛", "欢快的眼睛"] }, 
-                        { "key": "group1", "value": ["精致的头发", "狂野的头发", "时髦的帽子"] }, 
-                        { "key": "group2", "value": ["华服", "旅行装束", "寒酸的衣着"]     }, 
-                        { "key": "group3", "value": ["匀称的身躯", "丰腴的身躯", "清瘦的身躯"] }
+                        { "key": "group0", "value": ["慧黠的眼睛", "炽热的眼睛", "欢快的眼睛", "[[custom0:自定义]]"] }, 
+                        { "key": "group1", "value": ["精致的头发", "狂野的头发", "时髦的帽子", "[[custom1:自定义]]"] }, 
+                        { "key": "group2", "value": ["华服", "旅行装束", "寒酸的衣着", "[[custom2:自定义]]"]     }, 
+                        { "key": "group3", "value": ["匀称的身躯", "丰腴的身躯", "清瘦的身躯", "[[custom3:自定义]]"] }
                     ]
                 }, 
                 "starting": {
@@ -274,8 +270,6 @@
                     "groups": [
                         {
                             "key": "adv", 
-                            "label": "起始时从以下进阶动作中选择一项：", 
-                            "minLevel": 1, 
                             "moves": [
                                 {
                                     "name": "敞开心胸", 
@@ -306,8 +300,6 @@
                         }, 
                         {
                             "key": "capstone", 
-                            "label": "巅峰动作", 
-                            "minLevel": 6, 
                             "moves": [ {"name": "巅峰动作", "text": "当你与某人谈判时，掷出 12+ 时，GM 还会告诉你一件你能做的事，好让对方成为你的盟友。"} ]
                         }, 
                         {"key": "custom", "label": "其他", "moves": []}
@@ -349,10 +341,10 @@
                 }, 
                 "look": {
                     "elements": [
-                        { "key": "group0", "value": ["和善的眼睛", "锐利的眼睛", "悲伤的眼睛"]   }, 
-                        { "key": "group1", "value": ["剃度", "怪异的头发", "光头"]         }, 
-                        { "key": "group2", "value": ["飘逸的长袍", "修士服", "寻常衣着"]      }, 
-                        { "key": "group3", "value": ["清瘦的身躯", "骨节分明的身躯", "松垮的身躯"] }
+                        { "key": "group0", "value": ["和善的眼睛", "锐利的眼睛", "悲伤的眼睛", "[[custom0:自定义]]"]   }, 
+                        { "key": "group1", "value": ["剃度", "怪异的头发", "光头", "[[custom1:自定义]]"]         }, 
+                        { "key": "group2", "value": ["飘逸的长袍", "修士服", "寻常衣着", "[[custom2:自定义]]"]      }, 
+                        { "key": "group3", "value": ["清瘦的身躯", "骨节分明的身躯", "松垮的身躯", "[[custom3:自定义]]"] }
                     ]
                 }, 
                 "starting": {
@@ -382,8 +374,6 @@
                     "groups": [
                         {
                             "key": "adv", 
-                            "label": "起始时从以下进阶动作中选择一项：", 
-                            "minLevel": 1, 
                             "moves": [
                                 {"name": "净化", "text": "为神圣守护添加以下选项：\n\n- 他们身上的一种毒素或疾病被治愈\n- 施加在他们心智或灵魂上的邪祟影响被驱除"}, 
                                 {
@@ -414,8 +404,6 @@
                         }, 
                         {
                             "key": "capstone", 
-                            "label": "巅峰动作", 
-                            "minLevel": 6, 
                             "moves": [ {"name": "巅峰动作", "text": "当你使用祈请时，掷出 12+ 时，你神祇的荣光透过你闪耀而出；你描述你所选的祝佑如何显现。"} ]
                         }, 
                         {"key": "custom", "label": "其他", "moves": []}
@@ -458,10 +446,10 @@
                 }, 
                 "look": {
                     "elements": [
-                        { "key": "group0", "value": ["睿智的眼睛", "狂野的眼睛", "慑人的眼睛"]  }, 
-                        { "key": "group1", "value": ["毛皮兜帽", "蓬乱的头发", "编起的发辫"]   }, 
-                        { "key": "group2", "value": ["仪式礼服", "实用的皮甲", "饱经风霜的兽皮"] }, 
-                        { "key": "group3", "value": ["标志 Tell：______"]           }
+                        { "key": "group0", "value": ["睿智的眼睛", "狂野的眼睛", "慑人的眼睛", "[[custom0:自定义]]"]  }, 
+                        { "key": "group1", "value": ["毛皮兜帽", "蓬乱的头发", "编起的发辫", "[[custom1:自定义]]"]   }, 
+                        { "key": "group2", "value": ["仪式礼服", "实用的皮甲", "饱经风霜的兽皮", "[[custom2:自定义]]"] }, 
+                        { "key": "group3", "value": ["标志 Tell：______", "[[custom3:自定义]]"]           }
                     ]
                 }, 
                 "starting": {
@@ -491,8 +479,6 @@
                     "groups": [
                         {
                             "key": "adv", 
-                            "label": "起始时从以下进阶动作中选择一项：", 
-                            "minLevel": 1, 
                             "moves": [
                                 {
                                     "name": "魂语交融", 
@@ -526,8 +512,6 @@
                         }, 
                         {
                             "key": "capstone", 
-                            "label": "巅峰动作", 
-                            "minLevel": 6, 
                             "moves": [ {"name": "巅峰动作", "text": "当你使用化形者时，掷出 12+ 时，你可以随心所欲地保持那个形态；在你变回去之前，你永远不必为维持它而消耗自然。"} ]
                         }, 
                         {"key": "custom", "label": "其他", "moves": []}
@@ -574,10 +558,10 @@
                 }, 
                 "look": {
                     "elements": [
-                        { "key": "group0", "value": ["冷硬的眼睛", "死寂的眼睛", "热切的眼睛"]     }, 
-                        { "key": "group1", "value": ["狂野的头发", "剪短的头发", "残破的头盔"]     }, 
-                        { "key": "group2", "value": ["长满老茧的皮肤", "晒黑的皮肤", "布满伤疤的皮肤"] }, 
-                        { "key": "group3", "value": ["魁梧的身躯", "矫健的身躯", "饱经摧残的身躯"]   }
+                        { "key": "group0", "value": ["冷硬的眼睛", "死寂的眼睛", "热切的眼睛", "[[custom0:自定义]]"]     }, 
+                        { "key": "group1", "value": ["狂野的头发", "剪短的头发", "残破的头盔", "[[custom1:自定义]]"]     }, 
+                        { "key": "group2", "value": ["长满老茧的皮肤", "晒黑的皮肤", "布满伤疤的皮肤", "[[custom2:自定义]]"] }, 
+                        { "key": "group3", "value": ["魁梧的身躯", "矫健的身躯", "饱经摧残的身躯", "[[custom3:自定义]]"]   }
                     ]
                 }, 
                 "starting": {
@@ -600,8 +584,6 @@
                     "groups": [
                         {
                             "key": "adv", 
-                            "label": "起始时从以下进阶动作中选择一项：", 
-                            "minLevel": 1, 
                             "moves": [
                                 {
                                     "name": "弯栅破门", 
@@ -632,8 +614,6 @@
                         }, 
                         {
                             "key": "capstone", 
-                            "label": "巅峰动作", 
-                            "minLevel": 6, 
                             "moves": [ {"name": "巅峰动作", "text": "当你砍劈掷出 12+ 时，你造成你的伤害、避开他们的攻击，并使你的敌人折服、惊愕或恐惧；你描述你是如何做到的。"} ]
                         }, 
                         {"key": "custom", "label": "其他", "moves": []}
@@ -675,10 +655,10 @@
                 }, 
                 "look": {
                     "elements": [
-                        { "key": "group0", "value": ["闷燃的眼睛", "温暖的眼睛", "灼人的眼睛"]     }, 
-                        { "key": "group1", "value": ["奇异的烙印", "仪式性的伤疤", "无瑕的皮肤"]    }, 
-                        { "key": "group2", "value": ["傲慢的举止", "狂躁的态度", "勉强压制的暴怒"]   }, 
-                        { "key": "group3", "value": ["噼啪作响的声音", "低语般的声音", "咆哮般的声音"] }
+                        { "key": "group0", "value": ["闷燃的眼睛", "温暖的眼睛", "灼人的眼睛", "[[custom0:自定义]]"]     }, 
+                        { "key": "group1", "value": ["奇异的烙印", "仪式性的伤疤", "无瑕的皮肤", "[[custom1:自定义]]"]    }, 
+                        { "key": "group2", "value": ["傲慢的举止", "狂躁的态度", "勉强压制的暴怒", "[[custom2:自定义]]"]   }, 
+                        { "key": "group3", "value": ["噼啪作响的声音", "低语般的声音", "咆哮般的声音", "[[custom3:自定义]]"] }
                     ]
                 }, 
                 "starting": {
@@ -712,8 +692,6 @@
                     "groups": [
                         {
                             "key": "adv", 
-                            "label": "起始时从以下进阶动作中选择一项：", 
-                            "minLevel": 1, 
                             "moves": [
                                 {
                                     "name": "以火攻火", 
@@ -744,8 +722,6 @@
                         }, 
                         {
                             "key": "capstone", 
-                            "label": "巅峰动作", 
-                            "minLevel": 6, 
                             "moves": [ {"name": "巅峰动作", "text": "当你召唤你的燃烧之剑时，掷出 12+ 时，你可以随心所欲地从列表中选择任意数量的标签，且你的武器还免费获得*毁乱*标签。"} ]
                         }, 
                         {"key": "custom", "label": "其他", "moves": []}
@@ -787,10 +763,10 @@
                 }, 
                 "look": {
                     "elements": [
-                        { "key": "group0", "value": ["和善的眼睛", "炽热的眼睛", "发光的眼睛"]   }, 
-                        { "key": "group1", "value": ["头盔", "打理过的头发", "光头"]        }, 
-                        { "key": "group2", "value": ["磨损的圣徽", "精致的圣徽", "绣有纹章的徽记"] }, 
-                        { "key": "group3", "value": ["匀称的身躯", "魁梧的身躯", "清瘦的身躯"]   }
+                        { "key": "group0", "value": ["和善的眼睛", "炽热的眼睛", "发光的眼睛", "[[custom0:自定义]]"]   }, 
+                        { "key": "group1", "value": ["头盔", "打理过的头发", "光头", "[[custom1:自定义]]"]        }, 
+                        { "key": "group2", "value": ["磨损的圣徽", "精致的圣徽", "绣有纹章的徽记", "[[custom2:自定义]]"] }, 
+                        { "key": "group3", "value": ["匀称的身躯", "魁梧的身躯", "清瘦的身躯", "[[custom3:自定义]]"]   }
                     ]
                 }, 
                 "starting": {
@@ -814,8 +790,6 @@
                     "groups": [
                         {
                             "key": "adv", 
-                            "label": "起始时从以下进阶动作中选择一项：", 
-                            "minLevel": 1, 
                             "moves": [
                                 {
                                     "name": "圣疗", 
@@ -849,8 +823,6 @@
                         }, 
                         {
                             "key": "capstone", 
-                            "label": "巅峰动作", 
-                            "minLevel": 6, 
                             "moves": [
                                 {
                                     "name": "巅峰动作", 
@@ -893,10 +865,10 @@
                 }, 
                 "look": {
                     "elements": [
-                        { "key": "group0", "value": ["狂野的眼睛", "锐利的眼睛", "兽性的眼睛"] }, 
-                        { "key": "group1", "value": ["兜帽遮头", "狂野的头发", "光头"]     }, 
-                        { "key": "group2", "value": ["伪装服", "深色衣着", "全天候衣着"]    }, 
-                        { "key": "group3", "value": ["修长的腿", "精瘦的身躯", "粗犷的身躯"]  }
+                        { "key": "group0", "value": ["狂野的眼睛", "锐利的眼睛", "兽性的眼睛", "[[custom0:自定义]]"] }, 
+                        { "key": "group1", "value": ["兜帽遮头", "狂野的头发", "光头", "[[custom1:自定义]]"]     }, 
+                        { "key": "group2", "value": ["伪装服", "深色衣着", "全天候衣着", "[[custom2:自定义]]"]    }, 
+                        { "key": "group3", "value": ["修长的腿", "精瘦的身躯", "粗犷的身躯", "[[custom3:自定义]]"]  }
                     ]
                 }, 
                 "starting": {
@@ -926,8 +898,6 @@
                     "groups": [
                         {
                             "key": "adv", 
-                            "label": "起始时从以下进阶动作中选择一项：", 
-                            "minLevel": 1, 
                             "moves": [
                                 {"name": "遮天箭雨", "text": "当你射击时，你可以在掷骰前花费一次物资使用次数、或擦掉荒野箭袋格中的标记，为你的攻击赋予*区域*标签；对每个目标分别掷伤害。"}, 
                                 {
@@ -958,8 +928,6 @@
                         }, 
                         {
                             "key": "capstone", 
-                            "label": "巅峰动作", 
-                            "minLevel": 6, 
                             "moves": [ {"name": "巅峰动作", "text": "当你射击时，掷出 12+ 时，你的箭命中要害，无视护甲，并以某种方式削弱或致残目标；你描述发生了什么。"} ]
                         }, 
                         {"key": "custom", "label": "其他", "moves": []}
@@ -1007,10 +975,10 @@
                 }, 
                 "look": {
                     "elements": [
-                        { "key": "group0", "value": ["贼溜溜的眼睛", "独眼罩", "罪犯的眼睛"]  }, 
-                        { "key": "group1", "value": ["兜帽遮头", "乱蓬蓬的头发", "剪短的头发"] }, 
-                        { "key": "group2", "value": ["深色衣着", "华贵衣着", "寻常衣着"]    }, 
-                        { "key": "group3", "value": ["精瘦的身躯", "紧绷的身躯", "敏捷的身躯"] }
+                        { "key": "group0", "value": ["贼溜溜的眼睛", "独眼罩", "罪犯的眼睛", "[[custom0:自定义]]"]  }, 
+                        { "key": "group1", "value": ["兜帽遮头", "乱蓬蓬的头发", "剪短的头发", "[[custom1:自定义]]"] }, 
+                        { "key": "group2", "value": ["深色衣着", "华贵衣着", "寻常衣着", "[[custom2:自定义]]"]    }, 
+                        { "key": "group3", "value": ["精瘦的身躯", "紧绷的身躯", "敏捷的身躯", "[[custom3:自定义]]"] }
                     ]
                 }, 
                 "starting": {
@@ -1044,8 +1012,6 @@
                     "groups": [
                         {
                             "key": "adv", 
-                            "label": "起始时从以下进阶动作中选择一项：", 
-                            "minLevel": 1, 
                             "moves": [
                                 {
                                     "name": "人脉网络", 
@@ -1076,8 +1042,6 @@
                         }, 
                         {
                             "key": "capstone", 
-                            "label": "巅峰动作", 
-                            "minLevel": 6, 
                             "moves": [ {"name": "巅峰动作", "text": "当你面对危险时，掷出 12+ 时，你超越了那危险。危险被克服，GM 还会给你一个更好的结果，或一个恩典时刻。"} ]
                         }, 
                         {"key": "custom", "label": "其他", "moves": []}
@@ -1115,10 +1079,10 @@
                 }, 
                 "look": {
                     "elements": [
-                        { "key": "group0", "value": ["阴郁的眼睛", "锐利的眼睛", "疯狂的眼睛"] }, 
-                        { "key": "group1", "value": ["打理过的头发", "狂野的头发", "尖顶帽"]  }, 
-                        { "key": "group2", "value": ["破旧的长袍", "时髦的长袍", "怪异的长袍"] }, 
-                        { "key": "group3", "value": ["矮胖的身躯", "瘆人的身躯", "清瘦的身躯"] }
+                        { "key": "group0", "value": ["阴郁的眼睛", "锐利的眼睛", "疯狂的眼睛", "[[custom0:自定义]]"] }, 
+                        { "key": "group1", "value": ["打理过的头发", "狂野的头发", "尖顶帽", "[[custom1:自定义]]"]  }, 
+                        { "key": "group2", "value": ["破旧的长袍", "时髦的长袍", "怪异的长袍", "[[custom2:自定义]]"] }, 
+                        { "key": "group3", "value": ["矮胖的身躯", "瘆人的身躯", "清瘦的身躯", "[[custom3:自定义]]"] }
                     ]
                 }, 
                 "starting": {
@@ -1144,8 +1108,6 @@
                     "groups": [
                         {
                             "key": "adv", 
-                            "label": "起始时从以下进阶动作中选择一项：", 
-                            "minLevel": 1, 
                             "moves": [
                                 {
                                     "name": "古物学家", 
@@ -1173,8 +1135,6 @@
                         }, 
                         {
                             "key": "capstone", 
-                            "label": "巅峰动作", 
-                            "minLevel": 6, 
                             "moves": [ {"name": "巅峰动作", "text": "当你施放法术时，掷出 12+ 时，你的法术表现得比预期更好、或附带了额外的益处，GM 会描述它。"} ]
                         }, 
                         {"key": "custom", "label": "其他", "moves": []}

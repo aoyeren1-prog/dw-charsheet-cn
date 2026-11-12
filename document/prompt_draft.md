@@ -1,7 +1,7 @@
 # 规则 JSON 写作提示词（草稿）
 
 > 给 AI 或自己用，生成符合「地城世界车卡工具」格式的规则 JSON。
-> **草稿**：此文档尚未进行实测，定稿后应随代码更新保持维护，上次更新时间：**26.11.09**
+> **草稿**：此文档尚未进行实测，定稿后应随代码更新保持维护，上次更新时间：**26.11.12**
 
 ## 任务
 
@@ -30,7 +30,7 @@
 ## rules_format 摘要
 
 - 顶层三块：`meta`（全局）、`classes`（playbook 数组，覆盖 meta 的 header/areas）、`reference`（边栏内容）。
-- `meta.header`：`charInfo`（字段）、`stats`（`items`+`conditions`+`modTable`+`prompt`）、`metrics`（`fields`+`columns`）；字段/属性带 `id`/`type`/`default`。
+- `meta.header`：`charInfo`（字段）、`stats`（`items`+`flags`+`modTable`+`prompt`）、`metrics`（`fields`+`columns`）；字段/属性带 `id`/`type`/`default`。
 - `meta.areas`：常用 `plain`/`moveList`/`fillbox` 三种，通用字段 `title`/`note`/`rightStats`/`resetOnClassChange`。
 - `plain` 元素：`text`/`hint`/`choices`/`input`/`track`/`inputGroup`，有键元素用 `key` 存值。
 - `moveList`：`groups`（`key`/`label`/`minLevel`/`moves`）与 `moves`（`name`/`text`/`requires`/`replaces`/`importArea`/`importGroup`）。

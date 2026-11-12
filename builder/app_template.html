@@ -132,16 +132,16 @@ body{background:var(--bg);color:var(--text);font-family:"Segoe UI","Microsoft Ya
 .stat-card .v{font-size:24px;font-weight:800}
 .stat-card .m{font-size:15px;font-weight:700;color:var(--ink-2)}
 .stat-card input{width:100%;border:none;border-bottom:1px dashed var(--ink-5);text-align:center;font-size:24px;font-weight:800;background:transparent;color:var(--ink)}
-/* 无 boundStat 的状态：另起一行横排居中，超宽换行 */
-.loose-conditions{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:2px}
-.cond{border:1px solid var(--ink-5);background:transparent;color:var(--ink-4);border-radius:3px;padding:1px 5px;font-size:11px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:3px;line-height:1.4;margin-top:2px}
-.cond:hover{border-color:var(--accent)}
-.cond.on{color:var(--ink);border-color:var(--ink-3)}
-/* 状态标记：自己画的圆，填充比例由档位算出（--fill）。
-   不走字体，所以档位切换时尺寸恒定；currentColor 让它跟着 .cond / .cond.on 变色。
-   声明了 symbols 的状态改用字符，由 .cond-sym 退回纯文本。 */
-.cond-mark{flex:none;display:inline-block;width:11px;height:11px;box-sizing:border-box;border:1px solid currentColor;border-radius:50%;background:linear-gradient(90deg,currentColor var(--fill,0%),transparent var(--fill,0%))}
-.cond-sym{width:auto;height:auto;border:none;border-radius:0;background:none;font-size:11px;line-height:1}
+/* 无 boundStat 的标记：另起一行横排居中，超宽换行 */
+.loose-flags{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:2px}
+.flag{border:1px solid var(--ink-5);background:transparent;color:var(--ink-4);border-radius:3px;padding:1px 5px;font-size:11px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:3px;line-height:1.4;margin-top:2px}
+.flag:hover{border-color:var(--accent)}
+.flag.on{color:var(--ink);border-color:var(--ink-3)}
+/* 标记档位：自己画的圆，填充比例由档位算出（--fill）。
+   不走字体，所以档位切换时尺寸恒定；currentColor 让它跟着 .flag / .flag.on 变色。
+   声明了 symbols 的标记改用字符，由 .flag-sym 退回纯文本。 */
+.flag-mark{flex:none;display:inline-block;width:11px;height:11px;box-sizing:border-box;border:1px solid currentColor;border-radius:50%;background:linear-gradient(90deg,currentColor var(--fill,0%),transparent var(--fill,0%))}
+.flag-sym{width:auto;height:auto;border:none;border-radius:0;background:none;font-size:11px;line-height:1}
 .track{display:flex;flex-wrap:wrap;gap:3px;align-items:center}
 .trl{font-size:14px;color:var(--ink-4);margin:0 3px}
 .trl.on{color:var(--ink);font-weight:700}
@@ -404,11 +404,13 @@ function resolveHeader(h){
       prompt: stats.prompt || "",
       modTable: isObj(stats.modTable) ? stats.modTable : null,
       items: Array.isArray(stats.items) ? stats.items : [],
-      conditions: Array.isArray(stats.conditions) ? stats.conditions : []
+      flags: Array.isArray(stats.flags) ? stats.flags : [],
+      resetOnClassChange: stats.resetOnClassChange
     },
     metrics: {
       columns: metrics.columns || 2,
-      fields: Array.isArray(metrics.fields) ? metrics.fields : []
+      fields: Array.isArray(metrics.fields) ? metrics.fields : [],
+      resetOnClassChange: metrics.resetOnClassChange
     }
   };
 }
@@ -459,7 +461,7 @@ function uid(){ return "c"+Math.random().toString(36).slice(2,9); }
 // 三个容器，键名全部来自 header 声明：
 //   fields —— charInfo 与 metrics 的字段值
 //   stats  —— 属性值，按 stats.items[].id 存
-//   states —— 状态档位，按 stats.conditions[].id 存，0 即初始档
+//   states —— 标记档位，按 stats.flags[].id 存，0 即初始档
 function defaultChar(){
   const c = {classId:"", fields:{}, stats:{}, states:{},
     areaData:{}, moveListSelections:{}, moveListGroupNames:{}, moveListNames:{}, moveListTexts:{}};
@@ -478,6 +480,12 @@ function seedChar(c, header){
 function fieldSeed(f){
   if(f.default !== undefined) return f.default;
   return (f.type === "number" || f.type === "track") ? 0 : "";
+}
+// 字段是否在换职业时重置：字段自身 > 所属子块 > 默认 true（清空）
+function fieldResets(field, subBlockFlag){
+  if(field && field.resetOnClassChange !== undefined) return !!field.resetOnClassChange;
+  if(subBlockFlag !== undefined) return !!subBlockFlag;
+  return true;
 }
 
 /* ============ 属性与状态 ============ */
@@ -512,20 +520,20 @@ function effModOf(item, header){
   const value = statValue(item.id, h);
   return rawMod(item, value, h) - statePenalty(item, h);
 }
-// 绑定到该属性、且已离开初始档的状态，每个按 effect 扣减
+// 绑定到该属性、且已离开初始档的标记，每个按 effect 扣减
 function statePenalty(item, header){
   const h = header || headerFor(getClass(char.classId));
   let penalty = 0;
-  boundConditions(item, h).forEach(c => {
+  boundFlags(item, h).forEach(c => {
     if(c.effect !== "modPenalty") return;
     if((char.states[c.id] || 0) > 0) penalty += 1;
   });
   return penalty;
 }
 // boundStat 同样按 id 或 label 匹配
-function boundConditions(item, header){
+function boundFlags(item, header){
   const h = header || headerFor(getClass(char.classId));
-  return h.stats.conditions.filter(c =>
+  return h.stats.flags.filter(c =>
     c.boundStat !== undefined && (c.boundStat === item.id || c.boundStat === item.label));
 }
 function fmtMod(m){return (m>0?"+":"")+m;}
@@ -1483,10 +1491,10 @@ function renderStatsBlock(header){
   if(!cfg.items.length) return "<div></div>";
   const prompt = cfg.prompt ? `<div class="stat-prompt">${esc(cfg.prompt)}</div>` : "";
   const cards = cfg.items.map(item => renderStatCard(item, header)).join("");
-  // 没有 boundStat 的状态不归属任何属性，另起一行横排，超宽自动换行
-  const loose = cfg.conditions.filter(c => c.boundStat === undefined)
-    .map(c => renderConditionBtn(c)).join("");
-  const looseHtml = loose ? `<div class="loose-conditions">${loose}</div>` : "";
+  // 没有 boundStat 的标记不归属任何属性，另起一行横排，超宽自动换行
+  const loose = cfg.flags.filter(c => c.boundStat === undefined)
+    .map(c => renderFlagBtn(c)).join("");
+  const looseHtml = loose ? `<div class="loose-flags">${loose}</div>` : "";
   return `<div class="stat-block">${prompt}<div class="stat-grid">${cards}</div>${looseHtml}</div>`;
 }
 
@@ -1499,21 +1507,21 @@ function renderStatCard(item, header){
     ? numberControl(item, value, `stat:${item.id}`)
     : `<div class="v"${isMod ? ` data-mod="${esc(item.id)}"` : ""}>${isMod ? em : esc(value)}</div>`;
   const modRow = isMod ? "" : `<div class="m" data-mod="${esc(item.id)}">${em}</div>`;
-  const conds = boundConditions(item, header).map(c => renderConditionBtn(c)).join("");
-  return `<div class="stat-card"><div class="n">${esc(item.label || item.id)}</div>${val}${modRow}${conds}</div>`;
+  const flags = boundFlags(item, header).map(c => renderFlagBtn(c)).join("");
+  return `<div class="stat-card"><div class="n">${esc(item.label || item.id)}</div>${val}${modRow}${flags}</div>`;
 }
 
-// 状态按钮：点一次进下一档，到顶回 0。
+// 标记按钮：点一次进下一档，到顶回 0。
 // 默认用画出来的圆表示档位（0 空心 → 满档实心），
 // 规则显式写了 symbols 时改用字符——那种场合多半不是渐进语义。
-function renderConditionBtn(c){
+function renderFlagBtn(c){
   const st = char.states[c.id] || 0;
   const n = stateCount(c);
   const syms = Array.isArray(c.symbols) && c.symbols.length >= n ? c.symbols : null;
   const mark = syms
-    ? `<span class="cond-mark cond-sym">${esc(syms[st])}</span>`
-    : `<span class="cond-mark" style="--fill:${Math.round(st / (n - 1) * 100)}%"></span>`;
-  return `<button type="button" class="cond${st ? " on" : ""}" data-state="${esc(c.id)}" data-m="${st}" title="${esc(c.label || c.id)}">${mark} ${esc(c.label || c.id)}</button>`;
+    ? `<span class="flag-mark flag-sym">${esc(syms[st])}</span>`
+    : `<span class="flag-mark" style="--fill:${Math.round(st / (n - 1) * 100)}%"></span>`;
+  return `<button type="button" class="flag${st ? " on" : ""}" data-state="${esc(c.id)}" data-m="${st}" title="${esc(c.label || c.id)}">${mark} ${esc(c.label || c.id)}</button>`;
 }
 
 function renderMetricsBlock(header){
@@ -1930,41 +1938,60 @@ function autosizeBlanks(){ document.querySelectorAll("input.blank").forEach(auto
 function onClassChange(){
   const newId=document.getElementById("classSelect").value;
   if(newId!==char.classId){
-    const prevHeader = headerFor(getClass(char.classId));
+    const prevCls = getClass(char.classId);
+    const prevHeader = headerFor(prevCls);
     char.classId=newId;
-    char.moveListSelections={}; char.moveListGroupNames={}; char.moveListNames={}; char.moveListTexts={};
-    // 内容来自职业的区域换职业时清空：plain 区一律清空，其余按 resetOnClassChange
+    // 内容来自职业的区域换职业时清空：resetOnClassChange 默认 true（清空），仅 false 保留
     const cls=getClass(newId);
+    // moveList 数据按区域清空，resetOnClassChange === false 的区域保留
+    const keepMove = new Set(
+      Object.keys(AREAS).filter(k => {
+        const a = cls ? getAreaHeader(k, cls) : {};
+        return a.type === "moveList" && a.resetOnClassChange === false;
+      })
+    );
+    const moveAreaOf = k => k.split("::")[0];
+    char.moveListSelections = Object.fromEntries(Object.entries(char.moveListSelections||{}).filter(([k]) => keepMove.has(k)));
+    char.moveListNames = Object.fromEntries(Object.entries(char.moveListNames||{}).filter(([k]) => keepMove.has(moveAreaOf(k))));
+    char.moveListTexts = Object.fromEntries(Object.entries(char.moveListTexts||{}).filter(([k]) => keepMove.has(moveAreaOf(k))));
+    char.moveListGroupNames = Object.fromEntries(Object.entries(char.moveListGroupNames||{}).filter(([k]) => keepMove.has(moveAreaOf(k))));
     Object.keys(char.areaData||{}).forEach(k => {
       const a = cls ? getAreaHeader(k, cls) : {};
-      if(a.type === "plain" || a.resetOnClassChange) delete char.areaData[k];
+      if(a.resetOnClassChange !== false) delete char.areaData[k];
     });
-    // metrics 与区域 rightStat 都是逐职业的数值，换职业一律丢掉重算；
-    // charInfo（姓名/等级/XP）属于角色本身，保留
-    prevHeader.metrics.fields.forEach(f => { delete char.fields[f.id]; });
-    rightStatKeys().forEach(k => { delete char.fields[k]; });
+    // header 字段按 resetOnClassChange 清空（默认 true 清空；false 保留）
+    prevHeader.charInfo.forEach(f => {
+      if(fieldResets(f, undefined)) delete char.fields[f.id];
+    });
+    prevHeader.stats.items.forEach(s => {
+      if(fieldResets(s, prevHeader.stats.resetOnClassChange)) delete char.stats[s.id];
+    });
+    prevHeader.stats.flags.forEach(f => {
+      if(fieldResets(f, prevHeader.stats.resetOnClassChange)) delete char.states[f.id];
+    });
+    prevHeader.metrics.fields.forEach(f => {
+      if(fieldResets(f, prevHeader.metrics.resetOnClassChange)) delete char.fields[f.id];
+    });
+    // rightStats 是区域的一部分，跟随所属区域的 resetOnClassChange 清空
+    Object.keys(AREAS).forEach(areaKey => {
+      const a = prevCls ? getAreaHeader(areaKey, prevCls) : {};
+      if(a.resetOnClassChange !== false) {
+        (a.rightStats || []).forEach(s => { if(s.key) delete char.fields[s.key]; });
+      }
+    });
   }
   const cls=getClass(char.classId);
   if(!cls){ renderPlaybook(); return; }
-  // 回填：metrics 有公式按公式、否则取 default；charInfo 与 stats 补空默认值
-  headerFor(cls).metrics.fields.forEach(f => {
+  // 回填：需要重置的 metrics 有公式按公式、否则取 default；charInfo 与 stats 补空默认值
+  const newHeader = headerFor(cls);
+  newHeader.metrics.fields.forEach(f => {
+    if(!fieldResets(f, newHeader.metrics.resetOnClassChange)) return;  // 保留的 metrics 不动
     if(char.fields[f.id]) return;
     const v = defaultFieldValue(f);
     if(v !== "" && v !== 0) char.fields[f.id] = v;
   });
-  seedChar(char, headerFor(cls));
+  seedChar(char, newHeader);
   renderPlaybook(); save();
-}
-// 所有区域里声明过的 rightStat key
-function rightStatKeys(){
-  const out = [];
-  const cls = getClass(char.classId);
-  Object.keys(AREAS).forEach(areaKey => {
-    (getAreaHeader(areaKey, cls).rightStats || []).forEach(s => {
-      if(s.key && !out.includes(s.key)) out.push(s.key);
-    });
-  });
-  return out;
 }
 
 document.addEventListener("input", e=>{
@@ -2145,12 +2172,12 @@ document.addEventListener("click", e=>{
   if(d.ruleReload!==undefined){ reloadRule(+d.ruleReload); return; }
   if(t.closest("[data-ref-tab]")){ refTab=t.closest("[data-ref-tab]").dataset.refTab; renderRef(); save(); return; }
   if(d.imp!==undefined){ importSearchItem(+d.imp); return; }
-  // 状态按钮：点一次进下一档，到顶回 0
+  // 标记按钮：点一次进下一档，到顶回 0
   if(d.state!==undefined){
-    const cond = headerFor(getClass(char.classId)).stats.conditions.find(c => c.id === d.state);
-    if(!cond) return;
+    const flag = headerFor(getClass(char.classId)).stats.flags.find(c => c.id === d.state);
+    if(!flag) return;
     const cur = char.states[d.state] || 0;
-    char.states[d.state] = (cur + 1) % stateCount(cond);
+    char.states[d.state] = (cur + 1) % stateCount(flag);
     renderPlaybook(); save(); return;
   }
   // charInfo 的轨道字段：点第 k 格即设为 k 或 k+1
