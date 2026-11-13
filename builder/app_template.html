@@ -451,7 +451,7 @@ function resolveAreaLayout(layout, cls){
 /* ============ 状态 ============ */
 let mode = "edit";
 let refTab = null;   // 实际值由 refSections 的第一个页签决定
-let introCollapsed = false;   // playbook 名下的 intro 是否折叠
+let introCollapsed = true;   // playbook 名下的 intro 是否折叠（默认折叠）
 let searchKw = "";
 let lastSearchItems = [];
 let boxReg = {};
@@ -1285,11 +1285,11 @@ function mvViewCard(areaKey, move, area, covered){
   // viewSelect：查看模式仍给出可点的勾选框，未勾选的置灰
   if(selectable && viewSelectable(area)){
     const off = checked ? "" : " spell-off";
-    return `<div class="mv${off}"${mvBarStyle(areaKey)}><div class="mv-h"><input type="checkbox" class="chk" data-movelist-toggle="${areaKey}:${esc(moveSelKey(move))}"${checked?" checked":""}><div class="mv-n">${esc(moveName(areaKey, move))}</div></div><div class="mv-t">${renderMoveText(areaKey, move)}</div></div>`;
+    return `<div class="mv${off}"${mvBarStyle(areaKey)}><div class="mv-h"><input type="checkbox" class="chk" data-movelist-toggle="${areaKey}:${esc(moveSelKey(move))}"${checked?" checked":""}><div class="mv-n">${inlineMarkdown(moveName(areaKey, move))}</div></div><div class="mv-t">${renderMoveText(areaKey, move)}</div></div>`;
   }
   // 不带勾选框的动作不显示勾选标记
   const markHtml = selectable ? `<span class="ck-mark on"></span>` : "";
-  return `<div class="mv"${mvBarStyle(areaKey)}><div class="mv-h">${markHtml}<div class="mv-n">${esc(moveName(areaKey, move))}</div></div><div class="mv-t">${renderMoveText(areaKey, move)}</div></div>`;
+  return `<div class="mv"${mvBarStyle(areaKey)}><div class="mv-h">${markHtml}<div class="mv-n">${inlineMarkdown(moveName(areaKey, move))}</div></div><div class="mv-t">${renderMoveText(areaKey, move)}</div></div>`;
 }
 
 // 名称与正文：内置条目也可编辑，覆盖值按 区域::id或原名 存入角色数据
@@ -1669,11 +1669,13 @@ function renderRefMoves(sec){
   return html || '<div class="ref-empty">暂无内容。</div>';
 }
 
+// reference 列表项：string 走 markdown，对象交给各自的渲染器
+function refItemHtml(item, renderObj){
+  return typeof item === "string" ? `<div class="md">${markdownToHtml(item)}</div>` : renderObj(item);
+}
+
 function renderMovesList(moves, context, sec){
-  return moves.map(m => {
-    if(typeof m === "string") return `<div class="md">${markdownToHtml(m)}</div>`;
-    return refMoveCard(createMoveItem(m, context, sec));
-  }).join("");
+  return moves.map(m => refItemHtml(m, mv => refMoveCard(createMoveItem(mv, context, sec)))).join("");
 }
 
 function createMoveItem(move, context, sec){
@@ -1690,16 +1692,17 @@ function renderRefTags(sec){
   const data = refSectionData(sec.id);
   if(!data.tags && !data.groups) return '<div class="ref-empty">未定义标签</div>';
   
+  const item = t => refItemHtml(t, tagItemHtml);
   let html = "";
   
   // 顶层 tags：无类别标签平铺，不套折叠块
   if(data.tags && data.tags.length){
-    html += data.tags.map(tagItemHtml).join("");
+    html += data.tags.map(item).join("");
   }
   
   // groups
   for(const g of (data.groups || [])){
-    html += `<details class="ref-grp" open><summary>${esc(g.title)}</summary>${(g.tags || []).map(tagItemHtml).join("")}</details>`;
+    html += `<details class="ref-grp" open><summary>${esc(g.title)}</summary>${(g.tags || []).map(item).join("")}</details>`;
   }
   
   return html || '<div class="ref-empty">未定义标签</div>';
@@ -1726,13 +1729,13 @@ function refCard(item){
   const src = item.source ? `<span class="src">${esc(item.source)}</span>` : "";
   const btn = (idx >= 0 && mode === "edit")
     ? `<div class="rmv-foot"><button class="rmv-b" data-imp="${idx}">＋ 导入</button></div>` : "";
-  return `<details class="rmv"><summary>${esc(item.name || "")}${src}</summary><div class="rmv-t">${markdownToHtml(item.html)}</div>${btn}</details>`;
+  return `<details class="rmv"><summary>${inlineMarkdown(item.name || "")}${src}</summary><div class="rmv-t">${markdownToHtml(item.html)}</div>${btn}</details>`;
 }
 // 资料区段里的动作：不折叠，用角色卡那套普通动作卡 .mv
 function refMoveCard(item){
   const idx = importTarget(item.kind) ? lastSearchItems.push(item) - 1 : -1;
   const btn = (idx >= 0 && mode === "edit") ? `<button class="mv-imp" data-imp="${idx}">＋ 导入</button>` : "";
-  return `<div class="mv"><div class="mv-h"><div class="mv-n">${esc(item.name || "")}</div>${btn}</div><div class="mv-t">${markdownToHtml(item.html)}</div></div>`;
+  return `<div class="mv"><div class="mv-h"><div class="mv-n">${inlineMarkdown(item.name || "")}</div>${btn}</div><div class="mv-t">${markdownToHtml(item.html)}</div></div>`;
 }
 function tagItemHtml(tag){
   const desc = tag.description ? ` ${inlineMarkdown(tag.description)}` : '';

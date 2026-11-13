@@ -49,7 +49,7 @@
 | 物品栏 | `fillbox` + `rightStats`（负载）+ `counters`（货币） |
 | 升级选项 | `moveList`（把升级本身做成一个动作） |
 | 关系 | `plain` 的 `inputGroup` |
-| 笔记 | `fillbox`，即使规则没要求，也必须添加这个区域 |
+| 笔记 | `fillbox`，即使规则没要求，也必须添加一个笔记区域 |
 | 行动列表 | `moveList` |
 
 ## 约束
