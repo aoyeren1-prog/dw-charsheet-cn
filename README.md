@@ -147,4 +147,4 @@ https://github.com/rfkeepers/dw-playbooks-tex
 以下内容在现状下不会对使用造成严重影响，但可能在后续开发时遇到，记录下来作为备忘：
 
 - **资料边栏导入的动作丢失 `requires` / `replaces`**。现状：`refSections`（资料边栏）里的 move 若写了 `requires` / `replaces`，从边栏「＋ 导入」到角色卡后，这两个字段被丢弃、不生效。（导入链路三处都未透传——`createMoveItem`（边栏渲染建立条目）、`sectionSearchItems` 的 `addMove`（搜索建立条目）只提取 `importArea/name/text/importGroup`；`importSearchItem` 导入时只写 `{id, name, text, group}`）导入后动作不显示「需 / 替」标记，也不触发「前置未满足禁用」「勾选时移除被替代动作」的行为。
-- **moveList 的 group 的 minLevel 和 maxLevel 写死只提取一个字段**。如果一个动作类别有复数个变量前置条件，则本工具暂时无法满足其自动化需求。
+- **moveList 的 group 的 minLevel 和 maxLevel 写死只提取一个字段**。如果一个动作类别有复数个变量前置条件，则本工具暂时无法满足其自动化需求，直接写动作文本里吧。
