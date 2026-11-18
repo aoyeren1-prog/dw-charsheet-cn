@@ -65,11 +65,11 @@ body{background:var(--bg);color:var(--text);font-family:"Segoe UI","Microsoft Ya
 .playbook{background:var(--paper);color:var(--ink);border-radius:6px;padding:20px 22px;min-height:600px;box-shadow:0 4px 24px rgba(0,0,0,.4)}
 
 /* ===== 参考资料边栏 (浅色) ===== */
-.ref{position:sticky;top:64px;max-height:calc(100vh - 80px);overflow:auto;background:var(--ref-paper);color:var(--ref-ink);border:1px solid var(--ref-line-4);border-radius:8px;display:flex;flex-direction:column}
-.ref-tabs{display:flex;border-bottom:1px solid var(--ref-paperline);position:sticky;top:0;background:var(--ref-paper);z-index:5}
-.ref-tab{flex:1;background:transparent;color:var(--ref-ink-4);border:none;padding:9px 4px;cursor:pointer;font-size:13px;border-bottom:2px solid transparent}
+.ref{position:sticky;top:64px;max-height:calc(100vh - 80px);overflow:hidden;background:var(--ref-paper);color:var(--ref-ink);border:1px solid var(--ref-line-4);border-radius:8px;display:flex;flex-direction:column}
+.ref-tabs{display:flex;flex-wrap:wrap;border-bottom:1px solid var(--ref-paperline);background:var(--ref-paper)}
+.ref-tab{flex:1 1 auto;min-width:0;background:transparent;color:var(--ref-ink-4);border:none;padding:9px 10px;cursor:pointer;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-bottom:2px solid transparent}
 .ref-tab.active{color:var(--ref-ink);border-bottom-color:var(--accent);font-weight:600}
-.ref-body{padding:12px 14px}
+.ref-body{flex:1;min-height:0;overflow:auto;padding:12px 14px}
 .ref-empty{color:var(--ref-ink-4);font-size:12.5px;text-align:center;padding:30px 10px}
 .ref-sec{font-size:12.5px;font-weight:700;color:var(--ref-ink);margin:14px 0 6px;letter-spacing:.5px;border-bottom:1px solid var(--ref-paperline);padding-bottom:3px}
 .ref-sec:first-child{margin-top:0}
@@ -1951,28 +1951,30 @@ function searchResultsHtml(kw){
       parts.push(`<div class="ref-sec">${esc(title)}：${esc(byArea[areaKey].join("、"))}</div>${cards}`);
     }
   }
-  // 2b. reference 中 group title 的搜索
+  // 2b. reference 中 group title 的搜索（moves 与 tags 页签都按组标题检索）
   const ref = DW_DATA.reference || {};
   for(const sectionId of Object.keys(ref)){
     const sec = REF_SECTIONS.find(s => s.id === sectionId);
-    if(!sec || sec.type !== 'moves') continue;
+    if(!sec || (sec.type !== 'moves' && sec.type !== 'tags')) continue;
     
     const data = ref[sectionId];
     
     // 搜索 group title
     (data.groups || []).forEach(g => {
-      if(g.title && g.title.includes(kw)){
-        const groupMoves = [];
-        (g.moves || []).forEach(m => { 
-          if(typeof m === "object") groupMoves.push(createMoveItem(m, g, sec)); 
-        });
-        if(groupMoves.length){
-          parts.push(`<div class="ref-sec">${esc(sec.title)}：${esc(g.title)}</div>${groupMoves.map(refCard).join("")}`);
-        }
+      if(!g.title || !g.title.includes(kw)) return;
+      let inner = "";
+      if(sec.type === 'moves'){
+        // 组内可能同时有动作对象与纯字符串条目（纯文本块）
+        inner = (g.moves || []).map(m => refItemHtml(m, mv => refCard(createMoveItem(mv, g, sec)))).join("");
+      } else { // tags：组内可能同时有标签对象与纯字符串条目
+        inner = (g.tags || []).map(t => refItemHtml(t, tagItemHtml)).join("");
+      }
+      if(inner){
+        parts.push(`<div class="ref-sec">${esc(sec.title)}：${esc(g.title)}</div>${inner}`);
       }
     });
   }
-  // 3. 标签
+  // 3. 标签词条（合并进「关键词匹配」，排在动作/法术条目之前）
   const tagMatches = [];
   for(const sectionId of Object.keys(ref)){
     const data = ref[sectionId];
@@ -1981,23 +1983,22 @@ function searchResultsHtml(kw){
     
     // 顶层 tags
     (data.tags || []).forEach(tag => {
-      if(tag.name.includes(kw) || (tag.description && tag.description.includes(kw))){
+      if(typeof tag !== "object" || tag === null) return;  // 跳过纯字符串条目（装备/服务列表）
+      if((tag.name || "").includes(kw) || (tag.description || "").includes(kw)){
         tagMatches.push(tag);
       }
     });
     // groups 内的 tags
     (data.groups || []).forEach(g => {
       (g.tags || []).forEach(tag => {
-        if(tag.name.includes(kw) || (tag.description && tag.description.includes(kw))){
+        if(typeof tag !== "object" || tag === null) return;  // 跳过纯字符串条目（装备/服务列表）
+        if((tag.name || "").includes(kw) || (tag.description || "").includes(kw)){
           tagMatches.push(tag);
         }
       });
     });
   }
-  if(tagMatches.length){
-    parts.push('<div class="ref-sec">标签</div>' + tagMatches.map(tagItemHtml).join(""));
-  }
-  // 4. 关键词 (去重)
+  // 4. 关键词匹配 (去重)：标签词条在前，动作/法术条目在后
   const matchedClassIds = new Set(classMatches.map(c=>c.id));
   const kwItems = searchable.filter(it => {
     if(!((it.name||"").includes(kw) || stripTags(it.html).includes(kw))) return false;
@@ -2005,9 +2006,10 @@ function searchResultsHtml(kw){
     if(inMatchedGroup(it)) return false;
     return true;
   });
-  if(kwItems.length){
+  if(tagMatches.length || kwItems.length){
+    const tags = tagMatches.map(tagItemHtml).join("");
     const cards = kwItems.map(refCard).join("");
-    parts.push(`<div class="ref-sec">关键词匹配</div>${cards}`);
+    parts.push(`<div class="ref-sec">关键词匹配</div>${tags}${cards}`);
   }
   if(!parts.length) return `<div class="ref-empty">没有找到匹配「${esc(kw)}」的内容。</div>`;
   return parts.join("");
