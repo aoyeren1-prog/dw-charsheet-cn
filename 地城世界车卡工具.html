@@ -1698,12 +1698,19 @@ function renderFillboxArea(areaKey, cls){
   const addCounter = area.addCounter
     ? `<div class="addrow counters-add"><button data-area="xadd:${areaKey}">＋ 计数器</button></div>` : "";
 
-  const opts = (mode === "edit" ? (area.options || []) : []).map(g =>
-    `<div class="gear-group"><div class="gear-prompt md">${markdownToHtml(g.prompt||"")}</div>` +
-    (g.options||[]).map(o => {
+  const opts = (mode === "edit" ? (area.options || []) : []).map(g => {
+    // 纯字符串 = 仅说明文本（无选项）；对象 = {prompt, options} 选项组
+    if(typeof g === "string"){
+      return `<div class="gear-group"><div class="gear-prompt md">${markdownToHtml(g)}</div></div>`;
+    }
+    const prompt = (g && typeof g === "object") ? (g.prompt || "") : "";
+    const optsHtml = ((g && typeof g === "object") ? (g.options || []) : []).map(o => {
       const txt = stripTags(o);
       return `<div class="opt"><button class="gear-add" data-area="opt:${areaKey}:${esc(txt)}" title="加入">＋</button> <span>${esc(txt)}</span></div>`;
-    }).join("") + `</div>`).join("");
+    }).join("");
+    const promptHtml = prompt ? `<div class="gear-prompt md">${markdownToHtml(prompt)}</div>` : "";
+    return `<div class="gear-group">${promptHtml}${optsHtml}</div>`;
+  }).join("");
 
   const hints = (area.hints || []).map(h => `<div class="question-hint">${markdownToHtml(h)}</div>`).join("");
 
