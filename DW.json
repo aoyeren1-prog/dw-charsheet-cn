@@ -5,119 +5,27 @@
         "header": {
             "charInfo": [
                 {"id": "name", "label": "姓名", "type": "text", "flex": 2, "resetOnClassChange": false}, 
-                {
-                    "id": "level", 
-                    "label": "等级", 
-                    "type": "number", 
-                    "min": 1, 
-                    "max": 10, 
-                    "default": 1
-                }, 
-                {
-                    "id": "xp", 
-                    "label": "XP", 
-                    "type": "number", 
-                    "min": 0, 
-                    "default": 0, 
-                    "view": "editable"
-                }
+                {"id": "level", "label": "等级", "type": "number", "min": 1, "max": 10, "default": 1}, 
+                {"id": "xp", "label": "XP", "type": "number", "min": 0, "default": 0, "view": "editable"}
             ], 
             "stats": {
                 "prompt": "将以下数值分配到你的属性上：16 (+2), 15 (+1), 13 (+1), 12 (0), 9 (0), 8 (-1)", 
                 "modTable": {"1-3": -3, "4-5": -2, "6-8": -1, "9-12": 0, "13-15": 1, "16-17": 2, "18": 3}, 
                 "items": [
-                    {
-                        "id": "STR", 
-                        "label": "力量", 
-                        "type": "score", 
-                        "min": 1, 
-                        "max": 18, 
-                        "default": 10
-                    }, 
-                    {
-                        "id": "DEX", 
-                        "label": "敏捷", 
-                        "type": "score", 
-                        "min": 1, 
-                        "max": 18, 
-                        "default": 10
-                    }, 
-                    {
-                        "id": "CON", 
-                        "label": "体质", 
-                        "type": "score", 
-                        "min": 1, 
-                        "max": 18, 
-                        "default": 10
-                    }, 
-                    {
-                        "id": "INT", 
-                        "label": "智力", 
-                        "type": "score", 
-                        "min": 1, 
-                        "max": 18, 
-                        "default": 10
-                    }, 
-                    {
-                        "id": "WIS", 
-                        "label": "睿知", 
-                        "type": "score", 
-                        "min": 1, 
-                        "max": 18, 
-                        "default": 10
-                    }, 
-                    {
-                        "id": "CHA", 
-                        "label": "魅力", 
-                        "type": "score", 
-                        "min": 1, 
-                        "max": 18, 
-                        "default": 10
-                    }
+                    { "id": "STR", "label": "力量", "type": "score", "min": 1, "max": 18, "default": 10 }, 
+                    { "id": "DEX", "label": "敏捷", "type": "score", "min": 1, "max": 18, "default": 10 }, 
+                    { "id": "CON", "label": "体质", "type": "score", "min": 1, "max": 18, "default": 10 }, 
+                    { "id": "INT", "label": "智力", "type": "score", "min": 1, "max": 18, "default": 10 }, 
+                    { "id": "WIS", "label": "睿知", "type": "score", "min": 1, "max": 18, "default": 10 }, 
+                    { "id": "CHA", "label": "魅力", "type": "score", "min": 1, "max": 18, "default": 10 }
                 ], 
                 "flags": [
-                    {
-                        "id": "weak", 
-                        "label": "虚弱", 
-                        "states": 2, 
-                        "boundStat": "STR", 
-                        "effect": "modPenalty"
-                    }, 
-                    {
-                        "id": "shaky", 
-                        "label": "颤抖", 
-                        "states": 2, 
-                        "boundStat": "DEX", 
-                        "effect": "modPenalty"
-                    }, 
-                    {
-                        "id": "sick", 
-                        "label": "患病", 
-                        "states": 2, 
-                        "boundStat": "CON", 
-                        "effect": "modPenalty"
-                    }, 
-                    {
-                        "id": "stunned", 
-                        "label": "晕眩", 
-                        "states": 2, 
-                        "boundStat": "INT", 
-                        "effect": "modPenalty"
-                    }, 
-                    {
-                        "id": "confused", 
-                        "label": "困惑", 
-                        "states": 2, 
-                        "boundStat": "WIS", 
-                        "effect": "modPenalty"
-                    }, 
-                    {
-                        "id": "scarred", 
-                        "label": "疤痕", 
-                        "states": 2, 
-                        "boundStat": "CHA", 
-                        "effect": "modPenalty"
-                    }
+                    { "id": "weak"    , "label": "虚弱", "states": 2, "boundStat": "STR", "effect": "modPenalty" }, 
+                    { "id": "shaky"   , "label": "颤抖", "states": 2, "boundStat": "DEX", "effect": "modPenalty" }, 
+                    { "id": "sick"    , "label": "患病", "states": 2, "boundStat": "CON", "effect": "modPenalty" }, 
+                    { "id": "stunned" , "label": "晕眩", "states": 2, "boundStat": "INT", "effect": "modPenalty" }, 
+                    { "id": "confused", "label": "困惑", "states": 2, "boundStat": "WIS", "effect": "modPenalty" }, 
+                    { "id": "scarred" , "label": "疤痕", "states": 2, "boundStat": "CHA", "effect": "modPenalty" }
                 ]
             }, 
             "metrics": {
@@ -126,31 +34,16 @@
                     {"id": "hpCur", "label": "当前生命", "type": "number", "min": 0, "view": "editable"}, 
                     {"id": "hpMax", "label": "最大生命", "type": "number", "min": 0}, 
                     {"id": "armor", "label": "护甲", "type": "number", "min": 0}, 
-                    {
-                        "id": "damage", 
-                        "label": "伤害", 
-                        "type": "select", 
-                        "options": ["d6", "d8", "d10", "d12"]
-                    }
+                    { "id": "damage", "label": "伤害", "type": "select", "options": ["d6", "d8", "d10", "d12"] }
                 ]
             }
         }, 
         "refSections": [
-            {"id": "commonMoves", "title": "通用动作", "type": "moves"}, 
-            {"id": "tags", "title": "装备/标签", "type": "tags"}, 
-            {
-                "id": "spells_wizard", 
-                "title": "法师法术", 
-                "type": "moves", 
-                "importArea": "wizard"
-            }, 
-            {
-                "id": "spells_cleric", 
-                "title": "牧师法术", 
-                "type": "moves", 
-                "importArea": "cleric"
-            }, 
-            {"id": "search", "title": "资料速查", "type": "search"}
+            { "id": "commonMoves"  , "title": "通用动作" , "type": "moves"                          }, 
+            { "id": "tags"         , "title": "装备/标签", "type": "tags"                           }, 
+            { "id": "spells_wizard", "title": "法师法术" , "type": "moves" , "importArea": "wizard" }, 
+            { "id": "spells_cleric", "title": "牧师法术" , "type": "moves" , "importArea": "cleric" }, 
+            { "id": "search"       , "title": "资料速查" , "type": "search"                         }
         ], 
         "areas": {
             "look": {
@@ -158,11 +51,11 @@
                 "note": "每行选择一个", 
                 "type": "plain", 
                 "elements": [
-                    {"type": "choices", "key": "group0", "layout": "line", "view": "hideUnselect"}, 
-                    {"type": "choices", "key": "group1", "layout": "line", "view": "hideUnselect"}, 
-                    {"type": "choices", "key": "group2", "layout": "line", "view": "hideUnselect"}, 
-                    {"type": "choices", "key": "group3", "layout": "line", "view": "hideUnselect"}, 
-                    {"type": "input", "key": "notes", "tip": "其他外观描述"}
+                    { "type": "choices", "key": "group0", "layout": "line",                  "view": "hideUnselect" }, 
+                    { "type": "choices", "key": "group1", "layout": "line",                  "view": "hideUnselect" }, 
+                    { "type": "choices", "key": "group2", "layout": "line",                  "view": "hideUnselect" }, 
+                    { "type": "choices", "key": "group3", "layout": "line",                  "view": "hideUnselect" }, 
+                    { "type": "input"  , "key": "notes" ,                   "tip": "其他外观描述"                         }
                 ]
             }, 
             "race": {
@@ -189,43 +82,29 @@
                 "type": "fillbox", 
                 "counters": [ {"key": "coins", "label": "金币"} ]
             }, 
-            "bonds": {"title": "羁绊", "type": "plain", "elements": [{"type": "inputGroup", "key": "bonds", "addLabel": "羁绊"}]}, 
+            "bonds": {
+                "title": "羁绊", 
+                "type": "plain", 
+                "elements": [ {"type": "inputGroup", "key": "bonds", "addLabel": "羁绊"} ]
+            }, 
             "notes": {"title": "笔记", "type": "fillbox", "addCounter": true, "resetOnClassChange": false}, 
             "starting": {"title": "起始动作", "type": "moveList"}, 
             "advanced": {
                 "title": "进阶动作", 
                 "type": "moveList", 
                 "groups": [
-                    {"key": "2-5", "label": "当你的等级升至2~5，从下列动作中选择：", "minLevel": 2, "moves": []}, 
-                    {
-                        "key": "6-10", 
-                        "label": "当你的等级升至6~10，从下列动作或等级2~5的动作中选择：", 
-                        "minLevel": 6, 
-                        "moves": []
-                    }, 
-                    {"key": "custom", "label": "其他", "moves": []}
+                    { "key": "2-5"   , "label": "当你的等级升至2~5，从下列动作中选择："          , "minLevel": 2, "moves": [] }, 
+                    { "key": "6-10"  , "label": "当你的等级升至6~10，从下列动作或等级2~5的动作中选择：", "minLevel": 6, "moves": [] }, 
+                    { "key": "custom", "label": "其他"                            ,                "moves": [] }
                 ], 
-                "buttons": [
-                    {
-                        "label": "动作", 
-                        "position": "global", 
-                        "action": "addMove", 
-                        "targetGroup": "custom"
-                    }
-                ], 
+                "buttons": [ {"label": "动作", "position": "global", "action": "addMove", "targetGroup": "custom"} ], 
                 "selectMoves": true
             }, 
             "wizard": {
                 "title": "法术书", 
                 "rightStats": [
-                    {"key": "wizardLevel", "label": "施法等级", "type": "number", "min": 0}, 
-                    {
-                        "key": "wizardCap", 
-                        "label": "准备上限", 
-                        "type": "number", 
-                        "min": 0, 
-                        "formula": "施法等级+1"
-                    }
+                    { "key": "wizardLevel", "label": "施法等级", "type": "number", "min": 0                      }, 
+                    { "key": "wizardCap"  , "label": "准备上限", "type": "number", "min": 0, "formula": "施法等级+1" }
                 ], 
                 "type": "moveList", 
                 "groups": [
@@ -237,42 +116,12 @@
                     { "key": "wizardL9", "label": "等级9", "moves": [] }
                 ], 
                 "buttons": [
-                    {
-                        "label": "法术", 
-                        "position": "inGroup", 
-                        "action": "addMove", 
-                        "targetGroup": "cantrip"
-                    }, 
-                    {
-                        "label": "法术", 
-                        "position": "inGroup", 
-                        "action": "addMove", 
-                        "targetGroup": "wizardL1"
-                    }, 
-                    {
-                        "label": "法术", 
-                        "position": "inGroup", 
-                        "action": "addMove", 
-                        "targetGroup": "wizardL3"
-                    }, 
-                    {
-                        "label": "法术", 
-                        "position": "inGroup", 
-                        "action": "addMove", 
-                        "targetGroup": "wizardL5"
-                    }, 
-                    {
-                        "label": "法术", 
-                        "position": "inGroup", 
-                        "action": "addMove", 
-                        "targetGroup": "wizardL7"
-                    }, 
-                    {
-                        "label": "法术", 
-                        "position": "inGroup", 
-                        "action": "addMove", 
-                        "targetGroup": "wizardL9"
-                    }
+                    { "label": "法术", "position": "inGroup", "action": "addMove", "targetGroup": "cantrip"  }, 
+                    { "label": "法术", "position": "inGroup", "action": "addMove", "targetGroup": "wizardL1" }, 
+                    { "label": "法术", "position": "inGroup", "action": "addMove", "targetGroup": "wizardL3" }, 
+                    { "label": "法术", "position": "inGroup", "action": "addMove", "targetGroup": "wizardL5" }, 
+                    { "label": "法术", "position": "inGroup", "action": "addMove", "targetGroup": "wizardL7" }, 
+                    { "label": "法术", "position": "inGroup", "action": "addMove", "targetGroup": "wizardL9" }
                 ], 
                 "viewSelect": true, 
                 "boundMove": "法术书"
@@ -280,14 +129,8 @@
             "cleric": {
                 "title": "牧师法术", 
                 "rightStats": [
-                    {"key": "clericLevel", "label": "施法等级", "type": "number", "min": 0}, 
-                    {
-                        "key": "clericCap", 
-                        "label": "准备上限", 
-                        "type": "number", 
-                        "min": 0, 
-                        "formula": "施法等级+1"
-                    }
+                    { "key": "clericLevel", "label": "施法等级", "type": "number", "min": 0                      }, 
+                    { "key": "clericCap"  , "label": "准备上限", "type": "number", "min": 0, "formula": "施法等级+1" }
                 ], 
                 "type": "moveList", 
                 "groups": [
@@ -299,51 +142,19 @@
                     { "key": "clericL9", "label": "等级9", "moves": [] }
                 ], 
                 "buttons": [
-                    {
-                        "label": "法术", 
-                        "position": "inGroup", 
-                        "action": "addMove", 
-                        "targetGroup": "rote"
-                    }, 
-                    {
-                        "label": "法术", 
-                        "position": "inGroup", 
-                        "action": "addMove", 
-                        "targetGroup": "clericL1"
-                    }, 
-                    {
-                        "label": "法术", 
-                        "position": "inGroup", 
-                        "action": "addMove", 
-                        "targetGroup": "clericL3"
-                    }, 
-                    {
-                        "label": "法术", 
-                        "position": "inGroup", 
-                        "action": "addMove", 
-                        "targetGroup": "clericL5"
-                    }, 
-                    {
-                        "label": "法术", 
-                        "position": "inGroup", 
-                        "action": "addMove", 
-                        "targetGroup": "clericL7"
-                    }, 
-                    {
-                        "label": "法术", 
-                        "position": "inGroup", 
-                        "action": "addMove", 
-                        "targetGroup": "clericL9"
-                    }
+                    { "label": "法术", "position": "inGroup", "action": "addMove", "targetGroup": "rote"     }, 
+                    { "label": "法术", "position": "inGroup", "action": "addMove", "targetGroup": "clericL1" }, 
+                    { "label": "法术", "position": "inGroup", "action": "addMove", "targetGroup": "clericL3" }, 
+                    { "label": "法术", "position": "inGroup", "action": "addMove", "targetGroup": "clericL5" }, 
+                    { "label": "法术", "position": "inGroup", "action": "addMove", "targetGroup": "clericL7" }, 
+                    { "label": "法术", "position": "inGroup", "action": "addMove", "targetGroup": "clericL9" }
                 ], 
                 "viewSelect": true, 
                 "boundMove": "通神"
             }
         }, 
         "areaLayout": {
-            "left": [
-                "look", "race", "alignment", "gear", "bonds", "notes", "wizard", "cleric"
-            ], 
+            "left": ["look", "race", "alignment", "gear", "bonds", "notes", "wizard", "cleric"], 
             "right": ["starting", "advanced"]
         }
     }, 
@@ -356,33 +167,23 @@
                 "gear": {
                     "rightStats": [ {"key": "load", "formula": "8+力量"} ], 
                     "options": [
-                        "你起始拥有 地城口粮 ({5 使用次数} {1 重量}), 匕首 ({触及} {1 重量}), 和 一些象征你旅经之地或出身故乡的信物。",
-                        {
-                            "prompt": "选择你的武器：", 
-                            "options": ["斧头 (近身，1 重量)", "双手剑 (近身，+1 伤害，2 重量)"]
-                        }, 
-                        {
-                            "prompt": "选择一项：", 
-                            "options": ["探险工具组 (5 使用次数，1 重量) 和 地城口粮 (5 使用次数，1 重量)", "链甲 (1 护甲，1 重量)"]
-                        }
+                        "你起始拥有 地城口粮 ({5 使用次数} {1 重量}), 匕首 ({触及} {1 重量}), 和 一些象征你旅经之地或出身故乡的信物。", 
+                        { "prompt": "选择你的武器：", "options": ["斧头 (近身，1 重量)", "双手剑 (近身，+1 伤害，2 重量)"] }, 
+                        { "prompt": "选择一项：", "options": ["探险工具组 (5 使用次数，1 重量) 和 地城口粮 (5 使用次数，1 重量)", "链甲 (1 护甲，1 重量)"] }
                     ]
                 }, 
                 "look": {
                     "elements": [
-                        { "key": "group0", "value": ["痛苦的眼神", "着魔的眼神", "狂野的眼神", "被遮蔽的双眼", "[[custom0:自定义]]"]}, 
-                        { "key": "group1", "value": ["强壮肌肉", "长腿", "骨瘦如柴的身躯", "柔软的身躯", "[[custom1:自定义]]"]}, 
-                        { "key": "group2", "value": ["怪异的刺青", "罕见珠宝装饰", "未经装饰", "[[custom2:自定义]]"]}, 
-                        { "key": "group3", "value": ["破布", "丝绸", "拾荒者装束", "不合时节的衣装", "[[custom3:自定义]]"]}
+                        { "key": "group0", "value": ["痛苦的眼神", "着魔的眼神", "狂野的眼神", "被遮蔽的双眼", "[[custom0:自定义]]"] }, 
+                        { "key": "group1", "value": ["强壮肌肉", "长腿", "骨瘦如柴的身躯", "柔软的身躯", "[[custom1:自定义]]"]    }, 
+                        { "key": "group2", "value": ["怪异的刺青", "罕见珠宝装饰", "未经装饰", "[[custom2:自定义]]"]           }, 
+                        { "key": "group3", "value": ["破布", "丝绸", "拾荒者装束", "不合时节的衣装", "[[custom3:自定义]]"]      }
                     ]
                 }, 
                 "starting": {
                     "moves": [
                         {"name": "重装上阵", "text": "你可以无视你所穿戴防具的{笨重}标签。", "replaces": "无拘无束"}, 
-                        {
-                            "name": "无拘无束", 
-                            "text": "只要你的负重还没有超过你的负载上限，且你未穿戴任何防具或携带盾牌时，你获得 +1 护甲值。", 
-                            "replaces": "重装上阵"
-                        }, 
+                        {"name": "无拘无束", "text": "只要你的负重还没有超过你的负载上限，且你未穿戴任何防具或携带盾牌时，你获得 +1 护甲值。", "replaces": "重装上阵"}, 
                         {
                             "name": "居于上风", 
                             "text": "你在临死一息的掷骰中获得持续 +1。当你进行临死一息动作时，7-9 的结果改为由你向死神提出交易以换回自己的性命。如果死神接受条件的话，祂会让你重新复活；若祂拒绝，则你就此死亡。"
@@ -399,10 +200,7 @@
                     ]
                 }, 
                 "alignment": {
-                    "moves": [
-                        { "name": "混乱", "text": "你远离文明世界的习俗常规。"   }, 
-                        { "name": "中立", "text": "教导他人关于你族人的生活方式。" }
-                    ]
+                    "moves": [ {"name": "混乱", "text": "你远离文明世界的习俗常规。"}, {"name": "中立", "text": "教导他人关于你族人的生活方式。"} ]
                 }, 
                 "advanced": {
                     "groups": [
@@ -440,18 +238,8 @@
                                     "requires": null, 
                                     "replaces": null
                                 }, 
-                                {
-                                    "name": "蛮族可汗", 
-                                    "text": "你的雇工永远会接受你其中一个欲望所带来的无端满足感做为报酬。", 
-                                    "requires": null, 
-                                    "replaces": null
-                                }, 
-                                {
-                                    "name": "参孙", 
-                                    "text": "你可以承受一个异常状态，以立即从任何物理性或心理性的束缚中挣脱开来。", 
-                                    "requires": null, 
-                                    "replaces": null
-                                }, 
+                                {"name": "蛮族可汗", "text": "你的雇工永远会接受你其中一个欲望所带来的无端满足感做为报酬。", "requires": null, "replaces": null}, 
+                                {"name": "参孙", "text": "你可以承受一个异常状态，以立即从任何物理性或心理性的束缚中挣脱开来。", "requires": null, "replaces": null}, 
                                 {
                                     "name": "粉碎！", 
                                     "text": "当你在砍劈动作中掷出 12+ 的结果时，你对敌人造成伤害，并选择目标身上拥有的某个事物（一把武器、站位架式、肢体）：目标将会失去它。", 
@@ -541,7 +329,18 @@
                         }
                     ]
                 }, 
-                "bonds": {"elements": [{"type": "inputGroup", "key": "bonds", "value": ["_______________ 弱小而愚昧，但他也让我觉得有趣。", "_______________ 的做事方法相当怪异，让人困惑。", "_______________ 总是被卷入麻烦之中──我必须保护好他。", "_______________ 与我共享对荣耀的渴求；大地将因我们的步伐而颤抖！"]}]}
+                "bonds": {
+                    "elements": [
+                        {
+                            "type": "inputGroup", 
+                            "key": "bonds", 
+                            "value": [
+                                "_______________ 弱小而愚昧，但他也让我觉得有趣。", "_______________ 的做事方法相当怪异，让人困惑。", 
+                                "_______________ 总是被卷入麻烦之中──我必须保护好他。", "_______________ 与我共享对荣耀的渴求；大地将因我们的步伐而颤抖！"
+                            ]
+                        }
+                    ]
+                }
             }, 
             "header": {
                 "metrics": {
@@ -559,10 +358,7 @@
                     "options": [
                         {
                             "prompt": "你起始拥有 地城口粮 ({5 使用次数} {1 重量})。\n\n选择一项乐器，这些乐器对你来说都被视为 {0 重量}：", 
-                            "options": [
-                                "你父亲的曼陀林，已被修复完好", "一名贵族所赠送的精美鲁特琴", "你用来追求初恋情人的吹笛", "偷来的号角", "一把从未被演奏过的小提琴", 
-                                "一本失传的歌集"
-                            ]
+                            "options": ["你父亲的曼陀林，已被修复完好", "一名贵族所赠送的精美鲁特琴", "你用来追求初恋情人的吹笛", "偷来的号角", "一把从未被演奏过的小提琴", "一本失传的歌集"]
                         }, 
                         { "prompt": "选择你的衣着：", "options": ["皮甲 (1 护甲，1 重量)", "浮夸华美的衣服 (0 重量)"] }, 
                         {
@@ -597,10 +393,7 @@
                             "name": "敞开心胸", 
                             "text": "当你**真诚坦率地与某人交谈**时，你可以对他们的玩家询问下列其中一个问题。他们必须据实以告，然后，他们也可以回问你下列其中一个问题（你也必须据实回答）。\n\n\t- 你为谁效力？\n\n\t- 你希望我做什么？\n\n\t- 我要怎样才能让你去________？\n\n\t- 你现在真正的感受是什么？\n\n\t- 你最渴望的是什么？"
                         }, 
-                        {
-                            "name": "避风港", 
-                            "text": "当你**回到一个你曾经造访过的文明聚落**时，告诉 GM 你上次来到这里是什么时候。GM 会告诉你这里自那时以来有什么改变。"
-                        }
+                        {"name": "避风港", "text": "当你**回到一个你曾经造访过的文明聚落**时，告诉 GM 你上次来到这里是什么时候。GM 会告诉你这里自那时以来有什么改变。"}
                     ]
                 }, 
                 "alignment": {
@@ -615,12 +408,7 @@
                         {
                             "key": "2-5", 
                             "moves": [
-                                {
-                                    "name": "治愈之歌", 
-                                    "text": "当你**使用秘奥艺术来治疗**时，你再额外治疗 +1d8 伤害。", 
-                                    "requires": null, 
-                                    "replaces": null
-                                }, 
+                                {"name": "治愈之歌", "text": "当你**使用秘奥艺术来治疗**时，你再额外治疗 +1d8 伤害。", "requires": null, "replaces": null}, 
                                 {
                                     "name": "恶毒噪音", 
                                     "text": "当你**使用秘奥艺术来提供额外伤害**时，你再提供额外的 +1d4 伤害。", 
@@ -639,36 +427,11 @@
                                     "requires": null, 
                                     "replaces": null
                                 }, 
-                                {
-                                    "name": "来自吾友的一点帮助", 
-                                    "text": "当你**成功地援助某人**，你也同样获得下次 +1。", 
-                                    "requires": null, 
-                                    "replaces": null
-                                }, 
-                                {
-                                    "name": "可怖音调", 
-                                    "text": "你的秘奥艺术是如此强大，让你得以选择两个效果，而非原本的一个。", 
-                                    "requires": null, 
-                                    "replaces": null
-                                }, 
-                                {
-                                    "name": "决斗者招架", 
-                                    "text": "当你进行砍劈动作时，你获得下次护甲值 +1。", 
-                                    "requires": null, 
-                                    "replaces": null
-                                }, 
-                                {
-                                    "name": "哄骗", 
-                                    "text": "当你**与某人谈判**时掷出 7+ 的结果，你同时获得对他们的下次 +1。", 
-                                    "requires": null, 
-                                    "replaces": null
-                                }, 
-                                {
-                                    "name": "兼职新手", 
-                                    "text": "从另一个职业中获得一个动作。在选择动作时，将你的等级视为比原本低一级。", 
-                                    "requires": null, 
-                                    "replaces": null
-                                }, 
+                                {"name": "来自吾友的一点帮助", "text": "当你**成功地援助某人**，你也同样获得下次 +1。", "requires": null, "replaces": null}, 
+                                {"name": "可怖音调", "text": "你的秘奥艺术是如此强大，让你得以选择两个效果，而非原本的一个。", "requires": null, "replaces": null}, 
+                                {"name": "决斗者招架", "text": "当你进行砍劈动作时，你获得下次护甲值 +1。", "requires": null, "replaces": null}, 
+                                {"name": "哄骗", "text": "当你**与某人谈判**时掷出 7+ 的结果，你同时获得对他们的下次 +1。", "requires": null, "replaces": null}, 
+                                {"name": "兼职新手", "text": "从另一个职业中获得一个动作。在选择动作时，将你的等级视为比原本低一级。", "requires": null, "replaces": null}, 
                                 {
                                     "name": "兼职学徒", 
                                     "text": "从另一个职业中获得一个动作。在选择动作时，将你的等级视为比原本低一级。", 
@@ -680,12 +443,7 @@
                         {
                             "key": "6-10", 
                             "moves": [
-                                {
-                                    "name": "治愈合唱", 
-                                    "text": "当你**使用秘奥艺术来治疗**时，你再额外治疗 +2d8 伤害。", 
-                                    "requires": null, 
-                                    "replaces": "治愈之歌"
-                                }, 
+                                {"name": "治愈合唱", "text": "当你**使用秘奥艺术来治疗**时，你再额外治疗 +2d8 伤害。", "requires": null, "replaces": "治愈之歌"}, 
                                 {
                                     "name": "恶意音爆", 
                                     "text": "当你**使用秘奥艺术来提供额外伤害**时，你再提供额外的 +2d4 伤害。", 
@@ -722,12 +480,7 @@
                                     "requires": null, 
                                     "replaces": null
                                 }, 
-                                {
-                                    "name": "决斗者格挡", 
-                                    "text": "当你进行砍劈动作时，你获得下次护甲值 +2。", 
-                                    "requires": null, 
-                                    "replaces": "决斗者招架"
-                                }, 
+                                {"name": "决斗者格挡", "text": "当你进行砍劈动作时，你获得下次护甲值 +2。", "requires": null, "replaces": "决斗者招架"}, 
                                 {
                                     "name": "欺诈", 
                                     "text": "当你**与某人谈判**时掷出 7+ 的结果，你同时获得对他们的下次 +1。你还可以向他们的玩家询问一个问题，且对方必须据实回答。", 
@@ -750,7 +503,19 @@
                         { "name": "人类", "text": "当你首次进入一个文明社会的聚落时，某个遵守接待游艺人传统的人将会把你当作宾客款待。"  }
                     ]
                 }, 
-                "bonds": {"elements": [{"type": "inputGroup", "key": "bonds", "value": ["这不是我第一次与 _______________ 一起冒险了。", "在见过 _______________ 本人以前，我就已经传唱过许多关于他的故事。", "_______________ 经常是我开玩笑的对象。", "我正在撰写一首关于 _______________ 冒险的歌谣。", "_______________ 将一个秘密托付给我。", "_______________ 不信任我，且他有着充分的理由。"]}]}
+                "bonds": {
+                    "elements": [
+                        {
+                            "type": "inputGroup", 
+                            "key": "bonds", 
+                            "value": [
+                                "这不是我第一次与 _______________ 一起冒险了。", "在见过 _______________ 本人以前，我就已经传唱过许多关于他的故事。", 
+                                "_______________ 经常是我开玩笑的对象。", "我正在撰写一首关于 _______________ 冒险的歌谣。", "_______________ 将一个秘密托付给我。", 
+                                "_______________ 不信任我，且他有着充分的理由。"
+                            ]
+                        }
+                    ]
+                }
             }, 
             "header": {
                 "metrics": {
@@ -774,10 +539,7 @@
                             "prompt": "选择你的武器：", 
                             "options": ["战锤 (近身，1 重量)", "钉头锤 (近身，1 重量)", "长杖 (近身，双手，1 重量) 和 绷带 (3 使用次数，缓慢，0 重量)"]
                         }, 
-                        {
-                            "prompt": "选择一项：", 
-                            "options": ["探险工具组 (5 使用次数，1 重量) 和 地城口粮 (5 使用次数，1 重量)", "治疗药水 (0 重量)"]
-                        }
+                        { "prompt": "选择一项：", "options": ["探险工具组 (5 使用次数，1 重量) 和 地城口粮 (5 使用次数，1 重量)", "治疗药水 (0 重量)"] }
                     ]
                 }, 
                 "look": {
@@ -794,10 +556,7 @@
                             "name": "神祇", 
                             "text": "你侍奉且崇拜某个能够授予你法术的神祇或高位力量。为你的神祇取一个名字（例如赫尔佛司、苏赛勒斯、佐理卡、或荒神库鲁贡），并选择你神祇司掌的领域：\n\n\t- [ ] 治疗和恢复\n\n\t- [ ] 嗜血征战\n\n\t- [ ] 文明\n\n\t- [ ] 知识与秘匿之物\n\n\t- [ ] 被践踏与被遗忘者\n\n\t- [ ] 深埋地底之物\n\n选择一项你所属宗教的戒律：\n\n\t- [ ] 你的宗教宣扬苦难的圣性，获得**祈愿：承受苦难**\n\n\t- [ ] 你的宗教异端而孤立，获得**祈愿：获取秘密**\n\n\t- [ ] 你的宗教拥有重要的祭祀仪式，获得**祈愿：奉献给予**\n\n\t- [ ] 你的宗教信奉以战斗作为试炼，获得**祈愿：个人胜利**"
                         }, 
-                        {
-                            "name": "神圣启示", 
-                            "text": "当你**依据你宗教的戒律向神祇祈愿**时，祂将赐予你一些与神祇司掌领域有关的实用情报或恩赐。GM 会告诉你那是什么。"
-                        }, 
+                        {"name": "神圣启示", "text": "当你**依据你宗教的戒律向神祇祈愿**时，祂将赐予你一些与神祇司掌领域有关的实用情报或恩赐。GM 会告诉你那是什么。"}, 
                         {
                             "name": "驱散死灵", 
                             "text": "当你**高举你的圣徽并呼唤神祇的庇护**时，掷 + 睿知：\n\n\t✴掷出 7+ 时，只要你仍持续祈祷并挥动圣徽，就没有不死生物能够靠近你。\n\n\t✴掷出 10+ 时，你还可以暂时让拥有智能的不死生物感到茫然晕眩，并让没有心智的不死生物逃跑。\n\n\t侵略性的行为将破除这个效果并让它们得以正常行动。聪明的不死生物或许仍能找到方法从远处对付你，它们就是这么聪明。"
@@ -824,36 +583,16 @@
                         {
                             "key": "2-5", 
                             "moves": [
-                                {
-                                    "name": "天选者", 
-                                    "text": "选择一个法术。当你被授予该法术时，将该法术的等级视作比原本低一级。", 
-                                    "requires": null, 
-                                    "replaces": null
-                                }, 
-                                {
-                                    "name": "振奋鼓舞", 
-                                    "text": "当你**治疗某人**时，他们的伤害将获得下次 +2。", 
-                                    "requires": null, 
-                                    "replaces": null
-                                }, 
+                                {"name": "天选者", "text": "选择一个法术。当你被授予该法术时，将该法术的等级视作比原本低一级。", "requires": null, "replaces": null}, 
+                                {"name": "振奋鼓舞", "text": "当你**治疗某人**时，他们的伤害将获得下次 +2。", "requires": null, "replaces": null}, 
                                 {
                                     "name": "生死天秤", 
                                     "text": "当**某人在你面前进行临死一息动作**时，他们在该动作的掷骰将获得 +1 加值。", 
                                     "requires": null, 
                                     "replaces": null
                                 }, 
-                                {
-                                    "name": "沉着心", 
-                                    "text": "当你进行施放法术动作时，你可以忽略第一个来自持续性法术的 -1 减值。", 
-                                    "requires": null, 
-                                    "replaces": null
-                                }, 
-                                {
-                                    "name": "急救", 
-                                    "text": "对你而言，治疗轻伤法术将被视作祷念，并因此不会被入你被授予法术的限制。", 
-                                    "requires": null, 
-                                    "replaces": null
-                                }, 
+                                {"name": "沉着心", "text": "当你进行施放法术动作时，你可以忽略第一个来自持续性法术的 -1 减值。", "requires": null, "replaces": null}, 
+                                {"name": "急救", "text": "对你而言，治疗轻伤法术将被视作祷念，并因此不会被入你被授予法术的限制。", "requires": null, "replaces": null}, 
                                 {
                                     "name": "神力干预", 
                                     "text": "当你进行通神动作时，你获得 1 掌握，并失去任何你已经拥有的掌握。当你或你的同伴受到伤害时，你可以消耗掌握来呼唤你的神祇，祂们将透过适当的神迹介入干预（突然刮起的神风、幸运滑倒、或一道闪光），并抵销该伤害。", 
@@ -878,18 +617,8 @@
                                     "requires": null, 
                                     "replaces": null
                                 }, 
-                                {
-                                    "name": "神圣保护", 
-                                    "text": "当你不穿戴任何防具或盾牌时，你获得 +2 护甲值。", 
-                                    "requires": null, 
-                                    "replaces": null
-                                }, 
-                                {
-                                    "name": "虔诚医者", 
-                                    "text": "当你**治疗其他人身上的伤害**时，你额外治疗等同你自身等级的伤害。", 
-                                    "requires": null, 
-                                    "replaces": null
-                                }
+                                {"name": "神圣保护", "text": "当你不穿戴任何防具或盾牌时，你获得 +2 护甲值。", "requires": null, "replaces": null}, 
+                                {"name": "虔诚医者", "text": "当你**治疗其他人身上的伤害**时，你额外治疗等同你自身等级的伤害。", "requires": null, "replaces": null}
                             ]
                         }, 
                         {
@@ -913,18 +642,8 @@
                                     "requires": null, 
                                     "replaces": null
                                 }, 
-                                {
-                                    "name": "深谋远虑", 
-                                    "text": "你可以忽略二个你所维持法术的 -1 减值。", 
-                                    "requires": null, 
-                                    "replaces": "沉着心"
-                                }, 
-                                {
-                                    "name": "高等急救", 
-                                    "text": "对你而言，治疗中伤法术将被视作祷念，并因此不会被入你被授予法术的限制。", 
-                                    "requires": "急救", 
-                                    "replaces": null
-                                }, 
+                                {"name": "深谋远虑", "text": "你可以忽略二个你所维持法术的 -1 减值。", "requires": null, "replaces": "沉着心"}, 
+                                {"name": "高等急救", "text": "对你而言，治疗中伤法术将被视作祷念，并因此不会被入你被授予法术的限制。", "requires": "急救", "replaces": null}, 
                                 {
                                     "name": "神力无敌", 
                                     "text": "当你进行通神动作时，你获得 2 掌握，并失去任何你已经拥有的掌握。当你或你的同伴受到伤害时，你可以消耗掌握来呼唤你的神祇，祂们将透过适当的神迹介入干预（突然刮起的神风、幸运滑倒、或一道闪光），并抵销该伤害。", 
@@ -937,38 +656,36 @@
                                     "requires": null, 
                                     "replaces": "忏悔者"
                                 }, 
-                                {
-                                    "name": "神圣盔甲", 
-                                    "text": "当你不穿戴任何防具或盾牌时，你获得 +3 护甲值。", 
-                                    "requires": null, 
-                                    "replaces": "神圣保护"
-                                }, 
+                                {"name": "神圣盔甲", "text": "当你不穿戴任何防具或盾牌时，你获得 +3 护甲值。", "requires": null, "replaces": "神圣保护"}, 
                                 {
                                     "name": "高等强效神术", 
                                     "text": "当你进行施展法术动作时，若掷出 10-11，你可以选择 7-9 结果中的选项。如果你这么做，你可以从下列效果中选择一项。若掷出 12+，则你可以直接从下列效果中选择一项。\n\n\t- 该法术的效果变为两倍\n\n\t- 该法术影响的目标数量变为两倍", 
                                     "requires": null, 
                                     "replaces": "强效神术"
                                 }, 
-                                {
-                                    "name": "兼职新手", 
-                                    "text": "从另一个职业中获得一个动作。在选择动作时，将你的等级视为比原本低一级。", 
-                                    "requires": null, 
-                                    "replaces": null
-                                }
+                                {"name": "兼职新手", "text": "从另一个职业中获得一个动作。在选择动作时，将你的等级视为比原本低一级。", "requires": null, "replaces": null}
                             ]
                         }
                     ]
                 }, 
                 "race": {
                     "moves": [
-                        {
-                            "name": "矮人", 
-                            "text": "你与岩石有如一体。当你进行**通神**动作时，你也同时将被授予一个特殊版本的无声者之语法术（5 级牧师法术），这个法术将被视作祷念，且只对石头有效。"
-                        }, 
+                        {"name": "矮人", "text": "你与岩石有如一体。当你进行**通神**动作时，你也同时将被授予一个特殊版本的无声者之语法术（5 级牧师法术），这个法术将被视作祷念，且只对石头有效。"}, 
                         {"name": "人类", "text": "你的信仰多元。选择一个法师法术。你可以把它视作牧师法术一样被授予并施放。"}
                     ]
                 }, 
-                "bonds": {"elements": [{"type": "inputGroup", "key": "bonds", "value": ["_______________ 曾经侮辱我的神；我不信任他。", "_______________ 是个善良而虔诚的人，我对他抱持绝对的信任。", "_______________ 时常处在危险之中，我会保护他的安全。", "我正在努力让 _______________ 皈依我的信仰。"]}]}
+                "bonds": {
+                    "elements": [
+                        {
+                            "type": "inputGroup", 
+                            "key": "bonds", 
+                            "value": [
+                                "_______________ 曾经侮辱我的神；我不信任他。", "_______________ 是个善良而虔诚的人，我对他抱持绝对的信任。", 
+                                "_______________ 时常处在危险之中，我会保护他的安全。", "我正在努力让 _______________ 皈依我的信仰。"
+                            ]
+                        }
+                    ]
+                }
             }, 
             "header": {
                 "metrics": {
@@ -988,25 +705,19 @@
                             "prompt": "你起始拥有 一些象征你土地的信物，样式由你描述。\n\n选择你的防具：", 
                             "options": ["生皮甲 (1 护甲，1 重量)", "木制盾牌 (+1 护甲，1 重量)"]
                         }, 
-                        {
-                            "prompt": "选择你的武器：", 
-                            "options": ["橡木棍 (近身，2 重量)", "长杖 (近身，双手，1 重量)", "长矛 (近身，投掷，短程，1 重量)"]
-                        }, 
+                        { "prompt": "选择你的武器：", "options": ["橡木棍 (近身，2 重量)", "长杖 (近身，双手，1 重量)", "长矛 (近身，投掷，短程，1 重量)"] }, 
                         {
                             "prompt": "选择一项：", 
-                            "options": [
-                                "探险工具组 (5 使用次数，1 重量)", "药膏和草药 (2 使用次数，缓慢，1 重量)", "半身人烟草 (6 使用次数，0 重量)", 
-                                "3 解毒剂 (0 重量)"
-                            ]
+                            "options": ["探险工具组 (5 使用次数，1 重量)", "药膏和草药 (2 使用次数，缓慢，1 重量)", "半身人烟草 (6 使用次数，0 重量)", "3 解毒剂 (0 重量)"]
                         }
                     ]
                 }, 
                 "look": {
                     "elements": [
                         { "key": "group0", "value": ["睿智的眼神", "狂野的眼神", "着魔的眼神", "[[custom0:自定义]]"] }, 
-                        { "key": "group1", "value": ["毛皮兜帽", "凌乱的发型", "辫子发型", "[[custom1:自定义]]"]   }, 
-                        { "key": "group2", "value": ["仪式祭服", "实用革衣", "饱经风霜的兽皮", "[[custom2:自定义]]"] },
-                        { "key": "group3", "$delete": true}
+                        { "key": "group1", "value": ["毛皮兜帽", "凌乱的发型", "辫子发型", "[[custom1:自定义]]"] }, 
+                        { "key": "group2", "value": ["仪式祭服", "实用革衣", "饱经风霜的兽皮", "[[custom2:自定义]]"] }, 
+                        {"key": "group3", "$delete": true}
                     ]
                 }, 
                 "starting": {
@@ -1016,10 +727,7 @@
                             "text": "你在古老强大的自然精魂驻留之地学习魔法，且祂们对你视如己出。无论你走到哪里，祂们都活在你体内，让你能够化身为祂们的形体。选择下列其中一个选项，这就是你的归属之地──每当你进行化形的时候，你可以选择变化成任何可能栖息在该归属地的动物。\n\n\t- [ ] 大森林\n\n\t- [ ] 飒风吹拂的平原\n\n\t- [ ] 广阔无边的沙漠\n\n\t- [ ] 恶臭薰天的沼泽\n\n\t- [ ] 河口三角洲\n\n\t- [ ] 地底深处\n\n\t- [ ] 宝石般的群岛\n\n\t- [ ] 浩瀚无垠的大海\n\n\t- [ ] 高耸入云的山脉\n\n\t- [ ] 天寒地冻的北境\n\n\t- [ ] 枯萎荒芜的荒原\n\n\t选择一项特征──一项能彰显出你自然之子身份的身体特征──它将反映出你归属之地的精魂。它可以是像鹿角、猎豹斑点这类的动物特征，或较笼统的特征：例如树叶般的头发、如同闪耀水晶的眼眸等。无论你化身成什么形体，你都会保留你的特征。"
                         }, 
                         {"name": "自然生养", "text": "你不需要进食或饮水。如果某个动作要求你消耗 1 份口粮，直接忽略它。"}, 
-                        {
-                            "name": "精魂之语", 
-                            "text": "低吼、吠叫、鸟鸣，这类野生动物的叫声对你来说就跟人类的语言一样。你可以理解任何原生于你归属地、或你研究过其精髓的动物所表达的意思。"
-                        }, 
+                        {"name": "精魂之语", "text": "低吼、吠叫、鸟鸣，这类野生动物的叫声对你来说就跟人类的语言一样。你可以理解任何原生于你归属地、或你研究过其精髓的动物所表达的意思。"}, 
                         {
                             "name": "化形者", 
                             "text": "当你**呼唤自然精魂来改变你的形体**时，掷 + 睿知：\n\n\t✴掷出 10+ 时，获得 3 掌握。\n\n\t✴掷出 7-9 时，获得 2 掌握。\n\n\t✴掷出失败时，获得 1 掌握，且 GM 会告诉你发生了什么事。\n\n\t你可以化身为任何栖息于你的归属地、或你曾研究过其精髓的动物：你的持有物将会融入你的体内，使你完美变形成该动物的型态。你获得该型态的天生能力和弱点：爪子、翅膀、鳃、能在水中而非在空气中呼吸等等。你仍然使用你原本的属性值，但某些动作将因此而较难以被触发──举例来说，一只家猫就很难与食人魔交战。GM 也会告诉你一个或多个与你新型态有关的动作，你可以消耗 1 掌握来进行该动作。一旦你的掌握被消耗殆尽，你将变回你原本的型态。你可以随时消耗所有的掌握以变回你原本的型态。"
@@ -1039,12 +747,7 @@
                         {
                             "key": "2-5", 
                             "moves": [
-                                {
-                                    "name": "猎人弟兄", 
-                                    "text": "从游侠职业列表中选择并获得一个动作。", 
-                                    "requires": null, 
-                                    "replaces": null
-                                }, 
+                                {"name": "猎人弟兄", "text": "从游侠职业列表中选择并获得一个动作。", "requires": null, "replaces": null}, 
                                 {
                                     "name": "血红爪牙", 
                                     "text": "当你**处于适当的动物型态**时（具有危险性的动物），将你的伤害骰增加至 d8。", 
@@ -1057,12 +760,7 @@
                                     "requires": null, 
                                     "replaces": null
                                 }, 
-                                {
-                                    "name": "树肤", 
-                                    "text": "只要你的双脚与地面接触，你就获得 +1 护甲值。", 
-                                    "requires": null, 
-                                    "replaces": null
-                                }, 
+                                {"name": "树肤", "text": "只要你的双脚与地面接触，你就获得 +1 护甲值。", "requires": null, "replaces": null}, 
                                 {
                                     "name": "猛虎之眼", 
                                     "text": "当你**（使用泥、土或血）标记一只动物**后，无论牠与你的距离有多远，你都可以透过该动物的双眼来视物，就如同你亲眼所见。同时只能有一只动物被透过这个方式标记。", 
@@ -1104,12 +802,7 @@
                         {
                             "key": "6-10", 
                             "moves": [
-                                {
-                                    "name": "无拘于形", 
-                                    "text": "当你进行化形者动作时，掷 1d4，并额外获得等同于其结果的掌握。", 
-                                    "requires": null, 
-                                    "replaces": null
-                                }, 
+                                {"name": "无拘于形", "text": "当你进行化形者动作时，掷 1d4，并额外获得等同于其结果的掌握。", "requires": null, "replaces": null}, 
                                 {
                                     "name": "二重身之舞", 
                                     "text": "你能够研究某个特定个体的精髓本质，使你精确地化形成他们的外型，其对象包括人类、精灵、或其他类似的个体。你能够隐藏起你的自然之子特征，但如果你这么做，则直到你变回原本的型态之前，你都将获得持续 -1。", 
@@ -1134,12 +827,7 @@
                                     "requires": "万物说客", 
                                     "replaces": null
                                 }, 
-                                {
-                                    "name": "追迹者姊妹", 
-                                    "text": "从游侠职业列表中选择并获得一个动作。", 
-                                    "requires": "猎人弟兄", 
-                                    "replaces": null
-                                }, 
+                                {"name": "追迹者姊妹", "text": "从游侠职业列表中选择并获得一个动作。", "requires": "猎人弟兄", "replaces": null}, 
                                 {
                                     "name": "成形者", 
                                     "text": "当你处于动物型态时，你可以使你的护甲值增加 1 点、或额外造成 +1d4 伤害。在你进行化形者动作的时候选择要应用哪个好处。", 
@@ -1164,15 +852,23 @@
                 }, 
                 "race": {
                     "moves": [
-                        {"name": "精灵", "text": "上古神树的汁液流淌在你体内。除了你所选择的归属地之外，大森林也永远被视作你的归属地。"}, 
-                        {
-                            "name": "人类", 
-                            "text": "当你的族人们学会将动物驯养于田地与农场之间，你也与牠们建立了联系。除了原本的化身选项之外，你也可以选择化身成任何被驯化的动物。"
-                        }, 
-                        {"name": "半身人", "text": "你吟唱着山泉与小溪的疗愈之歌。当你们扎营时，你和你的同伴们都将额外恢复 +1d6。"}
+                        { "name": "精灵" , "text": "上古神树的汁液流淌在你体内。除了你所选择的归属地之外，大森林也永远被视作你的归属地。"                      }, 
+                        { "name": "人类" , "text": "当你的族人们学会将动物驯养于田地与农场之间，你也与牠们建立了联系。除了原本的化身选项之外，你也可以选择化身成任何被驯化的动物。" }, 
+                        { "name": "半身人", "text": "你吟唱着山泉与小溪的疗愈之歌。当你们扎营时，你和你的同伴们都将额外恢复 +1d6。"                       }
                     ]
                 }, 
-                "bonds": {"elements": [{"type": "inputGroup", "key": "bonds", "value": ["____________________ 闻起来比起猎人，更像是猎物。", "自然精魂对我诉说，______________ 即将面临某个巨大的危险。", "我曾在 ________________ 面前展示过我归属之地的秘密仪式。", "___________ 已与我歃血为盟。我们因此紧紧相系。"]}]}
+                "bonds": {
+                    "elements": [
+                        {
+                            "type": "inputGroup", 
+                            "key": "bonds", 
+                            "value": [
+                                "____________________ 闻起来比起猎人，更像是猎物。", "自然精魂对我诉说，______________ 即将面临某个巨大的危险。", 
+                                "我曾在 ________________ 面前展示过我归属之地的秘密仪式。", "___________ 已与我歃血为盟。我们因此紧紧相系。"
+                            ]
+                        }
+                    ]
+                }
             }, 
             "header": {
                 "metrics": {
@@ -1195,8 +891,8 @@
                         {
                             "prompt": "选择二项：", 
                             "options": [
-                                "2 治疗药水 (0 重量)", "盾牌 (+1 护甲，2 重量)", 
-                                "解毒剂 (0 重量), 地城口粮 (5 使用次数 1 重量), 和 药膏和草药 (2 使用次数，缓慢，1 重量)", "22 金币"
+                                "2 治疗药水 (0 重量)", "盾牌 (+1 护甲，2 重量)", "解毒剂 (0 重量), 地城口粮 (5 使用次数 1 重量), 和 药膏和草药 (2 使用次数，缓慢，1 重量)", 
+                                "22 金币"
                             ]
                         }
                     ]
@@ -1234,12 +930,7 @@
                         {
                             "key": "2-5", 
                             "moves": [
-                                {
-                                    "name": "残忍无情", 
-                                    "text": "当你造成伤害时，你额外造成 +1d4 伤害。", 
-                                    "requires": null, 
-                                    "replaces": null
-                                }, 
+                                {"name": "残忍无情", "text": "当你造成伤害时，你额外造成 +1d4 伤害。", "requires": null, "replaces": null}, 
                                 {
                                     "name": "传家之宝", 
                                     "text": "当你**请教寄宿在你招牌武器内的精魂**时，它们将给你一个与当前情境的见解，并可能会反过来问你一些问题，掷 + 魅力。\n\n\t✴掷出 10+ 时，GM 会告诉你详细的细节。\n\n\t✴掷出 7-9 时，GM 只会告诉你一个大致的印象。", 
@@ -1252,36 +943,16 @@
                                     "requires": null, 
                                     "replaces": null
                                 }, 
-                                {
-                                    "name": "强化武器", 
-                                    "text": "为你的招牌武器额外选择一项强化效果。", 
-                                    "requires": null, 
-                                    "replaces": null
-                                }, 
-                                {
-                                    "name": "红眼酣战", 
-                                    "text": "当你在战斗期间进行审视现状动作时，你获得 +1 加值。", 
-                                    "requires": null, 
-                                    "replaces": null
-                                }, 
-                                {
-                                    "name": "审问者", 
-                                    "text": "当你**使用暴力威胁做为筹码来进行谈判**时，你可以使用力量来取代魅力。", 
-                                    "requires": null, 
-                                    "replaces": null
-                                }, 
+                                {"name": "强化武器", "text": "为你的招牌武器额外选择一项强化效果。", "requires": null, "replaces": null}, 
+                                {"name": "红眼酣战", "text": "当你在战斗期间进行审视现状动作时，你获得 +1 加值。", "requires": null, "replaces": null}, 
+                                {"name": "审问者", "text": "当你**使用暴力威胁做为筹码来进行谈判**时，你可以使用力量来取代魅力。", "requires": null, "replaces": null}, 
                                 {
                                     "name": "嗅闻血腥", 
                                     "text": "当你对一个敌人进行砍劈动作时，你下一次对同个敌人进行的攻击将额外造成 +1d4 伤害。", 
                                     "requires": null, 
                                     "replaces": null
                                 }, 
-                                {
-                                    "name": "兼职新手", 
-                                    "text": "从另一个职业中获得一个动作。在选择动作时，将你的等级视为比原本低一级。", 
-                                    "requires": null, 
-                                    "replaces": null
-                                }, 
+                                {"name": "兼职新手", "text": "从另一个职业中获得一个动作。在选择动作时，将你的等级视为比原本低一级。", "requires": null, "replaces": null}, 
                                 {"name": "铁革硬皮", "text": "你获得 +1 护甲值。", "requires": null, "replaces": null}, 
                                 {
                                     "name": "铁匠", 
@@ -1294,12 +965,7 @@
                         {
                             "key": "6-10", 
                             "moves": [
-                                {
-                                    "name": "残酷嗜血", 
-                                    "text": "当你造成伤害时，你额外造成 +1d8 伤害。", 
-                                    "requires": null, 
-                                    "replaces": "残忍无情"
-                                }, 
+                                {"name": "残酷嗜血", "text": "当你造成伤害时，你额外造成 +1d8 伤害。", "requires": null, "replaces": "残忍无情"}, 
                                 {
                                     "name": "完美着甲", 
                                     "text": "当你**决定利用你的护甲代为承受对你造成的冲击伤害**时，该伤害将被抵销，且你获得对该攻击者的下次 +1。但你必须同时将你盔甲或盾牌（由你决定）的护甲值减少 1 点。其护甲值将在你每次做出这个决定时减少。若这个减损值导致该物品的护甲值归零，则该物品被摧毁。", 
@@ -1331,12 +997,7 @@
                                     "requires": null, 
                                     "replaces": null
                                 }, 
-                                {
-                                    "name": "武器鉴识", 
-                                    "text": "当你**检视敌人的武器**时，向 GM 询问它能够造成多少伤害。", 
-                                    "requires": null, 
-                                    "replaces": null
-                                }, 
+                                {"name": "武器鉴识", "text": "当你**检视敌人的武器**时，向 GM 询问它能够造成多少伤害。", "requires": null, "replaces": null}, 
                                 {
                                     "name": "卓越勇士", 
                                     "text": "当你在砍劈动作中掷出 12+ 的结果时，你造成你的伤害、避开敌人的攻击，并让你的敌人敢到惊艳、挫败、或恐惧。", 
@@ -1355,7 +1016,18 @@
                         { "name": "人类" , "text": "每场战斗一次，你可以重骰一次你或其他人的伤害。"                }
                     ]
                 }, 
-                "bonds": {"elements": [{"type": "inputGroup", "key": "bonds", "value": ["不论 _______________ 是否承认，他都欠我一条命。", "我发过誓要保护 _______________。", "我担忧 _______________ 在地城中生存下来的能力。", "_______________ 相当柔弱，但我会让他像我一样坚强。"]}]}
+                "bonds": {
+                    "elements": [
+                        {
+                            "type": "inputGroup", 
+                            "key": "bonds", 
+                            "value": [
+                                "不论 _______________ 是否承认，他都欠我一条命。", "我发过誓要保护 _______________。", "我担忧 _______________ 在地城中生存下来的能力。", 
+                                "_______________ 相当柔弱，但我会让他像我一样坚强。"
+                            ]
+                        }
+                    ]
+                }
             }, 
             "header": {
                 "metrics": {
@@ -1498,12 +1170,7 @@
                                     "requires": null, 
                                     "replaces": null
                                 }, 
-                                {
-                                    "name": "搧风点火", 
-                                    "text": "你可以将你 煽动者 动作的效果同时运用在一群人（十数人左右）身上。", 
-                                    "requires": "煽动者", 
-                                    "replaces": null
-                                }, 
+                                {"name": "搧风点火", "text": "你可以将你 煽动者 动作的效果同时运用在一群人（十数人左右）身上。", "requires": "煽动者", "replaces": null}, 
                                 {
                                     "name": "看这世界陷入火海", 
                                     "text": "当你**开启通往燃烧位面的通道，并从中唤出席卷一切的烈焰风暴**时，告诉 GM 你打算牺牲什么东西，并掷 + 睿知。在大约一个小村庄的范围内，天空将被打开，且火焰将如豪雨般倾盆而下。所有范围内的人事物都将受到相应的伤害。\n\n\t✴掷出 10+ 时，你不费吹灰之力就能停止并熄灭这阵烈焰风暴。\n\n\t✴掷出 7-9 时，大火肆虐，脱离了你的控制，并藉着狂风和天候向四处蔓延扩散。\n\n\t✴掷出失败时，某个残虐、有智慧能力、且饥饿的存在从烈焰风暴中降临。", 
@@ -1520,7 +1187,18 @@
                         { "name": "沙拉曼达", "text": "非魔法的高热和火焰无法伤害你。"                  }
                     ]
                 }, 
-                "bonds": {"elements": [{"type": "inputGroup", "key": "bonds", "value": ["____________________ 曾感受过地狱烈火，现在他知道了我所拥有的力量。", "我会教导 ______________ 关于牺牲的真正含意。", "我曾为了 ______________ 将某些东西扔进火中，且仍然欠他他所应得的事物。"]}]}
+                "bonds": {
+                    "elements": [
+                        {
+                            "type": "inputGroup", 
+                            "key": "bonds", 
+                            "value": [
+                                "____________________ 曾感受过地狱烈火，现在他知道了我所拥有的力量。", "我会教导 ______________ 关于牺牲的真正含意。", 
+                                "我曾为了 ______________ 将某些东西扔进火中，且仍然欠他他所应得的事物。"
+                            ]
+                        }
+                    ]
+                }
             }, 
             "header": {
                 "metrics": {
@@ -1540,10 +1218,7 @@
                             "prompt": "你起始拥有 地城口粮 ({5 使用次数} {1 重量}), 鳞甲 ({2 护甲} {3 重量}), 和一些信仰象征，样式由你描述 ({0 重量})。\n\n选择你的武器：", 
                             "options": ["斧枪 (及远，+1 伤害，双手，2 重量)", "长剑 (近身，+1 伤害，1 重量) 和 盾牌 (+1 护甲，2 重量)"]
                         }, 
-                        {
-                            "prompt": "选择一项：", 
-                            "options": ["探险工具组 (5 使用次数，1 重量)", "地城口粮 (5 使用次数，1 重量) 和 治疗药水 (0 重量)"]
-                        }
+                        { "prompt": "选择一项：", "options": ["探险工具组 (5 使用次数，1 重量)", "地城口粮 (5 使用次数，1 重量) 和 治疗药水 (0 重量)"] }
                     ]
                 }, 
                 "look": {
@@ -1572,10 +1247,7 @@
                     ]
                 }, 
                 "alignment": {
-                    "moves": [
-                        { "name": "守序", "text": "拒绝宽恕罪犯或无信者。"     }, 
-                        { "name": "善良", "text": "为了保护弱者而将自己置身险境。" }
-                    ]
+                    "moves": [ {"name": "守序", "text": "拒绝宽恕罪犯或无信者。"}, {"name": "善良", "text": "为了保护弱者而将自己置身险境。"} ]
                 }, 
                 "advanced": {
                     "groups": [
@@ -1594,24 +1266,14 @@
                                     "requires": null, 
                                     "replaces": null
                                 }, 
-                                {
-                                    "name": "重斩", 
-                                    "text": "在执行使命的期间，你额外造成 +1d4 伤害。", 
-                                    "requires": null, 
-                                    "replaces": null
-                                }, 
+                                {"name": "重斩", "text": "在执行使命的期间，你额外造成 +1d4 伤害。", "requires": null, "replaces": null}, 
                                 {
                                     "name": "灭绝令", 
                                     "text": "当你**大声说出你将要击败某一个敌人的承诺**时，你对该敌人额外造成 +2d4 伤害，但对其他所有对象造成的伤害 -4。这个效果会持续直到该敌人被击败。若你放弃击败该敌人，或放弃战斗，则你可以承认你的失败，然而这个效果仍会继续持续直到你找到一个方法来救赎自己。", 
                                     "requires": null, 
                                     "replaces": null
                                 }, 
-                                {
-                                    "name": "冲锋！", 
-                                    "text": "当你**率领众人冲锋陷阵**时，你所率领的人们都将获得下次 +1。", 
-                                    "requires": null, 
-                                    "replaces": null
-                                }, 
+                                {"name": "冲锋！", "text": "当你**率领众人冲锋陷阵**时，你所率领的人们都将获得下次 +1。", "requires": null, "replaces": null}, 
                                 {
                                     "name": "坚毅防卫者", 
                                     "text": "当你进行保卫动作时，你永远获得 +1 掌握，即使你掷出 6-的结果也一样。", 
@@ -1624,19 +1286,9 @@
                                     "requires": null, 
                                     "replaces": null
                                 }, 
-                                {
-                                    "name": "圣洁守护", 
-                                    "text": "在执行使命的期间，你获得 +1 护甲值。", 
-                                    "requires": null, 
-                                    "replaces": null
-                                }, 
+                                {"name": "圣洁守护", "text": "在执行使命的期间，你获得 +1 护甲值。", "requires": null, "replaces": null}, 
                                 {"name": "权威之声", "text": "你在命令雇工时获得 +1 加值。", "requires": null, "replaces": null}, 
-                                {
-                                    "name": "医院牧师", 
-                                    "text": "当你治疗一名同伴时，你额外治疗 +1d8 伤害。", 
-                                    "requires": null, 
-                                    "replaces": null
-                                }
+                                {"name": "医院牧师", "text": "当你治疗一名同伴时，你额外治疗 +1d8 伤害。", "requires": null, "replaces": null}
                             ]
                         }, 
                         {
@@ -1648,12 +1300,7 @@
                                     "requires": "神恩浩荡", 
                                     "replaces": null
                                 }, 
-                                {
-                                    "name": "至圣斩", 
-                                    "text": "在执行使命的期间，你额外造成 +1d8 伤害。", 
-                                    "requires": null, 
-                                    "replaces": "重斩"
-                                }, 
+                                {"name": "至圣斩", "text": "在执行使命的期间，你额外造成 +1d8 伤害。", "requires": null, "replaces": "重斩"}, 
                                 {
                                     "name": "勇往直前", 
                                     "text": "当你**率领众人冲锋陷阵**时，你所率领的人们都将获得下次 +1 以及 下次护甲值 +2。", 
@@ -1672,36 +1319,21 @@
                                     "requires": null, 
                                     "replaces": "预备打击"
                                 }, 
-                                {
-                                    "name": "神圣守护", 
-                                    "text": "在执行使命的期间，你获得 +2 护甲值。", 
-                                    "requires": null, 
-                                    "replaces": "圣洁守护"
-                                }, 
+                                {"name": "神圣守护", "text": "在执行使命的期间，你获得 +2 护甲值。", "requires": null, "replaces": "圣洁守护"}, 
                                 {
                                     "name": "神圣权威", 
                                     "text": "你在命令雇工时获得 +1 加值。当你掷出 12+ 时，雇工将会战胜他们心中的恐惧和怀疑，并以特别优异的效率执行你的命令。", 
                                     "requires": null, 
                                     "replaces": "权威之声"
                                 }, 
-                                {
-                                    "name": "完美医牧", 
-                                    "text": "当你治疗一名同伴时，你额外治疗 +2d8 伤害。", 
-                                    "requires": null, 
-                                    "replaces": "医院牧师"
-                                }, 
+                                {"name": "完美医牧", "text": "当你治疗一名同伴时，你额外治疗 +2d8 伤害。", "requires": null, "replaces": "医院牧师"}, 
                                 {
                                     "name": "不屈", 
                                     "text": "当你承受一个异常状态时（包括透过血红神盾），你对任何造成该异常状态的对象获得下次 +1。", 
                                     "requires": null, 
                                     "replaces": null
                                 }, 
-                                {
-                                    "name": "完美骑士", 
-                                    "text": "当你进行使命动作时，你选择三个恩赐，而非二个。", 
-                                    "requires": null, 
-                                    "replaces": null
-                                }
+                                {"name": "完美骑士", "text": "当你进行使命动作时，你选择三个恩赐，而非二个。", "requires": null, "replaces": null}
                             ]
                         }
                     ]
@@ -1709,7 +1341,18 @@
                 "race": {
                     "moves": [ {"name": "人类", "text": "当你**祈祷请示引导，并询问「邪恶在何方？」**时，GM 将会据实以告。"} ]
                 }, 
-                "bonds": {"elements": [{"type": "inputGroup", "key": "bonds", "value": ["_______________ 的错误行为将会危害到他自己！", "_______________ 曾与我并肩作战，他可以被完全信任。", "我敬重 _______________ 的信仰，但期望他有朝一日能够看见真理。", "_______________ 勇敢无惧，我还有许多要向他学习。"]}]}
+                "bonds": {
+                    "elements": [
+                        {
+                            "type": "inputGroup", 
+                            "key": "bonds", 
+                            "value": [
+                                "_______________ 的错误行为将会危害到他自己！", "_______________ 曾与我并肩作战，他可以被完全信任。", 
+                                "我敬重 _______________ 的信仰，但期望他有朝一日能够看见真理。", "_______________ 勇敢无惧，我还有许多要向他学习。"
+                            ]
+                        }
+                    ]
+                }
             }, 
             "header": {
                 "metrics": {
@@ -1731,10 +1374,7 @@
                         }, 
                         {
                             "prompt": "选择一项：", 
-                            "options": [
-                                "探险工具组 (5 使用次数，1 重量), 和 地城口粮 (5 使用次数，1 重量)", 
-                                "探险工具组 (5 使用次数，1 重量), 和 一捆箭矢 (3 弹药，1 重量)"
-                            ]
+                            "options": ["探险工具组 (5 使用次数，1 重量), 和 地城口粮 (5 使用次数，1 重量)", "探险工具组 (5 使用次数，1 重量), 和 一捆箭矢 (3 弹药，1 重量)"]
                         }
                     ]
                 }, 
@@ -1792,18 +1432,8 @@
                         {
                             "key": "2-5", 
                             "moves": [
-                                {
-                                    "name": "荒野共感", 
-                                    "text": "你能够与动物交谈并理解牠们的意思。", 
-                                    "requires": null, 
-                                    "replaces": null
-                                }, 
-                                {
-                                    "name": "熟悉的猎物", 
-                                    "text": "当你针对怪物进行忆述见闻时，你使用睿知来取代智力。", 
-                                    "requires": null, 
-                                    "replaces": null
-                                }, 
+                                {"name": "荒野共感", "text": "你能够与动物交谈并理解牠们的意思。", "requires": null, "replaces": null}, 
+                                {"name": "熟悉的猎物", "text": "当你针对怪物进行忆述见闻时，你使用睿知来取代智力。", "requires": null, "replaces": null}, 
                                 {
                                     "name": "毒蛇双袭", 
                                     "text": "当你使用二把武器同时袭向一个敌人时，你因为副手武器的打击而额外造成 1d4 伤害。", 
@@ -1835,29 +1465,14 @@
                                     "requires": null, 
                                     "replaces": null
                                 }, 
-                                {
-                                    "name": "随我前来", 
-                                    "text": "当你们踏上一段危险旅程时，你可以同时担任二个职位。你为这些工作分别掷骰。", 
-                                    "requires": null, 
-                                    "replaces": null
-                                }, 
-                                {
-                                    "name": "安歇之所", 
-                                    "text": "当你**负责安排守夜**时，所有人在进行守夜动作时获得 +1 加值。", 
-                                    "requires": null, 
-                                    "replaces": null
-                                }
+                                {"name": "随我前来", "text": "当你们踏上一段危险旅程时，你可以同时担任二个职位。你为这些工作分别掷骰。", "requires": null, "replaces": null}, 
+                                {"name": "安歇之所", "text": "当你**负责安排守夜**时，所有人在进行守夜动作时获得 +1 加值。", "requires": null, "replaces": null}
                             ]
                         }, 
                         {
                             "key": "6-10", 
                             "moves": [
-                                {
-                                    "name": "荒野之语", 
-                                    "text": "你能够与任何既非魔法、也非异位面的生物交谈并理解牠们的意思。", 
-                                    "requires": null, 
-                                    "replaces": "荒野共感"
-                                }, 
+                                {"name": "荒野之语", "text": "你能够与任何既非魔法、也非异位面的生物交谈并理解牠们的意思。", "requires": null, "replaces": "荒野共感"}, 
                                 {
                                     "name": "猎人的猎物", 
                                     "text": "当你针对怪物进行忆述见闻时，你使用睿知来取代智力。当掷出 12+ 时，除了原本的效果外，你还能再任意询问 GM 一个关于目标的问题。", 
@@ -1870,12 +1485,7 @@
                                     "requires": null, 
                                     "replaces": "毒蛇双袭"
                                 }, 
-                                {
-                                    "name": "巨龙的软腹", 
-                                    "text": "当你知晓你目标的最大弱点时，你的箭矢被视作带有{2 穿透}标签。", 
-                                    "requires": null, 
-                                    "replaces": null
-                                }, 
+                                {"name": "巨龙的软腹", "text": "当你知晓你目标的最大弱点时，你的箭矢被视作带有{2 穿透}标签。", "requires": null, "replaces": null}, 
                                 {
                                     "name": "奔行者", 
                                     "text": "当你们踏上一段危险旅程时，你可以同时担任二个职位。你掷二次骰，并使用较好的结果应用于这两个工作上。", 
@@ -1912,11 +1522,22 @@
                 }, 
                 "race": {
                     "moves": [
-                        {"name": "精灵", "text": "当你们踏上一段横越荒野的危险旅程时，无论你担任哪一个职位，该工作都将如同你掷出 10+ 的结果一样自动成功。"}, 
-                        {"name": "人类", "text": "当你在地城或城市中扎营时，你不需要消耗口粮。"}
+                        { "name": "精灵", "text": "当你们踏上一段横越荒野的危险旅程时，无论你担任哪一个职位，该工作都将如同你掷出 10+ 的结果一样自动成功。" }, 
+                        { "name": "人类", "text": "当你在地城或城市中扎营时，你不需要消耗口粮。"                                 }
                     ]
                 }, 
-                "bonds": {"elements": [{"type": "inputGroup", "key": "bonds", "value": ["我过去曾经指导过 _______________ 且他为此欠我一个恩情。", "_______________ 是自然之友，所以我也会是他的朋友。", "_______________ 不敬重大自然，因此我也不会尊重他。", "_______________ 并不了解如何度过荒野中的生活，因此我会教导他。"]}]}
+                "bonds": {
+                    "elements": [
+                        {
+                            "type": "inputGroup", 
+                            "key": "bonds", 
+                            "value": [
+                                "我过去曾经指导过 _______________ 且他为此欠我一个恩情。", "_______________ 是自然之友，所以我也会是他的朋友。", 
+                                "_______________ 不敬重大自然，因此我也不会尊重他。", "_______________ 并不了解如何度过荒野中的生活，因此我会教导他。"
+                            ]
+                        }
+                    ]
+                }
             }, 
             "header": {
                 "metrics": {
@@ -1936,10 +1557,7 @@
                             "prompt": "你起始拥有 地城口粮 ({5 使用次数} {1 重量}), 皮甲 ({1 护甲} {1 重量}), 你所选择的毒药 ({3 使用次数}), 和 10 金币。\n\n选择你的武器：", 
                             "options": ["匕首 (触及，1 重量) 和 短剑 (近身，1 重量)", "刺剑 (近身，灵巧，1 重量)"]
                         }, 
-                        {
-                            "prompt": "选择一项远程武器：", 
-                            "options": ["3 飞刀 (投掷，短程，0 重量)", "劣质弓 (短程，2 重量) 和 一捆箭矢 (3 弹药，1 重量)"]
-                        }, 
+                        { "prompt": "选择一项远程武器：", "options": ["3 飞刀 (投掷，短程，0 重量)", "劣质弓 (短程，2 重量) 和 一捆箭矢 (3 弹药，1 重量)"] }, 
                         { "prompt": "选择一项：", "options": ["探险工具组 (5 使用次数，1 重量)", "治疗药水 (0 重量)"] }
                     ]
                 }, 
@@ -2002,18 +1620,8 @@
                                     "requires": null, 
                                     "replaces": null
                                 }, 
-                                {
-                                    "name": "抢占先机", 
-                                    "text": "你永远不会被突袭。当敌人要对你们先发制人时，改为由你抢先一步行动。", 
-                                    "requires": null, 
-                                    "replaces": null
-                                }, 
-                                {
-                                    "name": "毒药大师", 
-                                    "text": "当你使用过一种毒药之后，使用该毒药对你而言将不再{危险}。", 
-                                    "requires": null, 
-                                    "replaces": null
-                                }, 
+                                {"name": "抢占先机", "text": "你永远不会被突袭。当敌人要对你们先发制人时，改为由你抢先一步行动。", "requires": null, "replaces": null}, 
+                                {"name": "毒药大师", "text": "当你使用过一种毒药之后，使用该毒药对你而言将不再{危险}。", "requires": null, "replaces": null}, 
                                 {
                                     "name": "剧毒化", 
                                     "text": "你可以使用针孔注射更加复杂的毒药。当你将一种对你而言并不危险的毒药施加在你的武器上时，该毒药的{内服}标签将被替换成{接触}标签。", 
@@ -2026,12 +1634,7 @@
                                     "requires": null, 
                                     "replaces": null
                                 }, 
-                                {
-                                    "name": "败犬挣扎", 
-                                    "text": "当你寡不敌众时，你获得 +1 护甲值。", 
-                                    "requires": null, 
-                                    "replaces": null
-                                }, 
+                                {"name": "败犬挣扎", "text": "当你寡不敌众时，你获得 +1 护甲值。", "requires": null, "replaces": null}, 
                                 {
                                     "name": "人脉网路", 
                                     "text": "当你**在罪犯社群散播关于你想要或需要事物的情报**时，掷 + 魅力：\n\n\t✴掷出 10+ 时，某人拥有它，并会把它给你。\n\n\t✴掷出 7-9 时，你决定要：将就于某个类似的替代品、或者为了得到它而满足一些附加条件。", 
@@ -2061,12 +1664,7 @@
                                     "requires": null, 
                                     "replaces": "制毒师"
                                 }, 
-                                {
-                                    "name": "困兽之斗", 
-                                    "text": "你获得 +1 护甲值。当你寡不敌众时，你改为获得 +2 护甲值。", 
-                                    "requires": null, 
-                                    "replaces": "败犬挣扎"
-                                }, 
+                                {"name": "困兽之斗", "text": "你获得 +1 护甲值。当你寡不敌众时，你改为获得 +2 护甲值。", "requires": null, "replaces": "败犬挣扎"}, 
                                 {
                                     "name": "反射闪避", 
                                     "text": "当你在进行面对危险的动作时掷出 12+ 的结果，你将凌驾于危险本身。你不仅仅达成了你想要做的事，GM 还会为你带来一个更好的结果、或展现风采的绝妙时刻。", 
@@ -2107,7 +1705,18 @@
                         { "name": "人类" , "text": "你是个专业人士。当你进行与犯罪活动有关的忆述见闻或审视现状动作时，获得 +1 加值。" }
                     ]
                 }, 
-                "bonds": {"elements": [{"type": "inputGroup", "key": "bonds", "value": ["我从 _______________ 那里偷了某样东西。", "_______________ 会在出问题的时候罩我。", "_______________ 知道关于我犯罪的详细证据。", "_______________ 和我有个正在执行的骗局。"]}]}
+                "bonds": {
+                    "elements": [
+                        {
+                            "type": "inputGroup", 
+                            "key": "bonds", 
+                            "value": [
+                                "我从 _______________ 那里偷了某样东西。", "_______________ 会在出问题的时候罩我。", "_______________ 知道关于我犯罪的详细证据。", 
+                                "_______________ 和我有个正在执行的骗局。"
+                            ]
+                        }
+                    ]
+                }
             }, 
             "header": {
                 "metrics": {
@@ -2153,10 +1762,7 @@
                             "name": "施放法术 (智力)", 
                             "text": "当你**施放一个你已经准备好的法术**时，掷 + 智力：\n\n\t✴掷出 10+ 时，该法术被成功施放，且你并未遗忘该法术，因此你之后仍可以再次施展该法术。\n\n\t✴掷出 7-9 时，该法术被施放，但你必须选择一项：\n\n\t- 你引来了不必要的注意、或将自己置身危险当中。GM 会告诉你发生了什么事。\n\n\t- 你施放法术的行为扰乱了现实世界的经纬──直到下次你进行准备法术动作之前，你的施放法术动作将获得持续 -1。\n\n\t- 在你施法后，该法术被你遗忘。直到你下次进行准备法术动作之前，你都无法再次施放该法术。\n\n\t注意，维持一个带有{持续}标签的法术效果，有时会导致你在进行施放法术动作时承受减值。"
                         }, 
-                        {
-                            "name": "法术防御", 
-                            "text": "你可以立即终止任何你正在维持的持续性法术，并使用消散的法术能量来偏转攻击。该法术将因此终止，且你可以把对你造成的伤害减去等同该法术等级的数值。"
-                        }, 
+                        {"name": "法术防御", "text": "你可以立即终止任何你正在维持的持续性法术，并使用消散的法术能量来偏转攻击。该法术将因此终止，且你可以把对你造成的伤害减去等同该法术等级的数值。"}, 
                         {
                             "name": "仪式", 
                             "text": "当你**在能量汇聚之地绘制法阵来创造出魔法效果**时，告诉 GM 你想要达成什么样的效果。所有仪式效果都是有可能实现的，但 GM 会要求你先达成下列一到四个条件：\n\n\t- 这将需要花上数天／数周／数月的时间\n\n\t- 首先你必须要 ____\n\n\t- 你需要得到来自 ____ 的帮助\n\n\t- 这将需要大量的金钱\n\n\t- 你最多只能达成一个较差的版本，不可靠且效果有限\n\n\t- 你和你的同伴将需要冒着 ____ 的风险\n\n\t- 你需要驱除 ____ 的魔法效果才能做到。"
@@ -2175,36 +1781,21 @@
                         {
                             "key": "2-5", 
                             "moves": [
-                                {
-                                    "name": "奇才", 
-                                    "text": "选择一个法术。当你准备该法术时，将该法术的等级视作比原本低一级。", 
-                                    "requires": null, 
-                                    "replaces": null
-                                }, 
+                                {"name": "奇才", "text": "选择一个法术。当你准备该法术时，将该法术的等级视作比原本低一级。", "requires": null, "replaces": null}, 
                                 {
                                     "name": "强效魔法", 
                                     "text": "当你进行施展法术动作时，即使你掷出 10+ 结果，你也可以选择 7-9 结果的选项。如果你这么做，你可以从下列效果中选择一项：\n\n\t- 该法术的效果最大化\n\n\t- 该法术影响的目标数量变为两倍", 
                                     "requires": null, 
                                     "replaces": null
                                 }, 
-                                {
-                                    "name": "知识之泉", 
-                                    "text": "当你**针对没有人知道的事物进行忆述见闻**时，获得 +1 加值。", 
-                                    "requires": null, 
-                                    "replaces": null
-                                }, 
+                                {"name": "知识之泉", "text": "当你**针对没有人知道的事物进行忆述见闻**时，获得 +1 加值。", "requires": null, "replaces": null}, 
                                 {
                                     "name": "万事通", 
                                     "text": "当**其他玩家角色向你寻求建议，且你对他们说了你所能想到最好的意见**，则当他们遵循你的建议行事时，他们获得下次 +1，且你标记一点经验值。", 
                                     "requires": null, 
                                     "replaces": null
                                 }, 
-                                {
-                                    "name": "扩展法术书", 
-                                    "text": "从任意职业的法术列表中将一个法术加入到你的法术书中。", 
-                                    "requires": null, 
-                                    "replaces": null
-                                }, 
+                                {"name": "扩展法术书", "text": "从任意职业的法术列表中将一个法术加入到你的法术书中。", "requires": null, "replaces": null}, 
                                 {
                                     "name": "附魔师", 
                                     "text": "当你有充足的时间安全地研究一个魔法物品时，你可以向 GM 询问它的效果，且 GM 会据实以告。", 
@@ -2217,12 +1808,7 @@
                                     "requires": null, 
                                     "replaces": null
                                 }, 
-                                {
-                                    "name": "奥法防护", 
-                                    "text": "只要你还有至少一个准备好的一级或更高等级的法术，你获得 +2 护甲值。", 
-                                    "requires": null, 
-                                    "replaces": null
-                                }, 
+                                {"name": "奥法防护", "text": "只要你还有至少一个准备好的一级或更高等级的法术，你获得 +2 护甲值。", "requires": null, "replaces": null}, 
                                 {
                                     "name": "反制法术", 
                                     "text": "当你**尝试反制一个将要影响你的奥秘法术**时，拿出一个你准备好的法术当做防御的赌注，掷 + 智力：\n\n\t✴掷出 10+ 时，该法术被反制，且不会对你产生任何影响。\n\n\t✴掷出 7-9 时，该法术被反制，但你也将遗忘你拿来当做赌注的法术。\n\n\t你的反制法术动作只会保护你自己；若被反制的法术有其他目标，则他们仍会受到该法术效果的影响。", 
@@ -2310,7 +1896,18 @@
                         { "name": "人类", "text": "选择一个牧师法术。你可以把它视作法师法术一样施放。"        }
                     ]
                 }, 
-                "bonds": {"elements": [{"type": "inputGroup", "key": "bonds", "value": ["_______________ 将在即将到来的事件中扮演重要的角色。我已经预见了！", "_______________ 对我隐瞒了一个重要的秘密。", "_______________ 对这个世界有着可悲的误解；我将尽我所能的教导他。"]}]}
+                "bonds": {
+                    "elements": [
+                        {
+                            "type": "inputGroup", 
+                            "key": "bonds", 
+                            "value": [
+                                "_______________ 将在即将到来的事件中扮演重要的角色。我已经预见了！", "_______________ 对我隐瞒了一个重要的秘密。", 
+                                "_______________ 对这个世界有着可悲的误解；我将尽我所能的教导他。"
+                            ]
+                        }
+                    ]
+                }
             }, 
             "header": {
                 "metrics": {
@@ -2324,13 +1921,13 @@
             "areas": {
                 "look": {
                     "elements": [
-                        {"key": "group0", "$delete": true},
-                        {"key": "group1", "$delete": true},
-                        {"key": "group2", "$delete": true},
-                        {"key": "group3", "$delete": true},
+                        {"key": "group0", "$delete": true}, 
+                        {"key": "group1", "$delete": true}, 
+                        {"key": "group2", "$delete": true}, 
+                        {"key": "group3", "$delete": true}, 
                         {"type": "input", "key": "notes", "tip": "外观描述"}
                     ]
-                },
+                }, 
                 "starting": {
                     "buttons": [ {"label": "动作", "position": "global", "action": "addMove"} ]
                 }, 
@@ -2458,7 +2055,10 @@
                         {"name": "缓慢", "description": "使用它需要花费数分钟或更久的时间。"}, 
                         {"name": "接触", "description": "它需要透过直接接触到目标肌肤的方式来被使用。"}, 
                         {"name": "双手", "description": "它需要两只手才能被有效地使用。"}, 
-                        {"name": "n 重量", "description": "计算列有重量的物品的总重，并与你的负载量相比较。未列有重量的东西不能被随身携带。100枚标准面额的金币为{1 重量}。有着相同价值的宝石或美术品可能会更轻或更重。"}, 
+                        {
+                            "name": "n 重量", 
+                            "description": "计算列有重量的物品的总重，并与你的负载量相比较。未列有重量的东西不能被随身携带。100枚标准面额的金币为{1 重量}。有着相同价值的宝石或美术品可能会更轻或更重。"
+                        }, 
                         {"name": "穿戴", "description": "你必须要穿戴它才能够使用它。"}, 
                         {"name": "n 使用次数", "description": "它只能被使用 n 次。"}
                     ]
@@ -2476,176 +2076,134 @@
                         {"name": "灵巧", "description": "它有助于谨慎地施加打击。你以此武器进行砍劈动作时，使用敏捷进行检定，而非力量。"}, 
                         {"name": "装填", "description": "当你以它进行攻击之后，会需要稍多一点的时间来重置装填才能进行下一次攻击。"}, 
                         {"name": "晕眩", "description": "当你以它进行攻击时，它将造成晕眩伤害，而非正常的伤害。"}, 
-                        {"name": "投掷", "description": "把它掷向目标以造成伤害。若你以此武器进行射击动作，你在掷出7-9时将不能选择标记弹药-1；一旦你把它掷出，直到你把它拾回之前都将视作失去它。"}, 
+                        {
+                            "name": "投掷", 
+                            "description": "把它掷向目标以造成伤害。若你以此武器进行射击动作，你在掷出7-9时将不能选择标记弹药-1；一旦你把它掷出，直到你把它拾回之前都将视作失去它。"
+                        }, 
                         {"name": "触及", "color": "#ecacac", "description": "它适合用来攻击位于你徒手接触范围内的事物，不能再远了。"}, 
                         {"name": "近身", "color": "#ecacac", "description": "它适合用来攻击位于徒手触及距离再加上一到二英尺范围内的事物。"}, 
                         {"name": "及远", "color": "#ecacac", "description": "它适合用来攻击数英尺远的事物——或许最远十英尺。"}, 
                         {"name": "近程", "color": "#ecacac", "description": "它适合用来攻击你能够看到其眼白的目标。"}, 
                         {"name": "远程", "color": "#ecacac", "description": "它适合用来攻击于呐喊所能传达距离内的事物。"}
                     ]
-                },
+                }, 
                 {
-                    "key": "武器列表",
-                    "title": "武器列表",
+                    "key": "武器列表", 
+                    "title": "武器列表", 
                     "tags": [
-                        "**劣质弓** {短程} {15 金币} {2 重量}",
-                        "**良弓** {短程} {远程} {60 金币} {2 重量}",
-                        "**猎弓** {短程} {远程} {100 金币} {1 重量}",
-                        "**弩** {短程} {+1 伤害} {装填} {35 金币} {3 重量}",
-                        "**一捆箭矢** {3 弹药} {1 金币} {1 重量}",
-                        "**精灵箭矢** {4 弹药} {20 金币} {1 重量}",
-                        "**短棍，橡木棍** {近身} {1 金币} {2 重量}",
-                        "**长杖** {近身} {双手} {1 金币} {1 重量}",
-                        "**匕首，弹簧刀，小刀** {触及} {2 金币} {1 重量}",
-                        "**飞刀** {投掷} {短程} {1 金币} {0 重量}",
-                        "**短剑，斧头，战锤，钉头锤** {近身} {8 金币} {1 重量}",
-                        "**长矛** {及远} {投掷} {短程} {5 金币} {1 重量}",
-                        "**长剑, 战斧, 连枷** {近身} {+1 伤害} {15 金币} {2 重量}",
-                        "**斧枪** {及远} {+1 伤害} {双手} {9 金币} {2 重量}",
-                        "**刺剑** {近身} {灵巧} {25 金币} {1 重量}",
-                        "**决斗刺剑** {近身} {1 穿透} {灵巧} {50 金币} {2 重量}"
+                        "**劣质弓** {短程} {15 金币} {2 重量}", "**良弓** {短程} {远程} {60 金币} {2 重量}", "**猎弓** {短程} {远程} {100 金币} {1 重量}", 
+                        "**弩** {短程} {+1 伤害} {装填} {35 金币} {3 重量}", "**一捆箭矢** {3 弹药} {1 金币} {1 重量}", 
+                        "**精灵箭矢** {4 弹药} {20 金币} {1 重量}", "**短棍，橡木棍** {近身} {1 金币} {2 重量}", "**长杖** {近身} {双手} {1 金币} {1 重量}", 
+                        "**匕首，弹簧刀，小刀** {触及} {2 金币} {1 重量}", "**飞刀** {投掷} {短程} {1 金币} {0 重量}", 
+                        "**短剑，斧头，战锤，钉头锤** {近身} {8 金币} {1 重量}", "**长矛** {及远} {投掷} {短程} {5 金币} {1 重量}", 
+                        "**长剑, 战斧, 连枷** {近身} {+1 伤害} {15 金币} {2 重量}", "**斧枪** {及远} {+1 伤害} {双手} {9 金币} {2 重量}", 
+                        "**刺剑** {近身} {灵巧} {25 金币} {1 重量}", "**决斗刺剑** {近身} {1 穿透} {灵巧} {50 金币} {2 重量}"
                     ]
-                },
+                }, 
                 {
                     "key": "防具", 
                     "title": "防具", 
                     "tags": [
-                        {"name": "n 护甲", "description": "它能够保护你不受伤害。当你受到伤害时，将总伤害减去你的护甲值。如果你有超过一个带有{n 护甲}标签的物品，则只有数值最高的那个会纳入计算。"}, 
+                        {
+                            "name": "n 护甲", 
+                            "description": "它能够保护你不受伤害。当你受到伤害时，将总伤害减去你的护甲值。如果你有超过一个带有{n 护甲}标签的物品，则只有数值最高的那个会纳入计算。"
+                        }, 
                         {"name": "+n 护甲", "description": "它能够保护你，且能够与其他防具的护甲值叠加。将它的数值加到你的总护甲值中。"}, 
                         {"name": "笨重", "description": "穿戴它将难以四处走动。当使用它时，检定持续-1。这个减值会累积。"}
                     ]
-                },
+                }, 
                 {
-                    "key": "防具列表",
-                    "title": "防具列表",
+                    "key": "防具列表", 
+                    "title": "防具列表", 
                     "tags": [
-                        "**皮甲，链甲** {1 护甲} {穿戴} {10 金币} {1 重量}",
-                        "**鳞甲** {2 护甲} {穿戴} {笨重} {50 金币} {3 重量}",
-                        "**板甲** {3 护甲} {穿戴} {笨重} {350 金币} {4 重量}",
-                        "**盾牌** {+1 护甲} {15 金币} {2 重量}"
+                        "**皮甲，链甲** {1 护甲} {穿戴} {10 金币} {1 重量}", "**鳞甲** {2 护甲} {穿戴} {笨重} {50 金币} {3 重量}", 
+                        "**板甲** {3 护甲} {穿戴} {笨重} {350 金币} {4 重量}", "**盾牌** {+1 护甲} {15 金币} {2 重量}"
                     ]
-                },
+                }, 
                 {
-                    "key": "地城装备",
-                    "title": "地城装备",
+                    "key": "地城装备", 
+                    "title": "地城装备", 
                     "tags": [
-                        "**探险工具组** {5 使用次数} {20 金币} {1 重量}\n探险工具组囊括了一整套实用的工具，包括粉笔、磁石、钉、绳索等等。当你尝试从探险工具组中翻找出某个能够派上用场的凡俗物品时，你将发现你所需要的工具，并标记 1 次使用次数的消耗。",
-                        "**绷带** {3 使用次数} {缓慢} {5 金币} {0 重量}\n当你花费数分钟来替别人包扎伤口，治疗他们 4 点伤害，并消耗 1 次使用次数。",
-                        "**药膏和草药** {2 使用次数} {缓慢} {10 金币} {1 重量}\n当你小心地使用药膏和草药照料某个人的伤口，治疗他们 7 点伤害，并消耗 1 次使用次数。",
-                        "**治疗药水** {50 金币} {0 重量}\n当你喝下一整瓶治疗药水，你可以治疗自己 10 点伤害或移除一项异常状态，由你决定。",
-                        "**一桶矮人烈酒** {10 金币} {4 重量}\n当你打开一桶矮人烈酒并任由在场众人享用，则你在欢宴畅饮的掷骰获得 +1。若你自己喝掉整桶烈酒，那么你会喝得非常、非常醉。",
-                        "**一袋书** {5 使用次数} {10 金币} {2 重量}\n当这袋书中刚好有本书的主题与你忆述见闻的内容有关，你可以查阅那本书，消耗 1 次使用次数，并让你的掷骰获得 +1。",
-                        "**解毒剂** {10 金币} {0 重量}\n当你喝下解毒剂，你可以解除一种正在影响你的毒素。",
-                        "**地城口粮** {食物} {5 使用次数} {3 金币} {1 重量}\n不好吃，但也不会太难吃。",
-                        "**个人飨宴** {食物} {1 使用次数} {10 金币} {1 重量}\n至少可以拿来炫耀。",
-                        "**矮人硬饼** {限定矮人} {食物} {7 使用次数} {3 金币} {1 重量}\n矮人说它吃起来有家的味道。但如果其他人说它吃起来有家的味道，那他大概是住在失火的养猪场。",
-                        "**精灵面包** {食物} {7 使用次数} {10 金币} {1 重量}\n只有精灵最亲密的朋友能够享用这难得的美食。",
+                        "**探险工具组** {5 使用次数} {20 金币} {1 重量}\n探险工具组囊括了一整套实用的工具，包括粉笔、磁石、钉、绳索等等。当你尝试从探险工具组中翻找出某个能够派上用场的凡俗物品时，你将发现你所需要的工具，并标记 1 次使用次数的消耗。", 
+                        "**绷带** {3 使用次数} {缓慢} {5 金币} {0 重量}\n当你花费数分钟来替别人包扎伤口，治疗他们 4 点伤害，并消耗 1 次使用次数。", 
+                        "**药膏和草药** {2 使用次数} {缓慢} {10 金币} {1 重量}\n当你小心地使用药膏和草药照料某个人的伤口，治疗他们 7 点伤害，并消耗 1 次使用次数。", 
+                        "**治疗药水** {50 金币} {0 重量}\n当你喝下一整瓶治疗药水，你可以治疗自己 10 点伤害或移除一项异常状态，由你决定。", 
+                        "**一桶矮人烈酒** {10 金币} {4 重量}\n当你打开一桶矮人烈酒并任由在场众人享用，则你在欢宴畅饮的掷骰获得 +1。若你自己喝掉整桶烈酒，那么你会喝得非常、非常醉。", 
+                        "**一袋书** {5 使用次数} {10 金币} {2 重量}\n当这袋书中刚好有本书的主题与你忆述见闻的内容有关，你可以查阅那本书，消耗 1 次使用次数，并让你的掷骰获得 +1。", 
+                        "**解毒剂** {10 金币} {0 重量}\n当你喝下解毒剂，你可以解除一种正在影响你的毒素。", 
+                        "**地城口粮** {食物} {5 使用次数} {3 金币} {1 重量}\n不好吃，但也不会太难吃。", 
+                        "**个人飨宴** {食物} {1 使用次数} {10 金币} {1 重量}\n至少可以拿来炫耀。", 
+                        "**矮人硬饼** {限定矮人} {食物} {7 使用次数} {3 金币} {1 重量}\n矮人说它吃起来有家的味道。但如果其他人说它吃起来有家的味道，那他大概是住在失火的养猪场。", 
+                        "**精灵面包** {食物} {7 使用次数} {10 金币} {1 重量}\n只有精灵最亲密的朋友能够享用这难得的美食。", 
                         "**半身人烟草** {6 使用次数} {5 金币} {0 重量}\n当你把半身人烟草分享给别人时，消耗 2 次使用次数，并在对他们进行谈判的掷骰中获得下次 +1。"
                     ]
-                },
+                }, 
                 {
-                    "key": "毒药",
-                    "title": "毒药",
+                    "key": "毒药", 
+                    "title": "毒药", 
                     "tags": [
-                        "**塔吉特之油** {危险} {内服} {15 金币} {0 重量}\n目标将陷入浅层睡眠。",
-                        "**鲜血烟草** {危险} {接触} {12 金币} {0 重量}\n直到被治愈前，每当目标掷伤害骰时，他都将额外掷一颗 D4。他造成的伤害将减少等同这颗 D4 掷骰结果的数值。",
-                        "**黄金根** {危险} {内服} {20 金币} {0 重量}\n目标将把他们下一个看见的生物视为值得信赖的同伴，直到有证据证明事实并非如此。",
+                        "**塔吉特之油** {危险} {内服} {15 金币} {0 重量}\n目标将陷入浅层睡眠。", 
+                        "**鲜血烟草** {危险} {接触} {12 金币} {0 重量}\n直到被治愈前，每当目标掷伤害骰时，他都将额外掷一颗 D4。他造成的伤害将减少等同这颗 D4 掷骰结果的数值。", 
+                        "**黄金根** {危险} {内服} {20 金币} {0 重量}\n目标将把他们下一个看见的生物视为值得信赖的同伴，直到有证据证明事实并非如此。", 
                         "**蛇之泪** {危险} {接触} {10 金币} {0 重量}\n任何人对目标造成伤害时，掷两次伤害骰，并取用较高的结果。"
                     ]
-                },
+                }, 
                 {
-                    "key": "服务",
-                    "title": "服务",
+                    "key": "服务", 
+                    "title": "服务", 
                     "tags": [
-                        "**平民客栈的一周住宿费** {14-魅力 金币}",
-                        "**城镇客栈的一周住宿费** {30-魅力 金币}",
-                        "**豪华客栈的一周住宿费** {43-魅力 金币}",
-                        "**低技术工人的一周薪金** {10 金币}",
-                        "**服役军人的一个月薪金** {30 金币}",
-                        "**向铁匠订制一件物品** {物品的基本价格+50 金币}",
-                        "**一晚的「陪伴」** {20-魅力 金币}",
-                        "**一晚的歌曲和舞蹈** {18-魅力 金币}",
-                        "**通过有强盗出没道路的护送费** {20 金币}",
-                        "**通过有怪物出没道路的护送费** {54 金币}",
-                        "**一次普通的谋杀** {5 金币}",
-                        "**一次刺杀** {120 金币}",
-                        "**外科医生的治疗** {5 金币}",
-                        "**为死者进行一个月的祈祷** {1 金币}",
-                        "**修理一件凡俗物品** {物品 25% 的价格}"
+                        "**平民客栈的一周住宿费** {14-魅力 金币}", "**城镇客栈的一周住宿费** {30-魅力 金币}", "**豪华客栈的一周住宿费** {43-魅力 金币}", 
+                        "**低技术工人的一周薪金** {10 金币}", "**服役军人的一个月薪金** {30 金币}", "**向铁匠订制一件物品** {物品的基本价格+50 金币}", 
+                        "**一晚的「陪伴」** {20-魅力 金币}", "**一晚的歌曲和舞蹈** {18-魅力 金币}", "**通过有强盗出没道路的护送费** {20 金币}", 
+                        "**通过有怪物出没道路的护送费** {54 金币}", "**一次普通的谋杀** {5 金币}", "**一次刺杀** {120 金币}", "**外科医生的治疗** {5 金币}", 
+                        "**为死者进行一个月的祈祷** {1 金币}", "**修理一件凡俗物品** {物品 25% 的价格}"
                     ]
-                },
+                }, 
                 {
-                    "key": "餐膳",
-                    "title": "餐膳",
+                    "key": "餐膳", 
+                    "title": "餐膳", 
+                    "tags": ["**供单人温饱的一餐** {1 金币}", "**供贫苦家庭的一餐** {1 金币}", "**盛宴** {每人 15 金币}"]
+                }, 
+                {
+                    "key": "交通运输", 
+                    "title": "交通运输", 
                     "tags": [
-                        "**供单人温饱的一餐** {1 金币}",
-                        "**供贫苦家庭的一餐** {1 金币}",
-                        "**盛宴** {每人 15 金币}"
+                        "**驴车（忠于运载你的行囊）** {50 金币} {运载量 20}", "**马** {75 金币} {运载量 10}", "**战马** {400 金币} {运载量 12}", 
+                        "**四轮马车** {150 金币} {运载量 40}", "**驳船** {50 金币} {运载量 15}", "**内河运船** {150 金币} {运载量 20}", 
+                        "**商船** {5,000 金币} {运载量 200}", "**战舰** {20,000 金币} {运载量 100}", "**安全路程的旅费** {1 金币}", 
+                        "**崎岖路程的旅费** {10 金币}", "**危险路程的旅费** {100 金币}"
                     ]
-                },
+                }, 
                 {
-                    "key": "交通运输",
-                    "title": "交通运输",
+                    "key": "土地与建筑物", 
+                    "title": "土地与建筑物", 
                     "tags": [
-                        "**驴车（忠于运载你的行囊）** {50 金币} {运载量 20}",
-                        "**马** {75 金币} {运载量 10}",
-                        "**战马** {400 金币} {运载量 12}",
-                        "**四轮马车** {150 金币} {运载量 40}",
-                        "**驳船** {50 金币} {运载量 15}",
-                        "**内河运船** {150 金币} {运载量 20}",
-                        "**商船** {5,000 金币} {运载量 200}",
-                        "**战舰** {20,000 金币} {运载量 100}",
-                        "**安全路程的旅费** {1 金币}",
-                        "**崎岖路程的旅费** {10 金币}",
-                        "**危险路程的旅费** {100 金币}"
-                    ]
-                },
-                {
-                    "key": "土地与建筑物",
-                    "title": "土地与建筑物",
-                    "tags": [
-                        "**一间茅舍** {20 金币}",
-                        "**一栋民房** {500 金币}",
-                        "**一栋别墅** {2,500 金币}",
-                        "**一栋豪宅** {50,000 金币}",
-                        "**一座要塞** {75,000 金币}",
-                        "**一座城堡** {250,000 金币}",
-                        "**一座大城堡** {1,000,000 金币}",
+                        "**一间茅舍** {20 金币}", "**一栋民房** {500 金币}", "**一栋别墅** {2,500 金币}", "**一栋豪宅** {50,000 金币}", 
+                        "**一座要塞** {75,000 金币}", "**一座城堡** {250,000 金币}", "**一座大城堡** {1,000,000 金币}", 
                         "**一个月的维持费** {建筑物 1% 的价格}"
                     ]
-                },
+                }, 
                 {
-                    "key": "贿赂费",
-                    "title": "贿赂费",
+                    "key": "贿赂费", 
+                    "title": "贿赂费", 
                     "tags": [
-                        "**农民的嫁妆** {20-魅力 金币}",
-                        "**小生意的「保护费」** {100-魅力 金币}",
-                        "**官员贿款** {50-魅力 金币}",
-                        "**令人满意的贿款** {80-魅力 金币}",
+                        "**农民的嫁妆** {20-魅力 金币}", "**小生意的「保护费」** {100-魅力 金币}", "**官员贿款** {50-魅力 金币}", "**令人满意的贿款** {80-魅力 金币}", 
                         "**令人无法拒绝的巨款** {500-魅力 金币}"
                     ]
-                },
+                }, 
                 {
-                    "key": "礼物与服饰",
-                    "title": "礼物与服饰",
+                    "key": "礼物与服饰", 
+                    "title": "礼物与服饰", 
                     "tags": [
-                        "**农民的谢礼** {1 金币}",
-                        "**良质厚礼** {55 金币}",
-                        "**贵族的馈赠** {200 金币}",
-                        "**指环或宝石** {75 金币}",
-                        "**华丽服饰** {105 金币}",
-                        "**精美的挂毯** {350+ 金币}",
-                        "**国王配戴的王冠** {5,000 金币}"
+                        "**农民的谢礼** {1 金币}", "**良质厚礼** {55 金币}", "**贵族的馈赠** {200 金币}", "**指环或宝石** {75 金币}", 
+                        "**华丽服饰** {105 金币}", "**精美的挂毯** {350+ 金币}", "**国王配戴的王冠** {5,000 金币}"
                     ]
-                },
+                }, 
                 {
-                    "key": "宝藏",
-                    "title": "宝藏",
+                    "key": "宝藏", 
+                    "title": "宝藏", 
                     "tags": [
-                        "**一只哥布林的积财** {2 金币}",
-                        "**一件蜥蜴人的小饰品** {5 金币}",
-                        "**一把「无价」宝剑** {80 金币}",
-                        "**一件欧克酋长的赠物** {250 金币}",
+                        "**一只哥布林的积财** {2 金币}", "**一件蜥蜴人的小饰品** {5 金币}", "**一把「无价」宝剑** {80 金币}", "**一件欧克酋长的赠物** {250 金币}", 
                         "**一条巨龙囤积起来的金银珠宝** {130,000 金币}"
                     ]
                 }
@@ -2683,18 +2241,9 @@
                             "text": "指定一个你希望与之接触的灵体（或留给 GM 决定）。该灵体将穿过重重位面被你拖引而至，刚好拉近到足以让它与你对话的距离。它将尽其所能地回答一个你所提出的问题。"
                         }, 
                         {"name": "侦测魔法", "text": "你的其中一种感官将能够短暂地感应到魔法。GM 将会告诉你这里有什么东西是带有魔法的。"}, 
-                        {
-                            "name": "心灵感应", 
-                            "text": "你与你所触碰的一个人物之间将建立起一道心灵感应联系，让你能够透过思想与那个人交谈。你同时只能拥有一道心灵感应联系。"
-                        }, 
-                        {
-                            "name": "魅惑人类", 
-                            "text": "你在施放这个法术时所碰触的人物（不能是野兽或怪物）将视你为挚友，持续直到他受到伤害、或你证明事实并非如此。"
-                        }, 
-                        {
-                            "name": "隐形术", 
-                            "text": "触碰一名同伴：现在再也没有人能看见他。他隐形了！这个法术的效果将持续直到目标发动攻击、或你解消这个效果。在这个法术持续期间，你无法施放法术。"
-                        }, 
+                        {"name": "心灵感应", "text": "你与你所触碰的一个人物之间将建立起一道心灵感应联系，让你能够透过思想与那个人交谈。你同时只能拥有一道心灵感应联系。"}, 
+                        {"name": "魅惑人类", "text": "你在施放这个法术时所碰触的人物（不能是野兽或怪物）将视你为挚友，持续直到他受到伤害、或你证明事实并非如此。"}, 
+                        {"name": "隐形术", "text": "触碰一名同伴：现在再也没有人能看见他。他隐形了！这个法术的效果将持续直到目标发动攻击、或你解消这个效果。在这个法术持续期间，你无法施放法术。"}, 
                         {"name": "魔法飞弹", "text": "你从手指释放出纯粹的魔法弹。对一个目标造成 2d4 伤害。"}, 
                         {
                             "name": "警报术", 
@@ -2707,10 +2256,7 @@
                     "title": "等级3", 
                     "importGroup": "wizardL3", 
                     "moves": [
-                        {
-                            "name": "解除魔法", 
-                            "text": "选择一个在你面前发生的法术或魔法效果：这个法术将把它撕毁驱散。较为弱小的法术会立即被终止，而强大的魔法则只会被减弱、或当你待在附近时被抑制。"
-                        }, 
+                        {"name": "解除魔法", "text": "选择一个在你面前发生的法术或魔法效果：这个法术将把它撕毁驱散。较为弱小的法术会立即被终止，而强大的魔法则只会被减弱、或当你待在附近时被抑制。"}, 
                         {
                             "name": "视透时间", 
                             "text": "施放这个法术，并凝视一个能够反光的平面（例如镜子或水池）以窥探时间长河的深处。GM 将会向你揭露一个不祥预兆的细节──一个若你不介入干涉就笃定会发生的昏暗事件。它会告诉你一些有用的情报，让你知道该如何干涉这个不祥预兆所带来的黑暗后果。这个未来预兆很少会告诉你「你从此过着幸福快乐的生活」，抱歉。"
@@ -2762,10 +2308,7 @@
                             "name": "支配术", 
                             "text": "你的触碰将把你的意志灌输到其他人的脑袋之中。你获得 1d4 掌握。你可以消耗一个掌握来使目标采取下列其中一个行动：\n\n\t- 说出你所选择的几个字词\n\n\t- 将它所持握的某个东西交给你\n\n\t- 对一个你所选择的目标进行一次联合攻击\n\n\t- 诚实地回答一个问题\n\n\t若你的掌握被消耗殆尽，这个法术也将随之终止。若该目标受到伤害，则你将失去 1 掌握。在这个法术持续期间，你无法施放法术。"
                         }, 
-                        {
-                            "name": "真知术", 
-                            "text": "你能以看见一切事物的真实样貌。这个法术将持续直到你说谎、或是解消这个法术。在这个法术持续期间，你施放法术的动作将获得持续 -1。"
-                        }, 
+                        {"name": "真知术", "text": "你能以看见一切事物的真实样貌。这个法术将持续直到你说谎、或是解消这个法术。在这个法术持续期间，你施放法术的动作将获得持续 -1。"}, 
                         {
                             "name": "行影术", 
                             "text": "你透过这个法术所指定的阴影将变成一个为你和你同伴所使用的传送门。指名一个地点，用最多等同于你等级数量的字词描述它。你以及任何在你施法时在场的同伴将在踏进这个传送门时被传送到你所描述的地点。每个同伴都只能使用这个传送门一次。"
@@ -2848,18 +2391,12 @@
                             "name": "造成恐惧", 
                             "text": "选择一个你能看见的目标以及一个附近的物体。只要你仍维持着这个法术，目标将会对该物体感到恐惧。他们的反应将取决于他们自己：逃跑、恐慌、求饶、战斗等等。你不能选择智力比动物还低的个体做为法术的目标（像是魔法构装体、不死生物、自动机械等等）。在这个法术持续期间，你施放法术的动作将获得持续 -1。"
                         }, 
-                        {
-                            "name": "魔化武器", 
-                            "text": "你在施放这个法术时所持握的武器将能够额外造成 +1d4 伤害，持续直到你解消这个法术。在这个法术持续期间，你施放法术的动作将获得持续 -1。"
-                        }, 
+                        {"name": "魔化武器", "text": "你在施放这个法术时所持握的武器将能够额外造成 +1d4 伤害，持续直到你解消这个法术。在这个法术持续期间，你施放法术的动作将获得持续 -1。"}, 
                         {
                             "name": "圣域术", 
                             "text": "当你施放这个法术时，你必须绕行圈起一个区域的外缘，将它奉献给你的神祇。只要你待在这个区域内，每当有人在圣域内带着恶意行事（包括带着伤害他人的意图走进这个区域），你都会收到警报。此外，任何在圣域内接受治疗的目标也都将额外恢复 +1d4 生命值。"
                         }, 
-                        {
-                            "name": "死者交谈术", 
-                            "text": "一具尸体将能够短暂地与你交谈。它将依据它生前的知识以及死后获得的情报，尽其所能地回答三个你所提出的问题。"
-                        }
+                        {"name": "死者交谈术", "text": "一具尸体将能够短暂地与你交谈。它将依据它生前的知识以及死后获得的情报，尽其所能地回答三个你所提出的问题。"}
                     ]
                 }, 
                 {
@@ -2872,18 +2409,12 @@
                             "text": "你唤起饥饿的灵魂附身在一具刚死不久的尸体上并为你服务。这个法术将创造出一只僵尸，它会使用那极为有限的能力，尽其所能地服从你的命令。将这只僵尸视为一名角色，但它只能够使用基本动作。它所有的属性调整值皆为 +1，且只有 1 点生命值。这只僵尸同时还会获得下列 1d4 个你所选择的特性：\n\n\t- 它很有天赋。它其中一个属性的调整值变为 +2\n\n\t- 它持久耐用。它将额外获得等同你等级 x2 的生命值\n\n\t- 它有着功能正常的大脑，并可以完成复杂的任务\n\n\t- 它看起来并不像是已经死亡，至少在这一两天内是这样\n\n\t这只僵尸将持续存在，直到它因为受到超过它生命值的伤害而被摧毁、或直到你终止这个法术。在这个法术持续期间，你施放法术的动作将获得持续 -1。"
                         }, 
                         {"name": "治疗中伤", "text": "你利用魔法止住流血并固定断骨。治疗一名你所触碰的同伴 2d8 伤害。"}, 
-                        {
-                            "name": "黑暗术", 
-                            "text": "选择一处你所能看见的区域：它将被超自然黑暗与阴影给笼罩。在这个法术持续期间，你施放法术的动作将获得持续 -1。"
-                        }, 
+                        {"name": "黑暗术", "text": "选择一处你所能看见的区域：它将被超自然黑暗与阴影给笼罩。在这个法术持续期间，你施放法术的动作将获得持续 -1。"}, 
                         {
                             "name": "复活术", 
                             "text": "告诉 GM 你打算要复活一具灵魂尚未完全离开这个世界的尸体。你永远有机会复活某人，但 GM 会要你先满足一个或多个先决条件（也许下列条件全都要满足）：\n\n\t- 这将需要花上数天／数周／数月的时间\n\n\t- 你必须得到来自 ____ 的帮助\n\n\t- 这将需要大量的金钱\n\n\t- 你必须牺牲 ____ 才能这么做\n\n\tGM 可能会根据情况，允许你在当下让尸体复活，但你仍必须要满足条件才能使它永久复活；除此之外的情况，GM 会要求你先达成条件才能使尸体复活。"
                         }, 
-                        {
-                            "name": "人类定身术", 
-                            "text": "选择一个你能看见的人。直到你施放另一个法术或离开他们面前之前，他们除了说话之外将无法采取任何行动。这个效果会在目标受到任何伤害的瞬间立即终止。"
-                        }
+                        {"name": "人类定身术", "text": "选择一个你能看见的人。直到你施放另一个法术或离开他们面前之前，他们除了说话之外将无法采取任何行动。这个效果会在目标受到任何伤害的瞬间立即终止。"}
                     ]
                 }, 
                 {
@@ -2891,16 +2422,10 @@
                     "title": "等级5", 
                     "importGroup": "clericL5", 
                     "moves": [
-                        {
-                            "name": "启示", 
-                            "text": "你的神祇将在这一刻以完全理解来回应你的祈祷。GM 将为你揭示当前的情况。当依据这个情报而行动时，你获得下次 +1。"
-                        }, 
+                        {"name": "启示", "text": "你的神祇将在这一刻以完全理解来回应你的祈祷。GM 将为你揭示当前的情况。当依据这个情报而行动时，你获得下次 +1。"}, 
                         {"name": "治疗重伤", "text": "治疗一名你所触碰的同伴 3d8 伤害。"}, 
                         {"name": "占视术", "text": "指定一个你想要了解的人、地点、或事物。你的神祇将使你看见目标所在的景象，就如同你置身该处一样清晰。"}, 
-                        {
-                            "name": "疫病术", 
-                            "text": "选择一个你能看见的生物。直到你终止这个法术前，目标将受到一个你所选疾病的折磨。在这个法术持续期间，你施放法术的动作将获得持续 -1。"
-                        }, 
+                        {"name": "疫病术", "text": "选择一个你能看见的生物。直到你终止这个法术前，目标将受到一个你所选疾病的折磨。在这个法术持续期间，你施放法术的动作将获得持续 -1。"}, 
                         {"name": "无声者之语", "text": "藉着碰触，你能够与物体中的精魂对话。你所碰触的非生命物体将会尽其所能地回答三个你提出的问题。"}, 
                         {
                             "name": "真知术", 
@@ -2927,14 +2452,8 @@
                             "name": "断肢术", 
                             "text": "选择目标身上的一个附肢，像是手臂、触手、或翅膀。该附肢将被魔法从他们的身体上切除，不造成任何伤害，但带来剧烈的痛楚。失去附肢可能会导致，比如说，带翼生物无法飞行、或是公牛无法再使用牠的犄角顶撞你。在这个法术持续期间，你施放法术的动作将获得持续 -1。"
                         }, 
-                        {
-                            "name": "死亡印记", 
-                            "text": "选择一个你知晓他真名的生物。这个法术将在目标的身体表面创造出一个永久性的符文，当该生物读到这个符文时，他将立即被杀死。"
-                        }, 
-                        {
-                            "name": "操控天气", 
-                            "text": "你祈求降雨──或日照、刮风、或降雪。在一天左右的时间内，你的神祇将会回应你的祈求。天气将会随你的祈求而变，并持续好几天。"
-                        }
+                        {"name": "死亡印记", "text": "选择一个你知晓他真名的生物。这个法术将在目标的身体表面创造出一个永久性的符文，当该生物读到这个符文时，他将立即被杀死。"}, 
+                        {"name": "操控天气", "text": "你祈求降雨──或日照、刮风、或降雪。在一天左右的时间内，你的神祇将会回应你的祈求。天气将会随你的祈求而变，并持续好几天。"}
                     ]
                 }, 
                 {
@@ -2942,10 +2461,7 @@
                     "title": "等级9", 
                     "importGroup": "clericL9", 
                     "moves": [
-                        {
-                            "name": "复仇风暴", 
-                            "text": "你的神祇带来了你所选择的不自然天气：鲜血或强酸之雨、怨魂聚集而成的云雾、可以吹走建筑物的强风、或任何你能想像到的天气。向神寻求，它就将降临。"
-                        }, 
+                        {"name": "复仇风暴", "text": "你的神祇带来了你所选择的不自然天气：鲜血或强酸之雨、怨魂聚集而成的云雾、可以吹走建筑物的强风、或任何你能想像到的天气。向神寻求，它就将降临。"}, 
                         {
                             "name": "复原术", 
                             "text": "选择一个目标在过去经历的事件。该事件所导致的所有影响，包括伤害、中毒、疾病、和魔法效果，都将终止并复原如初。目标的生命值将被治疗、疾病痊愈，毒素中和，魔法效果也将被终止。"
