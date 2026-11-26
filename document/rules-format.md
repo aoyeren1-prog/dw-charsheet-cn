@@ -2,7 +2,7 @@
 
 面向**导入 / 定制整套规则**的进阶用法。只想改几个字段的，直接看 `DW-HouseRuleTest.json` 即可。
 
-> 备注：此文档应随代码更新保持维护，上次更新时间：**26.11.20**
+> 备注：此文档应随代码更新保持维护，上次更新时间：**26.11.26**
 
 ---
 
@@ -368,12 +368,14 @@
 
 | 键 | 类型 | 说明 |
 |---|---|---|
+| `moves` | array | 顶层动作数组（不归属任何分组） |
 | `groups` | array | 动作分组数组 |
 | `selectGroups` | boolean | 分组是否带勾选框（默认 false） |
 | `selectMoves` | boolean | 动作是否带勾选框（默认 false） |
 | `buttons` | array | 自定义按钮配置（可选） |
 | `viewSelect` | boolean | 若为true，该区域内的动作在查看模式下亦可勾选和取消勾选，且在不勾选时置灰而非隐藏（可选） |
 | `boundMove` | array | 绑定动作，当角色卡没有同名动作时，该区域不渲染（可选） |
+| `color` | string | 动作色条颜色（CSS 颜色值，区域级兜底；可被 group / move 级覆盖） |
 
 > viewSelect 和 boundMove 都是为地城世界的法术规则特化的键，目的是实现“获得动作时获得法术区域”，“法术可随时遗忘/重新准备”的效果。
 
@@ -385,9 +387,10 @@
 | `levelField` | string | 指定对照的字段 id/label（默认 `level`，可选） |
 | `label` | string | 分组标题 |
 | `note` | string | 分组说明文本（显示在标题下方） |
-| `items` | array | 动作列表 |
+| `moves` | array | 动作列表 |
+| `color` | string | 动作色条颜色（CSS 颜色值，分组级；覆盖区域级，被动作级覆盖） |
 
-**items 配置**：
+**moves 配置**：
 
 | 键 | 类型 | 说明 |
 |---|---|---|
@@ -396,6 +399,7 @@
 | `requires` | string/array | 前置动作名（未满足时禁用该动作） |
 | `replaces` | string/array | 替代动作名（勾选时移除被替代的动作） |
 | `selectable` | boolean | 显式控制是否带勾选框（可选） |
+| `color` | string | 动作色条颜色（CSS 颜色值，动作级，最高优先） |
 
 **重要行为**：
 - 带 `requires` 或 `replaces` 的动作会**自动显示勾选框**，即使 `area.selectMoves` 为 false
@@ -410,6 +414,8 @@
 | `position` | string | `global`（区域级）/ `inGroup`（分组级） |
 | `action` | string | `addGroup` 创建一个动作组别，`addMove` 创建一个动作 |
 | `targetGroup` | string | 仅 `inGroup`：`addMove` 时的目标分组 key，可以往现有的组里追加动作（可选） |
+
+**动作色条（`color`）优先级**：`color` 可写在区域、分组、动作三级，优先级 **move > group > area**（特殊先于一般），未声明则向上继承；三级都未声明时不显示色条。例如，如果想让某个按钮添加的动作透明，就对按钮的目标 group 声明 `color: "transparent"`。
 
 #### type: fillbox
 

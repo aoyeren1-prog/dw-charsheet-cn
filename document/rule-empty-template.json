@@ -1,6 +1,6 @@
 {
     "meta": {
-        "source": "此空规则模板应随代码更新保持维护，上次更新时间：26.11.12",
+        "source": "此空规则模板应随代码更新保持维护，上次更新时间：26.11.26",
         "classLabel": "Playbook",
         "header": {
             "charInfo": [
@@ -129,6 +129,7 @@
             "advanced": {
                 "title": "进阶动作", 
                 "type": "moveList", 
+                "color": "#66ccff",
                 "groups": [
                     {"key": "2+", "label": "当你升级时，从下列动作中选择：", "minLevel": 2, "moves": []}, 
                     {"key": "custom", "label": "其他", "moves": []}

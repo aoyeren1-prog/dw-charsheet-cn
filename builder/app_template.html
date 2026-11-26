@@ -19,12 +19,12 @@
   --line-2:#9aa; --line-3:#bbb; --line-4:#ccc; --line-5:#ddd;
   --warn:#b06a1a; --danger:#c0392b; --danger-bg:#fdecea;
   --tag-bg:#e0e0e0; --tag-ink:#000000; --on-ink:#ffffff;
+  /* 阴影与遮罩（换肤时可一并调整投影深浅 / 遮罩透明度） */
+  --shadow:rgba(0,0,0,.4); --shadow-soft:rgba(0,0,0,.18); --scrim:rgba(0,0,0,.45);
   /* 资料边栏（默认跟随纸面，可单独覆盖以区别于角色卡） */
   --ref-paper:var(--paper); --ref-ink:var(--ink);
   --ref-ink-2:var(--ink-2); --ref-ink-3:var(--ink-3); --ref-ink-4:var(--ink-4); --ref-ink-5:var(--ink-5);
   --ref-paperline:var(--paperline); --ref-line-4:var(--line-4); --ref-line-5:var(--line-5);
-  /* 自定义动作的左侧色条（默认透明 = 不显示） */
-  --bar-custom:transparent;
 }
 *{box-sizing:border-box}
 input,select,textarea,button{font-family:inherit}
@@ -62,7 +62,7 @@ body{background:var(--bg);color:var(--text);font-family:"Segoe UI","Microsoft Ya
 /* 规则没声明 refSections：边栏整个不存在，角色卡保持宽度居中 */
 .main-cols.no-ref{display:block}
 .main-cols.no-ref .playbook{max-width:900px;margin:0 auto}
-.playbook{background:var(--paper);color:var(--ink);border-radius:6px;padding:20px 22px;min-height:600px;box-shadow:0 4px 24px rgba(0,0,0,.4)}
+.playbook{background:var(--paper);color:var(--ink);border-radius:6px;padding:20px 22px;min-height:600px;box-shadow:0 4px 24px var(--shadow)}
 
 /* ===== 参考资料边栏 (浅色) ===== */
 .ref{position:sticky;top:64px;max-height:calc(100vh - 80px);overflow:hidden;background:var(--ref-paper);color:var(--ref-ink);border:1px solid var(--ref-line-4);border-radius:8px;display:flex;flex-direction:column}
@@ -188,7 +188,7 @@ body{background:var(--bg);color:var(--text);font-family:"Segoe UI","Microsoft Ya
 .metric-field .sel-wrap > input{width:auto;flex:1;min-width:0}
 .sel-caret{flex:none;border:none;background:transparent;color:var(--ink-4);cursor:pointer;padding:0;width:20px;height:20px;font-size:11px;line-height:1;align-self:center;display:flex;align-items:center;justify-content:center;border-radius:3px}
 .sel-caret:hover{color:var(--accent);background:var(--tag-bg)}
-.sel-menu{position:absolute;top:100%;left:0;min-width:100%;z-index:50;margin-top:2px;background:var(--paper);border:1px solid var(--line-3);border-radius:4px;box-shadow:0 4px 14px rgba(0,0,0,.18);padding:2px;max-height:220px;overflow:auto}
+.sel-menu{position:absolute;top:100%;left:0;min-width:100%;z-index:50;margin-top:2px;background:var(--paper);border:1px solid var(--line-3);border-radius:4px;box-shadow:0 4px 14px var(--shadow-soft);padding:2px;max-height:220px;overflow:auto}
 .sel-menu.hidden{display:none}
 .sel-opt{display:block;width:100%;border:none;background:transparent;color:var(--ink);text-align:left;white-space:nowrap;cursor:pointer;font-size:13px;font-weight:400;padding:4px 8px;border-radius:3px}
 .sel-opt:hover{background:var(--tag-bg)}
@@ -220,9 +220,8 @@ body{background:var(--bg);color:var(--text);font-family:"Segoe UI","Microsoft Ya
 /* ===== 动作卡 ===== */
 .mv{border:1px solid var(--line-2);border-radius:4px;padding:7px 9px;margin:6px 0;background:var(--paper);position:relative}
 .mv.disabled{opacity:.45}
-/* 动作左侧色条（--bar 由来源 class 或内联样式指定） */
+/* 动作左侧色条（--bar 由 moveBarStyle 内联样式指定：move > group > area） */
 .mv::before,.rmv::before{content:"";position:absolute;left:-1px;top:-1px;bottom:-1px;width:3px;background:var(--bar,transparent);border-radius:3px 0 0 3px;pointer-events:none}
-.mv-custom{--bar:var(--bar-custom)}
 .mv .mv-h{display:flex;align-items:flex-start;gap:6px}
 .mv .mv-h .chk{flex:none;margin-top:3px}
 .mv .mv-n{font-weight:700;font-size:13px;flex:1}
@@ -335,7 +334,7 @@ input.mbox:disabled:hover{border-color:var(--ink-5)}
 /* ===== 拖放导入 ===== */
 .rules-drop{margin-top:8px;border:1px dashed var(--line);border-radius:6px;padding:6px 10px;text-align:center;font-size:13px;color:var(--muted)}
 .rules-drop.drag-over{border-color:var(--accent);color:var(--accent);background:var(--panel3)}
-.drop-overlay{position:fixed;z-index:500;background:rgba(0,0,0,.45)}
+.drop-overlay{position:fixed;z-index:500;background:var(--scrim)}
 .drop-overlay.hidden{display:none}
 .drop-overlay-box{width:100%;height:100%;display:flex;align-items:center;justify-content:center;border:2px dashed var(--accent);border-radius:10px;font-size:16px;font-weight:600;color:var(--text);text-align:center;box-sizing:border-box}
 </style>
@@ -379,6 +378,23 @@ input.mbox:disabled:hover{border-color:var(--ink-5)}
 
 <script>
 let DW_DATA = null, META = {}, HEADER = {charInfo:[], stats:{}, metrics:{}}, REF_SECTIONS = [], AREAS = {};
+
+/* ============ DOM 根 ============
+   所有「找元素」与「UI 事件委托」都从这里出发，不再直接用 document。
+   单页运行时 APP_ROOT 就是 document.body；
+   将来如果考虑嵌入 Foundry VTT 等工具，理论上只需把 APP_ROOT 指向
+   应用自身的根元素，其余代码一律不变。
+   document.createElement（创建游离节点）、window.print（打印）、
+   window 级拖放覆盖层、window.innerWidth/Height、localStorage 等
+   与「根作用域」无关的能力仍留在 document / window 上。 */
+const APP_ROOT = document.body;
+// 按 id 查（等价于 getElementById，但从根出发，嵌入后可随根移动）
+function $id(id){ return APP_ROOT.querySelector("#" + id); }
+// 单元素查询
+function $q(sel){ return APP_ROOT.querySelector(sel); }
+// 多元素查询
+function $qa(sel){ return APP_ROOT.querySelectorAll(sel); }
+
 function applyData(data){
   DW_DATA = data || {};
   META = DW_DATA.meta || {};
@@ -545,7 +561,7 @@ function fmtMod(m){return (m>0?"+":"")+m;}
 function refreshMods(){
   const header = headerFor(getClass(char.classId));
   header.stats.items.forEach(item => {
-    const el = document.querySelector(`[data-mod="${cssEsc(item.id)}"]`);
+    const el = $q(`[data-mod="${cssEsc(item.id)}"]`);
     if(el) el.textContent = fmtMod(effModOf(item, header));
   });
 }
@@ -1108,7 +1124,7 @@ function renderMoveListArea(areaKey, cls){
   let noGroup = (area.moves || []).concat(customMoves.filter(m => !m.group || !groupKeys.includes(m.group)));
   // 无分组：没有分组勾选框代表它们，covered 恒为 false
   if(mode === "view") noGroup = noGroup.filter(mv => moveVisibleInView(areaKey, mv, area, false));
-  inner += noGroup.map(mv => renderMoveCard(areaKey, mv, area, false, false)).join("");
+  inner += noGroup.map(mv => renderMoveCard(areaKey, mv, area, null, false, false)).join("");
 
   // 全局按钮
   const globalButtons = (area.buttons || []).filter(btn => btn.position === "global");
@@ -1154,7 +1170,7 @@ function renderMoveGroup(areaKey, group, area){
   if(group.note) html += `<div class="adv-tier-note">${esc(group.note)}</div>`;
 
   // gSel 为真时分组勾选框已代表组内动作，组内动作不再各自出勾选框
-  html += visible.map(mv => renderMoveCard(areaKey, mv, area, locked, gSel)).join("");
+  html += visible.map(mv => renderMoveCard(areaKey, mv, area, group, locked, gSel)).join("");
 
   if(inGroupBtns.length && mode === "edit"){
     html += `<div class="mv-add">${inGroupBtns.map(b => renderMoveButton(areaKey, b, group.key)).join(" ")}</div>`;
@@ -1247,13 +1263,13 @@ function moveVisibleInView(areaKey, move, area, covered){
   return !moveSelectable(move, area, covered) || isMoveSelected(areaKey, move);
 }
 
-function renderMoveCard(areaKey, move, area, locked, covered){
+function renderMoveCard(areaKey, move, area, group, locked, covered){
   return mode === "edit"
-    ? mvCard(areaKey, move, area, locked, covered)
-    : mvViewCard(areaKey, move, area, covered);
+    ? mvCard(areaKey, move, area, group, locked, covered)
+    : mvViewCard(areaKey, move, area, group, covered);
 }
 
-function mvCard(areaKey, move, area, locked, covered){
+function mvCard(areaKey, move, area, group, locked, covered){
   const key = moveKey(areaKey, move);
   const selectable = moveSelectable(move, area, covered);
   const checked = isMoveSelected(areaKey, move);
@@ -1275,20 +1291,20 @@ function mvCard(areaKey, move, area, locked, covered){
   const header = `<div class="mv-h">${box}<div class="mv-n"><input data-movelist-name="${esc(key)}" value="${esc(moveName(areaKey, move))}">${req}${rep}</div>${delBtn}</div>`;
   const textHtml = `<div class="mv-t"><textarea data-movelist-text="${esc(key)}">${esc(moveText(areaKey, move))}</textarea></div>`;
 
-  return `<div class="mv ${move.id?"mv-custom":""}${disabled?" disabled":""}${off}"${move.id?"":mvBarStyle(areaKey)}>${header}${textHtml}</div>`;
+  return `<div class="mv${disabled?" disabled":""}${off}"${moveBarStyle(area, group, move)}>${header}${textHtml}</div>`;
 }
 
-function mvViewCard(areaKey, move, area, covered){
+function mvViewCard(areaKey, move, area, group, covered){
   const selectable = moveSelectable(move, area, covered);
   const checked = isMoveSelected(areaKey, move);
   // viewSelect：查看模式仍给出可点的勾选框，未勾选的置灰
   if(selectable && viewSelectable(area)){
     const off = checked ? "" : " spell-off";
-    return `<div class="mv${off}"${mvBarStyle(areaKey)}><div class="mv-h"><input type="checkbox" class="chk" data-movelist-toggle="${areaKey}:${esc(moveSelKey(move))}"${checked?" checked":""}><div class="mv-n">${inlineMarkdown(moveName(areaKey, move))}</div></div><div class="mv-t">${renderMoveText(areaKey, move)}</div></div>`;
+    return `<div class="mv${off}"${moveBarStyle(area, group, move)}><div class="mv-h"><input type="checkbox" class="chk" data-movelist-toggle="${areaKey}:${esc(moveSelKey(move))}"${checked?" checked":""}><div class="mv-n">${inlineMarkdown(moveName(areaKey, move))}</div></div><div class="mv-t">${renderMoveText(areaKey, move)}</div></div>`;
   }
   // 不带勾选框的动作不显示勾选标记
   const markHtml = selectable ? `<span class="ck-mark on"></span>` : "";
-  return `<div class="mv"${mvBarStyle(areaKey)}><div class="mv-h">${markHtml}<div class="mv-n">${inlineMarkdown(moveName(areaKey, move))}</div></div><div class="mv-t">${renderMoveText(areaKey, move)}</div></div>`;
+  return `<div class="mv"${moveBarStyle(area, group, move)}><div class="mv-h">${markHtml}<div class="mv-n">${inlineMarkdown(moveName(areaKey, move))}</div></div><div class="mv-t">${renderMoveText(areaKey, move)}</div></div>`;
 }
 
 // 名称与正文：内置条目也可编辑，覆盖值按 区域::id或原名 存入角色数据
@@ -1380,17 +1396,17 @@ function renderRightStat(stat, cls) {
 }
 
 function renderClassSelect(){
-  const el=document.getElementById("classSelect");
+  const el=$id("classSelect");
   el.innerHTML = [`<option value="">—— 选择${esc(getClassLabel())} ——</option>`]
     .concat(mergedClasses().map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`)).join("");
   el.value=char.classId||"";
 }
 
 function renderPlaybook(){
-  const root=document.getElementById("playbook");
+  const root=$id("playbook");
   boxReg = {};
   const cls=getClass(char.classId);
-  const btnMode=document.getElementById("btnMode");
+  const btnMode=$id("btnMode");
   btnMode.textContent = mode==="edit" ? "👁 查看模式" : "✏️ 编辑模式";
   btnMode.classList.toggle("view", mode==="view");
   if(!cls){ root.innerHTML=`<div class="empty">↑ 在左上角选择一个${esc(getClassLabel())}开始车卡</div>`; return; }
@@ -1612,15 +1628,15 @@ function renderFillboxArea(areaKey, cls){
 
 /* ============ 参考资料边栏 ============ */
 function renderRefTabs(){
-  const tabs = document.getElementById("refTabs");
+  const tabs = $id("refTabs");
   if(!tabs) return;
   tabs.innerHTML = REF_SECTIONS.map(s =>
     `<button class="ref-tab ${s.id===refTab?"active":""}" data-ref-tab="${esc(s.id)}">${esc(s.title)}</button>`
   ).join("");
 }
 function renderRef(){
-  const panel = document.getElementById("refPanel");
-  const cols = document.getElementById("mainCols");
+  const panel = $id("refPanel");
+  const cols = $id("mainCols");
   // 规则没声明 refSections 就没有边栏，不拿占位内容充数
   const show = REF_SECTIONS.length > 0;
   if(panel) panel.classList.toggle("hidden", !show);
@@ -1628,7 +1644,7 @@ function renderRef(){
   if(!show) return;
 
   renderRefTabs();
-  const body = document.getElementById("refBody");
+  const body = $id("refBody");
   lastSearchItems = [];
   if(!DW_DATA || !DW_DATA.classes || !DW_DATA.classes.length){
     body.innerHTML = '<div class="ref-empty">未加载规则。</div>';
@@ -1713,11 +1729,11 @@ function renderRefTags(sec){
 }
 
 function refDetailsState(){
-  const body = document.getElementById("refBody");
+  const body = $id("refBody");
   return body ? [...body.querySelectorAll("details")].map(d => d.open) : [];
 }
 function restoreRefDetails(state){
-  const body = document.getElementById("refBody");
+  const body = $id("refBody");
   if(!body) return;
   [...body.querySelectorAll("details")].forEach((d, i) => { if(i < state.length) d.open = state[i]; });
 }
@@ -1940,24 +1956,25 @@ function importSearchItem(idx){
   renderPlaybook(); save();
 }
 
-// 动作卡左侧色条：由区域在数据里声明 color，未声明则不显示
-function mvBarStyle(areaKey){
-  const c = AREAS[areaKey] && AREAS[areaKey].color;
+// 动作卡左侧色条：move > group > area 三级，先到先得（特殊先于一般）。
+// area 是 getAreaHeader 合并后的结果，meta / class 两级的覆盖都会生效
+function moveBarStyle(area, group, move){
+  const c = (move && move.color) || (group && group.color) || (area && area.color);
   return c ? ` style="--bar:${esc(c)}"` : "";
 }
 function autosize(ta){ ta.style.height="auto"; ta.style.height=(ta.scrollHeight+2)+"px"; }
-function autosizeAll(){ document.querySelectorAll("textarea").forEach(autosize); }
+function autosizeAll(){ $qa("textarea").forEach(autosize); }
 function autosizeBlank(inp){
   const sizer = inp.parentNode.querySelector(".blank-sizer");
   if(!sizer) return;
   sizer.textContent = inp.value || inp.placeholder || "＿";
   inp.style.width = (sizer.offsetWidth + 2) + "px";
 }
-function autosizeBlanks(){ document.querySelectorAll("input.blank").forEach(autosizeBlank); }
+function autosizeBlanks(){ $qa("input.blank").forEach(autosizeBlank); }
 
 /* ============ 事件 ============ */
 function onClassChange(){
-  const newId=document.getElementById("classSelect").value;
+  const newId=$id("classSelect").value;
   if(newId!==char.classId){
     const prevCls = getClass(char.classId);
     const prevHeader = headerFor(prevCls);
@@ -2015,9 +2032,9 @@ function onClassChange(){
   renderPlaybook(); save();
 }
 
-document.addEventListener("input", e=>{
+APP_ROOT.addEventListener("input", e=>{
   const t=e.target, d=t.dataset||{};
-  if(t.id==="refSearch"){ searchKw=t.value; const r=document.getElementById("refSearchResults"); if(r) r.innerHTML=searchResultsHtml(searchKw); return; }
+  if(t.id==="refSearch"){ searchKw=t.value; const r=$id("refSearchResults"); if(r) r.innerHTML=searchResultsHtml(searchKw); return; }
   // 页首字段与属性共用一个分支：field: 写 char.fields，stat: 写 char.stats
   if(d.field!==undefined){
     const i = d.field.indexOf(":");
@@ -2083,7 +2100,7 @@ document.addEventListener("input", e=>{
   }
 });
 
-document.addEventListener("change", e=>{
+APP_ROOT.addEventListener("change", e=>{
   const t=e.target, d=t.dataset||{};
   if(t.id==="classSelect"){ onClassChange(); return; }
   // charInfo 的数值字段可能被公式或 minLevel 依赖，改完整表重渲染
@@ -2162,15 +2179,15 @@ function shownFieldValue(def, key){
 
 // select 字段的下拉弹层
 function closeSelectMenus(except){
-  document.querySelectorAll(".sel-menu").forEach(m => {
+  $qa(".sel-menu").forEach(m => {
     if(m !== except) m.classList.add("hidden");
   });
 }
-document.addEventListener("keydown", e=>{
+APP_ROOT.addEventListener("keydown", e=>{
   if(e.key === "Escape") closeSelectMenus();
 });
 
-document.addEventListener("click", e=>{
+APP_ROOT.addEventListener("click", e=>{
   const t=e.target, d=t.dataset||{};
   // 点到弹层外面就收起来（点 caret 或选项时在 .sel-wrap 内，不受影响）
   if(!t.closest(".sel-wrap")) closeSelectMenus();
@@ -2424,7 +2441,7 @@ function moveListCustomMoves(areaKey){
 }
 
 function bind(){
-  document.getElementById("btnMode").addEventListener("click", ()=>{
+  $id("btnMode").addEventListener("click", ()=>{
     const ds = refDetailsState();
     mode = mode==="edit" ? "view" : "edit";
     renderPlaybook();
@@ -2432,23 +2449,23 @@ function bind(){
     restoreRefDetails(ds);
     save();
   });
-  document.getElementById("btnNew").addEventListener("click", ()=>{
+  $id("btnNew").addEventListener("click", ()=>{
     if(confirm("确定清空当前角色及所有自定义数据？")){
       char=defaultChar();
       customData={classes:[], moveListMoves:{}, moveListGroups:{}};
       renderClassSelect(); renderPlaybook(); save();
     }
   });
-  document.getElementById("btnExport").addEventListener("click", exportJSON);
-  document.getElementById("btnImport").addEventListener("click", ()=>document.getElementById("fileImport").click());
-  document.getElementById("fileImport").addEventListener("change", importJSON);
-  document.getElementById("btnImportRules").addEventListener("click", ()=>document.getElementById("fileRules").click());
-  document.getElementById("fileRules").addEventListener("change", importRules);
-  document.getElementById("btnRulesPanel").addEventListener("click", ()=>{
-    document.getElementById("rulesPanel").classList.toggle("hidden");
+  $id("btnExport").addEventListener("click", exportJSON);
+  $id("btnImport").addEventListener("click", ()=>$id("fileImport").click());
+  $id("fileImport").addEventListener("change", importJSON);
+  $id("btnImportRules").addEventListener("click", ()=>$id("fileRules").click());
+  $id("fileRules").addEventListener("change", importRules);
+  $id("btnRulesPanel").addEventListener("click", ()=>{
+    $id("rulesPanel").classList.toggle("hidden");
   });
-  document.getElementById("btnClearRules").addEventListener("click", clearRules);
-  document.getElementById("btnPrint").addEventListener("click", ()=>{
+  $id("btnClearRules").addEventListener("click", clearRules);
+  $id("btnPrint").addEventListener("click", ()=>{
     const prev=mode; mode="view"; renderPlaybook();
     const restore=()=>{ mode=prev; renderPlaybook(); window.removeEventListener("afterprint",restore); };
     window.addEventListener("afterprint",restore);
@@ -2456,13 +2473,13 @@ function bind(){
   });
 
   // ===== 拖放导入 =====
-  const dropOverlay = document.getElementById("dropOverlay");
-  const playbook = document.getElementById("playbook");
-  const rulesDrop = document.getElementById("rulesDrop");
+  const dropOverlay = $id("dropOverlay");
+  const playbook = $id("playbook");
+  const rulesDrop = $id("rulesDrop");
   let dragDepth = 0;
   function showDropOverlay(){
     const r = playbook.getBoundingClientRect();
-    const tb = document.querySelector(".toolbar").getBoundingClientRect();
+    const tb = $q(".toolbar").getBoundingClientRect();
     const top = Math.max(r.top, tb.bottom);
     const left = Math.max(r.left, 0);
     const right = Math.min(r.right, window.innerWidth);
@@ -2685,7 +2702,7 @@ function importRules(e){
 }
 
 function renderRulesPanel(){
-  const list = document.getElementById("rulesList");
+  const list = $id("rulesList");
   if(!list) return;
   if(!ruleStack.length){
     list.innerHTML = '<div class="hint">（空）尚无规则，请点「📥 导入规则」导入底层规则。</div>';
@@ -2697,8 +2714,8 @@ function renderRulesPanel(){
 }
 
 function renderNoRules(){
-  document.getElementById("playbook").innerHTML = '<div class="empty">⚠️ 未加载规则<br><br>请点「📥 导入规则」导入第一份规则 JSON（底层，需包含 classes）。之后可继续导入规则包叠加。</div>';
-  const sel = document.getElementById("classSelect");
+  $id("playbook").innerHTML = '<div class="empty">⚠️ 未加载规则<br><br>请点「📥 导入规则」导入第一份规则 JSON（底层，需包含 classes）。之后可继续导入规则包叠加。</div>';
+  const sel = $id("classSelect");
   if(sel) sel.innerHTML = `<option value="">—— 选择${esc(getClassLabel())} ——</option>`;
   renderRef();
   renderRulesPanel();
